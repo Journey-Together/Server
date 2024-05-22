@@ -1,5 +1,5 @@
 # Server
-개빡침 일지
+202.05.23. 개빡침 일지
 
 ![image](https://github.com/Journey-Together/Server/assets/92644651/1c88616d-8bd6-4778-8e30-f521fe74a727)
 
