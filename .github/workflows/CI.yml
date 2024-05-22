@@ -13,20 +13,34 @@ jobs:
     steps: 
     - name: 체크아웃
       uses: actions/checkout@v4
-
+      
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         distribution: 'corretto'
         java-version: '17'
-    
-    - name: 리소스 디렉토리 생성 및 application.yaml 생성
-      run: |
-        mkdir -p src/main/resources
-        echo "${{ secrets.APPLICATION }}" > ./src/main/application.yaml
+      
+    - name: application.yaml 생성
+      run: | 
+          echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yaml
+      working-directory: ${{ env.working-directory }}
       
     - name: 빌드
       run: |
-        chmod +x gradlew
-        ./gradlew build -x test
+          chmod +x gradlew
+          ./gradlew build -x test
+      working-directory: ${{ env.working-directory }}
+      shell: bash
+
+    - name: application.yaml 생성
+      run: | 
+          cd src/main/resources
+          echo "${{ secrets.APPLICATION }}" > ./application.yaml
+      working-directory: ${{ env.working-directory }}
+      
+    - name: 빌드
+      run: |
+          chmod +x gradlew
+          ./gradlew build -x test
+      working-directory: ${{ env.working-directory }}
       shell: bash
