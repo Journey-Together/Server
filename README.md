@@ -1,1 +1,1 @@
-# Server
+# Journey-Together Server
