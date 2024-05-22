@@ -31,16 +31,3 @@ jobs:
           ./gradlew build -x test
       working-directory: ${{ env.working-directory }}
       shell: bash
-
-    - name: application.yaml 생성
-      run: | 
-          cd src/main/resources
-          echo "${{ secrets.APPLICATION }}" > ./application.yaml
-      working-directory: ${{ env.working-directory }}
-      
-    - name: 빌드
-      run: |
-          chmod +x gradlew
-          ./gradlew build -x test
-      working-directory: ${{ env.working-directory }}
-      shell: bash
