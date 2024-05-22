@@ -23,7 +23,7 @@ jobs:
     - name: 리소스 디렉토리 생성 및 application.yaml 생성
       run: |
         mkdir -p src/main/resources
-        echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yaml
+        echo "${{ secrets.APPLICATION }}" > ./src/main/application.yaml
       
     - name: 빌드
       run: |
