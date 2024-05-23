@@ -1,9 +1,9 @@
-package Journey.Together.exception.model.net;
+package Journey.Together.global.exception.model.net;
 
+import Journey.Together.global.exception.Error;
 import lombok.Getter;
 
 import java.io.IOException;
-import Journey.Together.exception.Error;
 
 @Getter
 public class CustomJavaNetException extends IOException {

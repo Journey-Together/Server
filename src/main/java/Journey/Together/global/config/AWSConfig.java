@@ -1,4 +1,4 @@
-package Journey.Together.external.aws;
+package Journey.Together.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +19,8 @@ public class AWSConfig {
 	private final String regionString;
 
 	public AWSConfig(@Value("${aws-property.access-key}") final String accessKey,
-		@Value("${aws-property.secret-key}") final String secretKey,
-		@Value("${aws-property.aws-region}") final String regionString) {
+                     @Value("${aws-property.secret-key}") final String secretKey,
+                     @Value("${aws-property.aws-region}") final String regionString) {
 		this.accessKey = accessKey;
 		this.secretKey = secretKey;
 		this.regionString = regionString;

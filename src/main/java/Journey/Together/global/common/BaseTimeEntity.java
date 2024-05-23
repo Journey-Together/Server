@@ -1,4 +1,4 @@
-package Journey.Together.domain;
+package Journey.Together.global.common;
 
 
 import jakarta.persistence.EntityListeners;

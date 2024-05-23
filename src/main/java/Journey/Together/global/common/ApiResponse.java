@@ -1,8 +1,8 @@
-package Journey.Together.common.dto;
+package Journey.Together.global.common;
 
-import Journey.Together.exception.Error;
-import Journey.Together.exception.Success;
 
+import Journey.Together.global.exception.Success;
+import Journey.Together.global.exception.Error;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
