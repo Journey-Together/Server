@@ -1,4 +1,4 @@
-package Journey.Together.exception;
+package Journey.Together.global.exception;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

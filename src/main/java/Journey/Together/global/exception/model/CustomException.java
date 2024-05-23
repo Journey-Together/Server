@@ -1,7 +1,7 @@
-package Journey.Together.exception.model;
+package Journey.Together.global.exception.model;
 
+import Journey.Together.global.exception.Error;
 import lombok.Getter;
-import Journey.Together.exception.Error;
 
 @Getter
 public class CustomException extends RuntimeException{
