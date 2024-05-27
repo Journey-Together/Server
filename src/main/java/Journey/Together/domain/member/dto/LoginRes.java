@@ -1,0 +1,35 @@
+package Journey.Together.domain.member.dto;
+
+import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.member.enumerate.LoginType;
+import Journey.Together.domain.member.enumerate.MemberType;
+import Journey.Together.global.security.jwt.dto.TokenDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record LoginRes(
+        @NotNull Long memberId,
+        @NotNull String email,
+        @NotNull String name,
+        String profileUrl,
+        MemberType memberType,
+        LoginType loginType,
+        @NotNull String accessToken,
+        @NotNull String refreshToken
+) {
+    public static LoginRes of(Member member, TokenDto tokenDto) {
+        return LoginRes.builder()
+                .memberId(member.getMemberId())
+                .email(member.getEmail())
+                .name(member.getName())
+                .profileUrl(member.getProfileUrl())
+                .memberType(member.getMemberType())
+                .loginType(member.getLoginType())
+                .accessToken(tokenDto.accessToken())
+                .refreshToken(tokenDto.refreshToken())
+                .build();
+    }
+}
