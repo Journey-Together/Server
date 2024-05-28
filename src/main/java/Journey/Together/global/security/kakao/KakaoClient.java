@@ -22,7 +22,7 @@ public class KakaoClient {
     private String kakaoClientSecret;
 
     @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
-    private String kakaoGrantType;
+    private String kakwaoGrantType;
 
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String kakaoRedirectUri;
@@ -36,16 +36,14 @@ public class KakaoClient {
     public KakaoProfile getMemberInfo(String access_token) {
         // 요청 기본 객체 생성
         WebClient webClient = WebClient.create(kakaoUserInfoUri);
-
         // 요청 보내서 응답 받기
         String response = webClient.post()
                 .uri(kakaoUserInfoUri)
                 .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
-                .header("Authorization", "Bearer " + access_token)
+                .header("Authorization", access_token)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-
         // 수신된 응답 Mapping
         ObjectMapper objectMapper = new ObjectMapper();
         KakaoProfile kakaoProfile;

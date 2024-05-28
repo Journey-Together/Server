@@ -12,6 +12,7 @@ import lombok.*;
 @Entity
 @Table(name = "member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +39,7 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    @Column(name = "blood_type", nullable = false, columnDefinition = "varchar(255)")
+    @Column(name = "blood_type", columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
     private BloodType bloodType;
 
@@ -62,14 +63,14 @@ public class Member extends BaseTimeEntity {
     private String refreshToken;
 
     @Builder
-    public Member(String email, String name, String phone, String profileUrl, String loginType,String bloodType,String memberType, String birth, String allergy, String medication, String refreshToken) {
+    public Member(String email, String name, String phone, String profileUrl, LoginType loginType,BloodType bloodType,MemberType memberType, String birth, String allergy, String medication, String refreshToken) {
         this.email = email;
         this.name = name;
         this.phone = phone;
         this.profileUrl = profileUrl;
-        this.loginType = LoginType.valueOf(loginType);
-        this.bloodType = BloodType.valueOf(bloodType);
-        this.memberType = MemberType.valueOf(bloodType);
+        this.loginType = loginType;
+        this.bloodType = bloodType;
+        this.memberType = memberType;
         this.birth = birth;
         this.allergy = allergy;
         this.medication=medication;

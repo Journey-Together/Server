@@ -3,6 +3,7 @@ package Journey.Together.domain.member.service;
 import Journey.Together.domain.member.dto.LoginRes;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.enumerate.LoginType;
+import Journey.Together.domain.member.enumerate.MemberType;
 import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
@@ -18,8 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
+    private final KakaoClient kakaoClient;
+    private final TokenProvider tokenProvider;
+    private final MemberRepository memberRepository;
+
     @Transactional
-    public LoginRes signIn(String kakaoAccessToken, LoginType type) {
+    public LoginRes signIn(String kakaoAccessToken, String type) {
         //Business Logic
         // 카카오톡에 있는 사용자 정보 반환
         KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(kakaoAccessToken);
@@ -31,10 +36,9 @@ public class AuthService {
                     .email(kakaoProfile.kakao_account().email())
                     .name(kakaoProfile.kakao_account().profile().nickname())
                     .profileUrl(kakaoProfile.kakao_account().profile().profile_image_url())
-                    .memberType("GENERAL")
-                    .loginType("KAKAO")
+                    .memberType(MemberType.valueOf("GENERAL"))
+                    .loginType(LoginType.valueOf("KAKAO"))
                     .build();
-
             member = memberRepository.save(newMember);
         }
         TokenDto tokenDto = tokenProvider.createToken(member);
@@ -44,10 +48,6 @@ public class AuthService {
         return LoginRes.of(member, tokenDto);
 
     }
-    private final KakaoClient kakaoClient;
-    private final TokenProvider tokenProvider;
-    private final MemberRepository memberRepository;
-
 
 
     public void signOut(String token, Member member) {

@@ -30,7 +30,7 @@ public class AuthController {
     @Operation(summary = "로그인 API")
     @PostMapping("/sign-in")
     public ApiResponse<LoginRes> signIn(@RequestHeader("Authorization") String socialAccessToken, @RequestBody String type) {
-        return ApiResponse.success(Success.LOGIN_SUCCESS,authService.signIn(socialAccessToken,LoginType.valueOf(type)));
+        return ApiResponse.success(Success.LOGIN_SUCCESS,authService.signIn(socialAccessToken,type));
     }
 
     @Operation(summary = "로그아웃 API", description = "로그아웃된 JWT 블랙리스트 등록")
