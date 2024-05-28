@@ -6,7 +6,7 @@ import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.security.jwt.dto.TokenDto;
-import Journey.Together.global.security.kakao.PrincipalDetails;
+import Journey.Together.global.security.PrincipalDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -27,10 +27,11 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class TokenProvider {
 
+    private final MemberRepository memberRepository;
+
     @Value("${jwt.secret}")
     private String secretKey;
     private Key key;
-    private final MemberRepository memberRepository;
 
     // ATK 만료시간: 1일
     private static final long accessTokenExpirationTime = 7 * 24 * 60 * 60 * 1000L;

@@ -5,7 +5,7 @@ import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.service.AuthService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
-import Journey.Together.global.security.kakao.PrincipalDetails;
+import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

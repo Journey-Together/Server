@@ -55,15 +55,13 @@ public class AuthService {
                         .email(kakaoProfile.kakao_account().email())
                         .name(kakaoProfile.kakao_account().profile().nickname())
                         .memberType("GENERAL")
+                        .refreshToken(kakaoAccessToken.refresh_token())
                         .loginType("KAKAO")
                         .build();
 
                 member = memberRepository.save(newMember);
             }
             tokenDto = tokenProvider.createToken(member);
-
-            // RefreshToken 저장
-            member.setRefreshToken(kakaoAccessToken.refresh_token());
 
             // Response
             return LoginRes.of(member, tokenDto);
@@ -131,6 +129,7 @@ public class AuthService {
         String key = member.getEmail();
 //        redisClient.deleteValue(key);
 //        redisClient.setValue(accessToken, "logout", tokenProvider.getExpiration(accessToken));
+        member.setRefreshToken(null);
 
         // Response
     }
@@ -149,10 +148,9 @@ public class AuthService {
         // Validation - RefreshToken 유효성 검증
         String refreshToken = token.substring(7);
         tokenProvider.validateToken(refreshToken);
-        String email = tokenProvider.getEmail(refreshToken);
-        String redisRefreshToken = member.getRefreshToken();
+        String memberRefreshToken = member.getRefreshToken();
         // 입력받은 refreshToken과 Redis의 RefreshToken 간의 일치 여부 검증
-        if(refreshToken.isBlank() || redisRefreshToken.isEmpty() || !redisRefreshToken.equals(refreshToken)) {
+        if(refreshToken.isBlank() || memberRefreshToken.isEmpty() || !memberRefreshToken.equals(refreshToken)) {
             throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
         }
 

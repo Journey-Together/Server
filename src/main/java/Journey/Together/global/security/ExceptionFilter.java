@@ -1,30 +1,33 @@
-package Journey.Together.global.security.jwt;
+package Journey.Together.global.security;
 
+import Journey.Together.global.exception.ApplicationException;
+import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
-import Journey.Together.global.exception.ErrorCode;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAccessDeniedHandler implements AccessDeniedHandler {
+public class ExceptionFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
 
-    // 인가 실패 관련 403 핸들링
+    // Jwt Filter에서 발생하는 Exception Handling
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-
-        setResponse(response);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        try {
+            filterChain.doFilter(request, response);
+        } catch (ApplicationException e) {
+            setResponse(response);
+        }
     }
 
     // Error 관련 응답 Response 생성 메소드
@@ -32,7 +35,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(ErrorCode.FORBIDDEN_EXCEPTION.getHttpStatus().value());
 
-        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.FORBIDDEN_EXCEPTION);
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.WRONG_TOKEN);
         String errorJson = objectMapper.writeValueAsString(errorResponse);
 
         response.getWriter().write(errorJson);

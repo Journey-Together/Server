@@ -1,7 +1,5 @@
 package Journey.Together.global.security.jwt;
 
-import Journey.Together.global.exception.ApplicationException;
-import Journey.Together.global.exception.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,23 +14,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-
     private final TokenProvider tokenProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
-        // String requestURI = request.getRequestURI();
 
         // 토큰이 존재할 경우, Authentication에 인증 정보 저장 및 로그 출력
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            // log.info("Security Context 인증 정보 저장: " + authentication.getEmail(), requestURI);
         }
 
         filterChain.doFilter(request, response);
@@ -45,13 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // Token 정보 존재 여부 및 Bearer 토큰인지 확인
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             // 블랙리스트 토큰인 경우
-            String substringToken = token.substring(7);
-//            String value = redisClient.getValue(substringToken);
-//            if (value.equals("logout")) {
-//                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-//            }
-
-            return substringToken;
+            return token.substring(7);
         }
 
         return null;
