@@ -2,6 +2,7 @@ package Journey.Together.domain.member.entity;
 
 import Journey.Together.domain.member.enumerate.BloodType;
 import Journey.Together.domain.member.enumerate.LoginType;
+import Journey.Together.domain.member.enumerate.MemberType;
 import Journey.Together.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,6 +22,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "email", nullable = false, columnDefinition = "varchar(320)")
     private String email;
 
+    @Column(name = "password", columnDefinition = "varchar(255)")
+    private String password;
+
     @Column(name = "name", nullable = false, columnDefinition = "varchar(50)")
     private String name;
 
@@ -38,6 +42,10 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private BloodType bloodType;
 
+    @Column(name = "member_type", nullable = false, columnDefinition = "varchar(255)")
+    @Enumerated(EnumType.STRING)
+    private MemberType memberType;
+
     @Column(name = "birth", columnDefinition = "varchar(255)")
     private String birth;
 
@@ -50,16 +58,21 @@ public class Member extends BaseTimeEntity {
     @Column(name = "medication", columnDefinition = "varchar(255)")
     private String medication;
 
+    @Column(name = "refreshToken", columnDefinition = "varchar(255)")
+    private String refreshToken;
+
     @Builder
-    public Member(String email, String name, String phone, String profileUrl, String loginType,String bloodType, String birth, String allergy, String medication) {
+    public Member(String email, String name, String phone, String profileUrl, String loginType,String bloodType,String memberType, String birth, String allergy, String medication, String refreshToken) {
         this.email = email;
         this.name = name;
         this.phone = phone;
         this.profileUrl = profileUrl;
         this.loginType = LoginType.valueOf(loginType);
         this.bloodType = BloodType.valueOf(bloodType);
+        this.memberType = MemberType.valueOf(bloodType);
         this.birth = birth;
         this.allergy = allergy;
         this.medication=medication;
+        this.refreshToken=refreshToken;
     }
 }
