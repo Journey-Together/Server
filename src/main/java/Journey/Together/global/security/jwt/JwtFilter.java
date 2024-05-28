@@ -21,6 +21,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String requestURI = request.getRequestURI();
+
+        //jwt 유효성 검사를 하지않음
+        if ("/v1/auth/sign-in".equals(requestURI)||"/actuator/health".equals(requestURI)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = resolveToken(request);
 
         // 토큰이 존재할 경우, Authentication에 인증 정보 저장 및 로그 출력

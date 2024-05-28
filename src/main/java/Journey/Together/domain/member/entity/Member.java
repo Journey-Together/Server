@@ -13,9 +13,10 @@ import lombok.*;
 @Table(name = "member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id", nullable = false, columnDefinition = "bigint")
+    @Column(name = "member_id", columnDefinition = "bigint")
     private Long memberId;
 
     // 이메일은 최대 255자 + 1자(@) + 69자해서 최대 320글자이므로, varchar(320) 사용
@@ -38,7 +39,7 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    @Column(name = "blood_type", nullable = false, columnDefinition = "varchar(255)")
+    @Column(name = "blood_type", columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
     private BloodType bloodType;
 
@@ -62,14 +63,14 @@ public class Member extends BaseTimeEntity {
     private String refreshToken;
 
     @Builder
-    public Member(String email, String name, String phone, String profileUrl, String loginType,String bloodType,String memberType, String birth, String allergy, String medication, String refreshToken) {
+    public Member(String email, String name, String phone, String profileUrl, LoginType loginType,BloodType bloodType,MemberType memberType, String birth, String allergy, String medication, String refreshToken) {
         this.email = email;
         this.name = name;
         this.phone = phone;
         this.profileUrl = profileUrl;
-        this.loginType = LoginType.valueOf(loginType);
-        this.bloodType = BloodType.valueOf(bloodType);
-        this.memberType = MemberType.valueOf(bloodType);
+        this.loginType = loginType;
+        this.bloodType = bloodType;
+        this.memberType = memberType;
         this.birth = birth;
         this.allergy = allergy;
         this.medication=medication;

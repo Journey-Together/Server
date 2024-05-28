@@ -3,6 +3,7 @@ package Journey.Together.domain.member.service;
 import Journey.Together.domain.member.dto.LoginRes;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.enumerate.LoginType;
+import Journey.Together.domain.member.enumerate.MemberType;
 import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
@@ -12,7 +13,6 @@ import Journey.Together.global.security.jwt.TokenProvider;
 import Journey.Together.global.security.jwt.dto.TokenDto;
 import Journey.Together.global.security.kakao.dto.KakaoToken;
 import Journey.Together.global.security.naver.dto.NaverProperties;
-import Journey.Together.global.security.naver.dto.NaverTokenResponse;
 import Journey.Together.global.security.naver.dto.NaverUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -34,17 +34,16 @@ public class AuthService {
     private final MemberRepository memberRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final NaverProperties naverProperties;
 
     @Transactional
-    public LoginRes signIn(String code, LoginType type) {
+    public LoginRes signIn(String token, String type) {
         Member member = null;
         TokenDto tokenDto = null;
 
-        if(type == LoginType.KAKAO) {
+        if(type == "KAKAO") {
             //Business Logic
             // 카카오로 액세스 토큰 요청하기
-            KakaoToken kakaoAccessToken = kakaoClient.getKakaoAccessToken(code);
+            KakaoToken kakaoAccessToken = kakaoClient.getKakaoAccessToken(token);
             // 카카오톡에 있는 사용자 정보 반환
             KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(kakaoAccessToken);
             // 반환된 정보의 이메일 기반으로 사용자 테이블에서 계정 정보 조회 진행
@@ -54,57 +53,43 @@ public class AuthService {
                 Member newMember = Member.builder()
                         .email(kakaoProfile.kakao_account().email())
                         .name(kakaoProfile.kakao_account().profile().nickname())
-                        .memberType("GENERAL")
-                        .refreshToken(kakaoAccessToken.refresh_token())
-                        .loginType("KAKAO")
+                        .memberType(MemberType.GENERAL)
+                        .loginType(LoginType.KAKAO)
                         .build();
 
                 member = memberRepository.save(newMember);
             }
             tokenDto = tokenProvider.createToken(member);
+
+            // RefreshToken 저장
+            member.setRefreshToken(tokenDto.refreshToken());
 
             // Response
             return LoginRes.of(member, tokenDto);
 
-        } else if (type == LoginType.NAVER) {
-            String accessToken = toRequestAccessToken(code);
-            NaverUserResponse.NaverUserDetail naverProfile = toRequestProfile(accessToken);
+        } else if (type.equals("NAVER")) {
+            NaverUserResponse.NaverUserDetail naverProfile = toRequestProfile(token.substring(7));
             member = memberRepository.findMemberByEmailAndDeletedAtIsNull(naverProfile.getEmail()).orElse(null);
 
             if (member == null) {
                 Member newMember = Member.builder()
-                        .email(naverProfile.getEmail())
-                        .profileUrl(naverProfile.getProfile_image())
-                        .loginType("NAVER")
-                        .refreshToken(toRequestRefreshToken(code))
-                        .name(naverProfile.getName())
-                        .memberType("GENERAL")
+                        .email(naverProfile.getEmail() != null ? naverProfile.getEmail() : "Unknown")
+                        .profileUrl(naverProfile.getProfile_image() != null ? naverProfile.getProfile_image() : "Unknown")
+                        .name(naverProfile.getName() != null ? naverProfile.getName() : "Unknown")
+                        .memberType(MemberType.GENERAL)
+                        .loginType(LoginType.NAVER)
                         .build();
 
                 member = memberRepository.save(newMember);
             }
 
             tokenDto = tokenProvider.createToken(member);
+            member.setRefreshToken(tokenDto.refreshToken());
 
         }
         return LoginRes.of(member, tokenDto);
     }
 
-    private String toRequestAccessToken(String code) {
-
-        ResponseEntity<NaverTokenResponse> response =
-                restTemplate.exchange(naverProperties.getRequestURL(code), HttpMethod.GET, null, NaverTokenResponse.class);
-
-        return response.getBody().getAccessToken();
-    }
-
-    private String toRequestRefreshToken(String code) {
-
-        ResponseEntity<NaverTokenResponse> response =
-                restTemplate.exchange(naverProperties.getRequestURL(code), HttpMethod.GET, null, NaverTokenResponse.class);
-
-        return response.getBody().getRefreshToken();
-    }
 
     private NaverUserResponse.NaverUserDetail toRequestProfile(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
@@ -113,8 +98,6 @@ public class AuthService {
 
         ResponseEntity<NaverUserResponse> response =
                 restTemplate.exchange("https://openapi.naver.com/v1/nid/me", HttpMethod.GET, request, NaverUserResponse.class);
-
-        // Validate를 만드는 것을 추천
 
         return response.getBody().getNaverUserDetail();
     }
