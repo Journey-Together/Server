@@ -1,4 +1,4 @@
-package Journey.Together.global.security.kakao.dto;
+package Journey.Together.global.security.kakao;
 
 import Journey.Together.domain.member.entity.Member;
 import lombok.Getter;

@@ -1,12 +1,11 @@
 package Journey.Together.domain.member.controller;
 
 import Journey.Together.domain.member.dto.LoginRes;
-import Journey.Together.domain.member.dto.MemberRes;
 import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.service.AuthService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
-import Journey.Together.global.security.kakao.dto.PrincipalDetails;
+import Journey.Together.global.security.kakao.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

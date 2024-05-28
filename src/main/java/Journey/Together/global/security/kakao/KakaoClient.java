@@ -1,5 +1,6 @@
-package Journey.Together.global.security.jwt;
+package Journey.Together.global.security.kakao;
 
+import Journey.Together.global.security.kakao.dto.KakaoProfile;
 import Journey.Together.global.security.kakao.dto.KakaoToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

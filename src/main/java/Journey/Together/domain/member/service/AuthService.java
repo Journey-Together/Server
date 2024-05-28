@@ -4,8 +4,10 @@ import Journey.Together.domain.member.dto.LoginRes;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.repository.MemberRepository;
-import Journey.Together.global.security.jwt.KakaoClient;
-import Journey.Together.global.security.jwt.KakaoProfile;
+import Journey.Together.global.exception.ApplicationException;
+import Journey.Together.global.exception.ErrorCode;
+import Journey.Together.global.security.kakao.KakaoClient;
+import Journey.Together.global.security.kakao.dto.KakaoProfile;
 import Journey.Together.global.security.jwt.TokenProvider;
 import Journey.Together.global.security.jwt.dto.TokenDto;
 import Journey.Together.global.security.kakao.dto.KakaoToken;
@@ -50,5 +52,43 @@ public class AuthService {
         // Response
         return LoginRes.of(member, tokenDto);
 
+    }
+
+    public void signOut(String token, Member member) {
+        // Validation
+        String accessToken = token.substring(7);
+        tokenProvider.validateToken(accessToken);
+
+        // Business Logic - Refresh Token 삭제 및 Access Token 블랙리스트 등록
+        String key = member.getEmail();
+        redisClient.deleteValue(key);
+        redisClient.setValue(accessToken, "logout", tokenProvider.getExpiration(accessToken));
+
+        // Response
+    }
+
+    @Transactional
+    public void withdrawal(Member member) {
+        // Validation
+
+        // Business Logic - 회원 논리적 삭제 진행
+        memberRepository.delete(member);
+
+        // Response
+    }
+
+    public TokenDto reissue(String token, Member member) {
+        // Validation - RefreshToken 유효성 검증
+        String refreshToken = token.substring(7);
+        tokenProvider.validateToken(refreshToken);
+        String email = tokenProvider.getEmail(refreshToken);
+        String redisRefreshToken = member.getRefreshToken();
+        // 입력받은 refreshToken과 Redis의 RefreshToken 간의 일치 여부 검증
+        if(refreshToken.isBlank() || redisRefreshToken.isEmpty() || !redisRefreshToken.equals(refreshToken)) {
+            throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
+        }
+
+        // Business Logic & Response - Access Token 새로 발급 + Refresh Token의 유효 기간이 Access Token의 유효 기간보다 짧아졌을 경우 Refresh Token도 재발급
+        return tokenProvider.reissue(member, refreshToken);
     }
 }

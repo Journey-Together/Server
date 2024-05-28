@@ -6,7 +6,7 @@ import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.security.jwt.dto.TokenDto;
-import Journey.Together.global.security.kakao.dto.PrincipalDetails;
+import Journey.Together.global.security.kakao.PrincipalDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
