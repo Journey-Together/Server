@@ -53,6 +53,8 @@ dependencies {
 	// AWS
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.661'
 
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
 }
 
 tasks.named('test') {
