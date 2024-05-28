@@ -46,10 +46,10 @@ public class JwtFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             // 블랙리스트 토큰인 경우
             String substringToken = token.substring(7);
-            String value = redisClient.getValue(substringToken);
-            if (value.equals("logout")) {
-                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-            }
+//            String value = redisClient.getValue(substringToken);
+//            if (value.equals("logout")) {
+//                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+//            }
 
             return substringToken;
         }
