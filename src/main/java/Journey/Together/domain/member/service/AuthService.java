@@ -38,6 +38,8 @@ public class AuthService {
             Member newMember = Member.builder()
                     .email(kakaoProfile.kakao_account().email())
                     .name(kakaoProfile.kakao_account().profile().nickname())
+                    .profileUrl(kakaoProfile.kakao_account().profile().profile_image_url())
+                    .refreshToken(kakaoAccessToken.refresh_token())
                     .memberType("GENERAL")
                     .loginType("KAKAO")
                     .build();
@@ -45,9 +47,6 @@ public class AuthService {
             member = memberRepository.save(newMember);
         }
         TokenDto tokenDto = tokenProvider.createToken(member);
-
-        // RefreshToken 저장
-        member.setRefreshToken(kakaoAccessToken.refresh_token());
 
         // Response
         return LoginRes.of(member, tokenDto);
