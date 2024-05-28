@@ -40,7 +40,7 @@ public class AuthService {
         Member member = null;
         TokenDto tokenDto = null;
 
-        if(type == "KAKAO") {
+        if(type.equals("KAKAO")) {
             //Business Logic
             // 카카오톡에 있는 사용자 정보 반환
             KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(token);
