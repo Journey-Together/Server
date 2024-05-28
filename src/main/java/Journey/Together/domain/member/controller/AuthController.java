@@ -27,10 +27,10 @@ public class AuthController {
         response.sendRedirect("/login.html");
     }
 
-    @Operation(summary = "로그인 API", description = "카카오 로그인 페이지로 리다이렉트되어 카카오 로그인을 수행할 수 있도록 안x내")
+    @Operation(summary = "로그인 API")
     @PostMapping("/sign-in")
-    public ApiResponse<LoginRes> signIn(@RequestParam(name = "code") String code, @RequestBody String type) {
-        return ApiResponse.success(Success.LOGIN_SUCCESS,authService.signIn(code,LoginType.valueOf(type)));
+    public ApiResponse<LoginRes> signIn(@RequestHeader("Authorization") String socialAccessToken, @RequestBody String type) {
+        return ApiResponse.success(Success.LOGIN_SUCCESS,authService.signIn(socialAccessToken,LoginType.valueOf(type)));
     }
 
     @Operation(summary = "로그아웃 API", description = "로그아웃된 JWT 블랙리스트 등록")
