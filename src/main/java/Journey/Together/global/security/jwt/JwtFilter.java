@@ -45,13 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // Token 정보 존재 여부 및 Bearer 토큰인지 확인
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             // 블랙리스트 토큰인 경우
-            String substringToken = token.substring(7);
-            String value = redisClient.getValue(substringToken);
-            if (value.equals("logout")) {
-                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-            }
-
-            return substringToken;
+            return token.substring(7);
         }
 
         return null;
