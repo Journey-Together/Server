@@ -73,7 +73,7 @@ public class KakaoClient {
         return kakaoToken;
     }
 
-    public KakaoProfile getMemberInfo(KakaoToken kakaoToken) {
+    public KakaoProfile getMemberInfo(String accesToken) {
         // 요청 기본 객체 생성
         WebClient webClient = WebClient.create(kakaoUserInfoUri);
 
@@ -81,7 +81,7 @@ public class KakaoClient {
         String response = webClient.post()
                 .uri(kakaoUserInfoUri)
                 .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
-                .header("Authorization", "Bearer " + kakaoToken.access_token())
+                .header("Authorization", accesToken)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();

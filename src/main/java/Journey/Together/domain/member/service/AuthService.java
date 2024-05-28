@@ -42,26 +42,22 @@ public class AuthService {
 
         if(type == "KAKAO") {
             //Business Logic
-            // 카카오로 액세스 토큰 요청하기
-            KakaoToken kakaoAccessToken = kakaoClient.getKakaoAccessToken(token);
             // 카카오톡에 있는 사용자 정보 반환
-            KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(kakaoAccessToken);
+            KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(token);
             // 반환된 정보의 이메일 기반으로 사용자 테이블에서 계정 정보 조회 진행
             member = memberRepository.findMemberByEmailAndDeletedAtIsNull(kakaoProfile.kakao_account().email()).orElse(null);
             // 이메일 존재 시 로그인 , 존재하지 않을 경우 회원가입 진행
-            if (member == null) {
+            if(member == null) {
                 Member newMember = Member.builder()
                         .email(kakaoProfile.kakao_account().email())
                         .name(kakaoProfile.kakao_account().profile().nickname())
-                        .memberType(MemberType.GENERAL)
-                        .loginType(LoginType.KAKAO)
+                        .profileUrl(kakaoProfile.kakao_account().profile().profile_image_url())
+                        .memberType(MemberType.valueOf("GENERAL"))
+                        .loginType(LoginType.valueOf("KAKAO"))
                         .build();
-
                 member = memberRepository.save(newMember);
             }
             tokenDto = tokenProvider.createToken(member);
-
-            // RefreshToken 저장
             member.setRefreshToken(tokenDto.refreshToken());
 
             // Response
