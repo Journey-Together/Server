@@ -1,5 +1,6 @@
 package Journey.Together.global.security.kakao;
 
+import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.security.kakao.dto.KakaoProfile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -55,5 +56,25 @@ public class KakaoClient {
         }
 
         return kakaoProfile;
+    }
+
+    public void unlinkKakao(String accessToken) {
+        WebClient webClient = WebClient.create();
+        String response = webClient.post()
+                .uri("https://kapi.kakao.com/v1/user/unlink")
+                .header("Authorization", accessToken)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ApiResponse apiResponse = objectMapper.readValue(response, ApiResponse.class);
+            if (apiResponse.getCode() != 200) {
+                throw new RuntimeException("Failed to unlink Kakao account: " + apiResponse.getMessage());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

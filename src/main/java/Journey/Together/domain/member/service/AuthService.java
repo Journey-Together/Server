@@ -62,11 +62,12 @@ public class AuthService {
     }
 
     @Transactional
-    public void withdrawal(Member member) {
+    public void withdrawal(String token,Member member) {
         // Validation
 
         // Business Logic - 회원 논리적 삭제 진행
         memberRepository.delete(member);
+        kakaoClient.unlinkKakao(token);
 
         // Response
     }
@@ -76,7 +77,6 @@ public class AuthService {
         String refreshToken = token.substring(7);
         tokenProvider.validateToken(refreshToken);
         String memberRefreshToken = member.getRefreshToken();
-        // 입력받은 refreshToken과 Redis의 RefreshToken 간의 일치 여부 검증
         if(refreshToken.isBlank() || memberRefreshToken.isEmpty() || !memberRefreshToken.equals(refreshToken)) {
             throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
         }

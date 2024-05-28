@@ -1,11 +1,11 @@
 package Journey.Together.domain.member.controller;
 
 import Journey.Together.domain.member.dto.LoginRes;
-import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.service.AuthService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
+import Journey.Together.global.security.jwt.dto.TokenDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,5 +39,18 @@ public class AuthController {
         String token = request.getHeader("Authorization");
         authService.signOut(token, principalDetails.getMember());
         return ApiResponse.success(Success.SIGNOUT_SUCCESS);
+    }
+
+    @Operation(summary = "회원탈퇴 API", description = "회원탈퇴 등록")
+    @PostMapping("/withdrawal")
+    public ApiResponse<Void> withdrawal(@RequestHeader("Authorization") String socialAccessToken,@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        authService.withdrawal(socialAccessToken,principalDetails.getMember());
+        return ApiResponse.success(Success.DELETE_USER_SUCCESS);
+    }
+
+    @Operation(summary = "토큰재발급 API", description = "RefreshToken 정보로 요청 시, ")
+    @GetMapping("/reissue")
+    public ApiResponse<TokenDto> reissue(@RequestHeader("Authorization") String socialAccessToke, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ApiResponse.success(Success.RE_ISSUE_TOKEN_SUCCESS,authService.reissue(socialAccessToke, principalDetails.getMember()));
     }
 }
