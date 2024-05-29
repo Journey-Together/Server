@@ -22,9 +22,8 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
-
-        // 회원가입일때는 jwt 유효성 검사를 하지않음
-        if ("/v1/auth/sign-in".equals(requestURI)) {
+        //jwt 유효성 검사를 하지않음
+        if ("/v1/auth/sign-in".equals(requestURI) || "/actuator/health".equals(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }

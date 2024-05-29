@@ -59,6 +59,7 @@ public class SecurityConfig {
                 authorize.requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // 로그인 로직 접속 허용
                         .requestMatchers("/v1/auth/**", "/oauth2/**", "/login.html").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/v1/member/**").authenticated()
                         // 메인 페이지, 공고 페이지 등에 한해 인증 정보 없이 접근 가능 (추후 추가)
                         // 이외의 모든 요청은 인증 정보 필요
