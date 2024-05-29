@@ -22,7 +22,6 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
-
         //jwt 유효성 검사를 하지않음
         if ("/v1/auth/sign-in".equals(requestURI) || "/actuator/health".equals(requestURI)) {
             filterChain.doFilter(request, response);
@@ -43,7 +42,6 @@ public class JwtFilter extends OncePerRequestFilter {
     // Request Header에서 토큰 조회 및 Bearer 문자열 제거 후 반환하는 메소드
     private String resolveToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-
         // Token 정보 존재 여부 및 Bearer 토큰인지 확인
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             // 블랙리스트 토큰인 경우
