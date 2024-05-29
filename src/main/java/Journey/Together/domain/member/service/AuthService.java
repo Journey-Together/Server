@@ -1,5 +1,6 @@
 package Journey.Together.domain.member.service;
 
+import Journey.Together.domain.member.dto.LoginReq;
 import Journey.Together.domain.member.dto.LoginRes;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.enumerate.LoginType;
@@ -11,8 +12,6 @@ import Journey.Together.global.security.kakao.KakaoClient;
 import Journey.Together.global.security.kakao.dto.KakaoProfile;
 import Journey.Together.global.security.jwt.TokenProvider;
 import Journey.Together.global.security.jwt.dto.TokenDto;
-import Journey.Together.global.security.kakao.dto.KakaoToken;
-import Journey.Together.global.security.naver.dto.NaverProperties;
 import Journey.Together.global.security.naver.dto.NaverUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -35,11 +34,11 @@ public class AuthService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
-    public LoginRes signIn(String token, String type) {
+    public LoginRes signIn(String token, LoginReq loginReq) {
         Member member = null;
         TokenDto tokenDto = null;
 
-        if(type.equals("KAKAO")) {
+        if((loginReq.type()).equals("KAKAO")) {
             //Business Logic
             // 카카오톡에 있는 사용자 정보 반환
             KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(token);
@@ -62,7 +61,7 @@ public class AuthService {
             // Response
             return LoginRes.of(member, tokenDto);
 
-        } else if (type.equals("NAVER")) {
+        } else if ((loginReq.type()).equals("NAVER")) {
             NaverUserResponse.NaverUserDetail naverProfile = toRequestProfile(token.substring(7));
             member = memberRepository.findMemberByEmailAndDeletedAtIsNull(naverProfile.getEmail()).orElse(null);
 
@@ -101,9 +100,6 @@ public class AuthService {
         tokenProvider.validateToken(accessToken);
 
         // Business Logic - Refresh Token 삭제 및 Access Token 블랙리스트 등록
-        String key = member.getEmail();
-//        redisClient.deleteValue(key);
-//        redisClient.setValue(accessToken, "logout", tokenProvider.getExpiration(accessToken));
         member.setRefreshToken(null);
 
         // Response
