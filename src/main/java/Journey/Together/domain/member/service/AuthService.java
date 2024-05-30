@@ -100,6 +100,7 @@ public class AuthService {
         tokenProvider.validateToken(accessToken);
 
         // Business Logic - Refresh Token 삭제 및 Access Token 블랙리스트 등록
+        tokenProvider.getExpiration(accessToken);
         member.setRefreshToken(null);
 
         // Response
@@ -116,15 +117,14 @@ public class AuthService {
     }
 
     public TokenDto reissue(String token, Member member) {
+        System.out.println(token);
         // Validation - RefreshToken 유효성 검증
         String refreshToken = token.substring(7);
         tokenProvider.validateToken(refreshToken);
         String memberRefreshToken = member.getRefreshToken();
-        // 입력받은 refreshToken과 Redis의 RefreshToken 간의 일치 여부 검증
         if(refreshToken.isBlank() || memberRefreshToken.isEmpty() || !memberRefreshToken.equals(refreshToken)) {
             throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
         }
-
         // Business Logic & Response - Access Token 새로 발급 + Refresh Token의 유효 기간이 Access Token의 유효 기간보다 짧아졌을 경우 Refresh Token도 재발급
         return tokenProvider.reissue(member, refreshToken);
     }
