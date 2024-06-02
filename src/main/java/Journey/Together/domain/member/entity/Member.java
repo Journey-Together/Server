@@ -59,14 +59,12 @@ public class Member extends BaseTimeEntity {
     private String medication;
 
     @Column(name = "part1_rel", columnDefinition = "varchar(255)")
-    @Enumerated(EnumType.STRING)
     private String part1Rel;
 
     @Column(name = "part1_phone", columnDefinition = "varchar(255)")
     private String part1Phone;
 
     @Column(name = "part2_rel", columnDefinition = "varchar(255)")
-    @Enumerated(EnumType.STRING)
     private String part2Rel;
 
     @Column(name = "part2_phone", columnDefinition = "varchar(255)")

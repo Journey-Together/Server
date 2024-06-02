@@ -17,11 +17,8 @@ import java.util.UUID;
 public class S3Client {
 
     private final AmazonS3 amazonS3Client;
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${aws-property.s3-bucket-name}")
     private String bucket;
-
-    @Value("${cloud.aws.baseUrl}")
-    private String baseUrl;
 
     public String upload(MultipartFile multipartFile) {
         // Validation
