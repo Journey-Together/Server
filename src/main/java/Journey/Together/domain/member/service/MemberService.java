@@ -20,10 +20,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final S3Client s3Client;
 
+    @Transactional
     public void saveInfo(Member member,MemberReq memberReq){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
-
         //Business
         if (memberReq.name() != null) {
             member.setName(memberReq.name());
@@ -62,15 +62,14 @@ public class MemberService {
         if (memberReq.part2_phone() != null) {
             member.setPart2Phone(memberReq.part2_phone());
         }
-        memberRepository.save(member);
+
     }
 
     public MemberRes findMemberInfo(Member member){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
-        MultipartFile imageFile = (MultipartFile) s3Client.get(member.getProfileUuid());
-        MemberRes memberRes = MemberRes.of(member, imageFile);
+        MemberRes memberRes = MemberRes.of(member, s3Client.getUrl()+member.getProfileUuid());
         //Response
         return memberRes;
     }

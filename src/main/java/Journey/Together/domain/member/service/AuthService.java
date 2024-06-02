@@ -63,6 +63,7 @@ public class AuthService {
                         .email(kakaoProfile.kakao_account().email())
                         .name(kakaoProfile.kakao_account().profile().nickname())
                         .profileUuid(uuid)
+                        .phone(null)
                         .memberType(MemberType.valueOf("GENERAL"))
                         .loginType(LoginType.valueOf("KAKAO"))
                         .build();

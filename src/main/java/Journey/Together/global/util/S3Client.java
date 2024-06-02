@@ -20,6 +20,9 @@ public class S3Client {
     @Value("${aws-property.s3-bucket-name}")
     private String bucket;
 
+    @Value("${aws-property.baseUrl}")
+    private String baseUrl;
+
     public String upload(MultipartFile multipartFile) {
         // Validation
         if(multipartFile.isEmpty()) {
@@ -74,19 +77,8 @@ public class S3Client {
         return fileName;
     }
 
-    public S3ObjectInputStream get(String fileName){
-        // Validation
-        if(!amazonS3Client.doesObjectExist(bucket,fileName)) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-        }
-
-        // Business Logic
-        S3Object s3Object = amazonS3Client.getObject(bucket,fileName);
-        if(s3Object.getObjectContent() !=null){
-            System.out.println(s3Object.getObjectContent());
-        }
-        // Response
-        return s3Object.getObjectContent();
+    public String getUrl(){
+        return baseUrl;
     }
 
     public void delete(String fileName) {
