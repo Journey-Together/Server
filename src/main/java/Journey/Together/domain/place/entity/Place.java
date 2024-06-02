@@ -3,12 +3,15 @@ package Journey.Together.domain.place.entity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Getter
+@Table(name = "place")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Place {
 
