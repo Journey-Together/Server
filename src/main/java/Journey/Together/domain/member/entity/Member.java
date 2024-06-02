@@ -2,7 +2,6 @@ package Journey.Together.domain.member.entity;
 
 import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.enumerate.MemberType;
-import Journey.Together.domain.member.enumerate.RelationType;
 import Journey.Together.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -61,14 +60,14 @@ public class Member extends BaseTimeEntity {
 
     @Column(name = "part1_rel", columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
-    private RelationType part1Rel;
+    private String part1Rel;
 
     @Column(name = "part1_phone", columnDefinition = "varchar(255)")
     private String part1Phone;
 
     @Column(name = "part2_rel", columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
-    private RelationType part2Rel;
+    private String part2Rel;
 
     @Column(name = "part2_phone", columnDefinition = "varchar(255)")
     private String part2Phone;
@@ -77,7 +76,7 @@ public class Member extends BaseTimeEntity {
     private String refreshToken;
 
     @Builder
-    public Member(String email, String name, String phone, String profileUuid, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,RelationType part1Rel,String part1Phone,RelationType part2Rel,String part2Phone, String refreshToken) {
+    public Member(String email, String name, String phone, String profileUuid, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,String part1Rel,String part1Phone,String part2Rel,String part2Phone, String refreshToken) {
         this.email = email;
         this.name = name;
         this.phone = phone;

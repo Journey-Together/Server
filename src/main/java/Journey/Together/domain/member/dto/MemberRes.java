@@ -1,7 +1,6 @@
 package Journey.Together.domain.member.dto;
 
 import Journey.Together.domain.member.entity.Member;
-import Journey.Together.domain.member.enumerate.RelationType;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,9 +14,9 @@ public record MemberRes(
         String disease,
         String allergy,
         String medication,
-        RelationType part1_rel,
+        String part1_rel,
         String part1_phone,
-        RelationType part2_rel,
+        String part2_rel,
         String part2_phone
 ) {
     public static MemberRes of(Member member,MultipartFile profileImage){
