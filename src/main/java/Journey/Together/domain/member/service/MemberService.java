@@ -1,6 +1,7 @@
 package Journey.Together.domain.member.service;
 
 import Journey.Together.domain.member.dto.MemberReq;
+import Journey.Together.domain.member.dto.MemberRes;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.exception.ApplicationException;
@@ -9,6 +10,7 @@ import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -19,7 +21,10 @@ public class MemberService {
     private final S3Client s3Client;
 
     public void saveInfo(Member member,MemberReq memberReq){
+        // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+
+        //Business
         if (memberReq.name() != null) {
             member.setName(memberReq.name());
         }
@@ -57,8 +62,17 @@ public class MemberService {
         if (memberReq.part2_phone() != null) {
             member.setPart2Phone(memberReq.part2_phone());
         }
-
         memberRepository.save(member);
+    }
+
+    public MemberRes findMemberInfo(Member member){
+        // Validation
+        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        //Business
+        MultipartFile imageFile = (MultipartFile) s3Client.get(member.getProfileUuid());
+        MemberRes memberRes = MemberRes.of(member, imageFile);
+        //Response
+        return memberRes;
     }
 
 }

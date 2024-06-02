@@ -23,4 +23,10 @@ public class MemberController {
         memberService.saveInfo(principalDetails.getMember(),memberReq);
         return ApiResponse.success(Success.UPDATE_USER_INFO_SUCCESS);
     }
+
+    @GetMapping("")
+    public ApiResponse<MemberRes> findMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails){
+        MemberRes memberRes = memberService.findMemberInfo(principalDetails.getMember());
+        return ApiResponse.success(Success.GET_MYPAGE_SUCCESS,memberRes);
+    }
 }

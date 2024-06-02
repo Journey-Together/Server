@@ -3,12 +3,13 @@ package Journey.Together.domain.member.dto;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.enumerate.RelationType;
 import lombok.Builder;
+import org.springframework.web.multipart.MultipartFile;
 
 @Builder
 public record MemberRes(
         String name,
         String phone,
-        String profileUrl,
+        MultipartFile profileImage,
         String bloodType,
         String birth,
         String disease,
@@ -19,11 +20,11 @@ public record MemberRes(
         RelationType part2_rel,
         String part2_phone
 ) {
-    public static MemberRes of(Member member){
+    public static MemberRes of(Member member,MultipartFile profileImage){
         return MemberRes.builder()
                 .name(member.getName())
                 .phone(member.getPhone())
-                .profileUrl(member.getProfileUrl())
+                .profileImage(profileImage)
                 .bloodType(member.getBloodType())
                 .birth(member.getBirth())
                 .disease(member.getDisease())
