@@ -51,6 +51,8 @@ public enum Success {
 	PUSH_ALARM_SUCCESS(HttpStatus.OK, "푸시알림 전송에 성공했습니다."),
 	CLEAR_SCHEDULED_TASKS_SUCCESS(HttpStatus.OK, "스케줄러에서 예약된 작업을 제거했습니다."),
 
+	UPDATE_USER_INFO_SUCCESS(HttpStatus.OK, "사용자 정보 수정 완료"),
+
 
 	/**
 	 * 204 NO_CONTENT
