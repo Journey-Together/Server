@@ -1,6 +1,5 @@
 package Journey.Together.domain.member.dto;
 
-import Journey.Together.domain.member.enumerate.BloodType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Null;
 
@@ -13,7 +12,7 @@ public record MemberReq(
         @Null
         String profileUrl,
         @Null
-        BloodType bloodType,
+        String bloodType,
         @Null
         String birth,
         @Null

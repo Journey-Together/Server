@@ -1,7 +1,6 @@
 package Journey.Together.domain.member.dto;
 
 import Journey.Together.domain.member.entity.Member;
-import Journey.Together.domain.member.enumerate.BloodType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Null;
 import lombok.Builder;
@@ -17,7 +16,7 @@ public record MemberRes(
         String profileUrl,
         @Null
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        BloodType bloodType,
+        String bloodType,
         @Null
         @JsonInclude(JsonInclude.Include.NON_NULL)
         String birth,

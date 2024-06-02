@@ -1,6 +1,5 @@
 package Journey.Together.domain.member.entity;
 
-import Journey.Together.domain.member.enumerate.BloodType;
 import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.enumerate.MemberType;
 import Journey.Together.global.common.BaseTimeEntity;
@@ -41,8 +40,7 @@ public class Member extends BaseTimeEntity {
     private LoginType loginType;
 
     @Column(name = "blood_type", columnDefinition = "varchar(255)")
-    @Enumerated(EnumType.STRING)
-    private BloodType bloodType;
+    private String bloodType;
 
     @Column(name = "member_type", nullable = false, columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
@@ -64,7 +62,7 @@ public class Member extends BaseTimeEntity {
     private String refreshToken;
 
     @Builder
-    public Member(String email, String name, String phone, String profileUrl, LoginType loginType,BloodType bloodType,MemberType memberType, String birth, String allergy, String medication, String refreshToken) {
+    public Member(String email, String name, String phone, String profileUrl, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication, String refreshToken) {
         this.email = email;
         this.name = name;
         this.phone = phone;
