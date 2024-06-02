@@ -74,7 +74,7 @@ public class S3Client {
         }
 
         // Response
-        return baseUrl + fileName;
+        return fileName;
     }
 
     public S3ObjectInputStream get(String fileName){

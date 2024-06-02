@@ -3,6 +3,7 @@ package Journey.Together.domain.member.dto;
 import Journey.Together.domain.member.enumerate.RelationType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Null;
+import org.springframework.web.multipart.MultipartFile;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record MemberReq(
@@ -11,7 +12,7 @@ public record MemberReq(
         @Null
         String phone,
         @Null
-        String profileUrl,
+        MultipartFile profileImage,
         @Null
         String bloodType,
         @Null

@@ -19,7 +19,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PatchMapping ("")
-    public ApiResponse<MemberRes> saveMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody MemberReq memberReq) {
+    public ApiResponse saveMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody MemberReq memberReq) {
         memberService.saveInfo(principalDetails.getMember(),memberReq);
         return ApiResponse.success(Success.UPDATE_USER_INFO_SUCCESS);
     }

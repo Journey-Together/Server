@@ -5,6 +5,7 @@ import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
+import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final S3Client s3Client;
 
     public void saveInfo(Member member,MemberReq memberReq){
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
@@ -24,8 +26,9 @@ public class MemberService {
         if (memberReq.phone() != null) {
             member.setPhone(memberReq.phone());
         }
-        if (memberReq.profileUrl() != null) {
-            member.setProfileUrl(memberReq.profileUrl());
+        if (memberReq.profileImage() != null) {
+            String uuid = s3Client.update(member.getProfileUuid(),memberReq.profileImage());
+            member.setProfileUuid(uuid);
         }
         if (memberReq.bloodType() != null) {
             member.setBloodType(memberReq.bloodType());
