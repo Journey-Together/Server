@@ -2,8 +2,6 @@ package Journey.Together.domain.member.dto;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.enumerate.RelationType;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.Null;
 import lombok.Builder;
 
 @Builder

@@ -34,7 +34,7 @@ public class Member extends BaseTimeEntity {
     private String phone;
 
     @Column(name = "profile_url", columnDefinition = "text")
-    private String profileUrl;
+    private String profileUuid;
 
     @Column(name = "login_type", nullable = false, columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
@@ -77,11 +77,11 @@ public class Member extends BaseTimeEntity {
     private String refreshToken;
 
     @Builder
-    public Member(String email, String name, String phone, String profileUrl, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,RelationType part1Rel,String part1Phone,RelationType part2Rel,String part2Phone, String refreshToken) {
+    public Member(String email, String name, String phone, String profileUuid, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,RelationType part1Rel,String part1Phone,RelationType part2Rel,String part2Phone, String refreshToken) {
         this.email = email;
         this.name = name;
         this.phone = phone;
-        this.profileUrl = profileUrl;
+        this.profileUuid = profileUuid;
         this.loginType = loginType;
         this.bloodType = bloodType;
         this.memberType = memberType;
