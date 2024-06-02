@@ -8,38 +8,17 @@ import lombok.Builder;
 @Builder
 public record MemberRes(
         String name,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String phone,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String profileUrl,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String bloodType,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
+
         String birth,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String disease,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String allergy,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String medication,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String part1_rel,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String part1_phone,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String part2_rel,
-        @Null
-        @JsonInclude(JsonInclude.Include.NON_NULL)
         String part2_phone
 ) {
     public static MemberRes of(Member member){

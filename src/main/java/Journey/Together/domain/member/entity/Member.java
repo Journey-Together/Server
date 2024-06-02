@@ -58,11 +58,23 @@ public class Member extends BaseTimeEntity {
     @Column(name = "medication", columnDefinition = "varchar(255)")
     private String medication;
 
+    @Column(name = "part1_rel", columnDefinition = "varchar(255)")
+    private String part1Rel;
+
+    @Column(name = "part1_phone", columnDefinition = "varchar(255)")
+    private String part1Phone;
+
+    @Column(name = "part2_rel", columnDefinition = "varchar(255)")
+    private String part2Rel;
+
+    @Column(name = "part2_phone", columnDefinition = "varchar(255)")
+    private String part2Phone;
+
     @Column(name = "refreshToken", columnDefinition = "varchar(255)")
     private String refreshToken;
 
     @Builder
-    public Member(String email, String name, String phone, String profileUrl, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication, String refreshToken) {
+    public Member(String email, String name, String phone, String profileUrl, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,String part1Rel,String part1Phone,String part2Rel,String part2Phone, String refreshToken) {
         this.email = email;
         this.name = name;
         this.phone = phone;
@@ -73,6 +85,10 @@ public class Member extends BaseTimeEntity {
         this.birth = birth;
         this.allergy = allergy;
         this.medication=medication;
+        this.part1Rel=part1Rel;
+        this.part1Phone=part1Phone;
+        this.part2Rel=part2Rel;
+        this.part2Phone=part2Phone;
         this.refreshToken=refreshToken;
     }
 }
