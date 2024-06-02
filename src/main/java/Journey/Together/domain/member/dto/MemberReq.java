@@ -1,5 +1,6 @@
 package Journey.Together.domain.member.dto;
 
+import Journey.Together.domain.member.enumerate.RelationType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Null;
 
@@ -22,11 +23,11 @@ public record MemberReq(
         @Null
         String medication,
         @Null
-        String part1_rel,
+        RelationType part1_rel,
         @Null
         String part1_phone,
         @Null
-        String part2_rel,
+        RelationType part2_rel,
         @Null
         String part2_phone
 ){

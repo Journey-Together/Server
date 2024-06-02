@@ -1,6 +1,7 @@
 package Journey.Together.domain.member.dto;
 
 import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.member.enumerate.RelationType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Null;
 import lombok.Builder;
@@ -11,14 +12,13 @@ public record MemberRes(
         String phone,
         String profileUrl,
         String bloodType,
-
         String birth,
         String disease,
         String allergy,
         String medication,
-        String part1_rel,
+        RelationType part1_rel,
         String part1_phone,
-        String part2_rel,
+        RelationType part2_rel,
         String part2_phone
 ) {
     public static MemberRes of(Member member){
@@ -31,10 +31,10 @@ public record MemberRes(
                 .disease(member.getDisease())
                 .allergy(member.getAllergy())
                 .medication(member.getMedication())
-                .part1_rel("ee")
-                .part1_phone("pp")
-                .part2_rel("ee")
-                .part2_phone("pp")
+                .part1_rel(member.getPart1Rel())
+                .part1_phone(member.getPart1Phone())
+                .part2_rel(member.getPart2Rel())
+                .part2_phone(member.getPart2Phone())
                 .build();
 
     }
