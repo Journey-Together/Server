@@ -30,7 +30,7 @@ public class MemberService {
 
     public MyPageRes getMypage(Member member){
         Long date = Duration.between(member.getCreatedAt(), LocalDateTime.now()).toDays();
-        return new MyPageRes(member.getName(), 0, date, member.getProfileUrl());
+        return new MyPageRes(member.getName(), 0, date, member.getProfileUuid());
     }
   
     @Transactional
