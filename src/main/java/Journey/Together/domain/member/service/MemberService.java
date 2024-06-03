@@ -1,9 +1,16 @@
 package Journey.Together.domain.member.service;
 
+import Journey.Together.domain.member.dto.MemberReq;
+import Journey.Together.domain.member.dto.MemberRes;
+import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.repository.MemberRepository;
+import Journey.Together.global.exception.ApplicationException;
+import Journey.Together.global.exception.ErrorCode;
+import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -11,6 +18,60 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final S3Client s3Client;
 
+    @Transactional
+    public void saveInfo(Member member,MemberReq memberReq){
+        // Validation
+        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        //Business
+        if (memberReq.name() != null) {
+            member.setName(memberReq.name());
+        }
+        if (memberReq.phone() != null) {
+            member.setPhone(memberReq.phone());
+        }
+        if (memberReq.profileImage() != null) {
+            String uuid = s3Client.update(member.getProfileUuid(),memberReq.profileImage());
+            member.setProfileUuid(uuid);
+        }
+        if (memberReq.bloodType() != null) {
+            member.setBloodType(memberReq.bloodType());
+        }
+        if (memberReq.birth() != null) {
+            member.setBirth(memberReq.birth());
+        }
+        if (memberReq.disease() != null) {
+            member.setDisease(memberReq.disease());
+        }
+        if (memberReq.allergy() != null) {
+            member.setAllergy(memberReq.allergy());
+        }
+        if (memberReq.medication() != null) {
+            member.setMedication(memberReq.medication());
+        }
+        if (memberReq.part1_rel() != null) {
+            member.setPart1Rel(memberReq.part1_rel());
+        }
+        if (memberReq.part1_phone() != null) {
+            member.setPart1Phone(memberReq.part1_phone());
+        }
+        if (memberReq.part2_rel() != null) {
+            member.setPart2Rel(memberReq.part2_rel());
+        }
+        if (memberReq.part2_phone() != null) {
+            member.setPart2Phone(memberReq.part2_phone());
+        }
+
+    }
+
+    public MemberRes findMemberInfo(Member member){
+        // Validation
+        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        //Business
+        MemberRes memberRes = MemberRes.of(member, s3Client.getUrl()+member.getProfileUuid());
+        //Response
+        return memberRes;
+    }
 
 }
