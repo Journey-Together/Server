@@ -153,7 +153,7 @@ public class AuthService {
 
         // Response
     }
-
+    @Transactional
     public TokenDto reissue(String token, Member member) {
         System.out.println(token);
         // Validation - RefreshToken 유효성 검증

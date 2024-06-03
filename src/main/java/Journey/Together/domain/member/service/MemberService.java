@@ -65,9 +65,9 @@ public class MemberService {
         if (memberReq.part2_phone() != null) {
             member.setPart2Phone(memberReq.part2_phone());
         }
-
+        memberRepository.save(member);
     }
-
+    @Transactional
     public MemberRes findMemberInfo(Member member){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
@@ -76,7 +76,7 @@ public class MemberService {
         //Response
         return memberRes;
     }
-
+    @Transactional
     public void updateMemberInterest(Member member, InterestDto interestDto){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
@@ -84,7 +84,7 @@ public class MemberService {
         //Business
         interest.update(interestDto);
     }
-
+    @Transactional
     public InterestDto findMemberInterest(Member member){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
