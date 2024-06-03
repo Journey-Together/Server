@@ -8,10 +8,7 @@ import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,4 +21,17 @@ public class PlanController {
         planService.savePlan(principalDetails.getMember(),planReq);
         return ApiResponse.success(Success.CREATE_PLAN_SUCCESS);
     }
+
+    @PostMapping("/{plan_id}")
+    public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
+        planService.updatePlan(principalDetails.getMember(),planId);
+        return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS);
+    }
+
+    @DeleteMapping("/{plan_id}")
+    public ApiResponse deletePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
+        planService.deletePlan(principalDetails.getMember(),planId);
+        return ApiResponse.success(Success.DELETE_PLAN_SUCCESS);
+    }
+
 }
