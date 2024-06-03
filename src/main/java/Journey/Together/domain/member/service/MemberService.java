@@ -85,4 +85,20 @@ public class MemberService {
         interest.update(interestDto);
     }
 
+    public InterestDto findMemberInterest(Member member){
+        // Validation
+        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        Interest interest = interestRepository.findByMemberAndDeletedAtIsNull(member);
+        //Business
+        InterestDto interestDto = InterestDto.of(
+                interest.getIsPysical(),
+                interest.getIsHear(),
+                interest.getIsVisual(),
+                interest.getIsElderly(),
+                interest.getIsChild()
+        );
+        //Response
+        return interestDto;
+    }
+
 }

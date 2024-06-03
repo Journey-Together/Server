@@ -13,11 +13,11 @@ public record InterestDto (
        Boolean isElderly,
        Boolean isChild
 ){
-    public static InterestDto of( @Null Boolean isPysical,
-                                  @Null Boolean isHear,
-                                  @Null Boolean isVisual,
-                                  @Null Boolean isElderly,
-                                  @Null Boolean isChild){
+    public static InterestDto of( Boolean isPysical,
+                                  Boolean isHear,
+                                  Boolean isVisual,
+                                  Boolean isElderly,
+                                  Boolean isChild){
             return InterestDto.builder()
                     .isPysical(isPysical)
                     .isHear(isHear)

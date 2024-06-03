@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Setter
+@Getter
 @Entity
 @Table(name = "interest")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

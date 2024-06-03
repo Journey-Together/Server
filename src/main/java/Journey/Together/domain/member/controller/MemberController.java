@@ -36,4 +36,10 @@ public class MemberController {
         memberService.updateMemberInterest(principalDetails.getMember(),interestDto);
         return ApiResponse.success(Success.UPDATE_USER_INFO_SUCCESS);
     }
+
+    @GetMapping("/interest-type")
+    public ApiResponse<InterestDto> findInterestType(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        InterestDto interestDto = memberService.findMemberInterest(principalDetails.getMember());
+        return ApiResponse.success(Success.GET_USER_INTEREST_SUCCESS,interestDto);
+    }
 }
