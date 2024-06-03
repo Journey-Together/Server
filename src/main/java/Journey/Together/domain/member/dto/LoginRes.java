@@ -14,7 +14,7 @@ public record LoginRes(
         @NotNull Long memberId,
         @NotNull String email,
         @NotNull String name,
-        String profileUrl,
+        String profileUuid,
         MemberType memberType,
         LoginType loginType,
         @NotNull String accessToken,
@@ -25,7 +25,7 @@ public record LoginRes(
                 .memberId(member.getMemberId())
                 .email(member.getEmail())
                 .name(member.getName())
-                .profileUrl(member.getProfileUrl())
+                .profileUuid(member.getProfileUuid())
                 .memberType(member.getMemberType())
                 .loginType(member.getLoginType())
                 .accessToken(tokenDto.accessToken())

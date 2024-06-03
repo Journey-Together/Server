@@ -18,6 +18,8 @@ public enum Success {
 	/**
 	 * 200 OK
 	 */
+
+	GET_USER_INTEREST_SUCCESS(HttpStatus.OK, "사용자 관심 유형 정보 조회 성공"),
 	GET_MAIN_SUCCESS(HttpStatus.OK, "메인 페이지 정보 조회 성공"),
 	GET_PLACE_DETAIL_SUCCESS(HttpStatus.OK, "여행지 상세정보 조회 성공"),
 	GET_MYPAGE_SUCCESS(HttpStatus.OK, "마이 페이지 조회 성공"),
@@ -51,6 +53,8 @@ public enum Success {
 	PUSH_ALARM_PERIODIC_SUCCESS(HttpStatus.OK, "푸시알림 활성에 성공했습니다."),
 	PUSH_ALARM_SUCCESS(HttpStatus.OK, "푸시알림 전송에 성공했습니다."),
 	CLEAR_SCHEDULED_TASKS_SUCCESS(HttpStatus.OK, "스케줄러에서 예약된 작업을 제거했습니다."),
+
+	UPDATE_USER_INFO_SUCCESS(HttpStatus.OK, "사용자 정보 수정 완료"),
 
 
 	/**

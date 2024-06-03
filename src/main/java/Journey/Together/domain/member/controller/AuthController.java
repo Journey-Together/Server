@@ -34,7 +34,7 @@ public class AuthController {
     @Operation(summary = "로그인 API")
     @PostMapping("/sign-in")
     public ApiResponse<LoginRes> signIn(@RequestHeader("Authorization") String token,
-                                        @RequestBody LoginReq loginReq) {
+                                        @RequestBody LoginReq loginReq) throws IOException {
         return ApiResponse.success(Success.LOGIN_SUCCESS,authService.signIn(token,loginReq));
     }
 
