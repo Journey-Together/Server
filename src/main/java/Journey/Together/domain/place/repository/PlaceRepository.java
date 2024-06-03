@@ -18,4 +18,5 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findAroundProducts(@Param("areacode") String areacode, @Param("sigungucode") String sigungucode,
                                    @Param("count") int count);
 
+    Place findPlaceById(Long id);
 }
