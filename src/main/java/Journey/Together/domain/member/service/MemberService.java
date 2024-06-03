@@ -1,5 +1,6 @@
 package Journey.Together.domain.member.service;
 
+import Journey.Together.domain.member.dto.MyPageRes;
 import Journey.Together.domain.member.dto.InterestDto;
 import Journey.Together.domain.member.dto.MemberReq;
 import Journey.Together.domain.member.dto.MemberRes;
@@ -14,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -23,6 +27,12 @@ public class MemberService {
     private final InterestRepository interestRepository;
     private final S3Client s3Client;
 
+
+    public MyPageRes getMypage(Member member){
+        Long date = Duration.between(member.getCreatedAt(), LocalDateTime.now()).toDays();
+        return new MyPageRes(member.getName(), 0, date, member.getProfileUrl());
+    }
+  
     @Transactional
     public void saveInfo(Member member,MemberReq memberReq){
         // Validation
