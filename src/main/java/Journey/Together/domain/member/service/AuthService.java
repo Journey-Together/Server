@@ -132,6 +132,7 @@ public class AuthService {
         return response.getBody().getNaverUserDetail();
     }
 
+    @Transactional
     public void signOut(String token, Member member) {
         // Validation
         String accessToken = token.substring(7);
