@@ -16,8 +16,10 @@ import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;
 import Journey.Together.global.exception.Success;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.util.*;
@@ -59,9 +61,11 @@ public class PlaceService {
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null);
 
-
-
     }
+
+//    public PlaceRes searchPlaceList(String category, String query,String disabilityType,String detailFilter, String areacode, String sigungucode, String arrange, Integer pageNo){
+//
+//    }
 
     private List<PlaceRes> getPlaceRes(List<Place> list){
         List<PlaceRes> placeList = new ArrayList<>();

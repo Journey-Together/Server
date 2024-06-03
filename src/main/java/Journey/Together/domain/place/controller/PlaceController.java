@@ -5,11 +5,13 @@ import Journey.Together.domain.member.dto.MemberRes;
 import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.domain.place.dto.response.MainRes;
 import Journey.Together.domain.place.dto.response.PlaceDetailRes;
+import Journey.Together.domain.place.dto.response.PlaceRes;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +34,19 @@ public class PlaceController {
     public ApiResponse<PlaceDetailRes> getPlaceDetail(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                       @PathVariable Long placeId){
         return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getPlaceDetail(principalDetails.getMember(), placeId));
+    }
+
+    @GetMapping("/search/list")
+    public ApiResponse<PlaceRes> searchPlaceList(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                 @RequestParam @NotNull String category,
+                                                 @RequestParam @NotNull String query,
+                                                 @RequestParam String disabilityType,
+                                                 @RequestParam String detailFilter,
+                                                 @RequestParam String areacode,
+                                                 @RequestParam String sigungucode,
+                                                 @RequestParam String arrange,
+                                                 @RequestParam Integer pageNo){
+        return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceList(category,query,disabilityType,detailFilter,areacode,sigungucode,arrange,pageNo));
     }
 
 }

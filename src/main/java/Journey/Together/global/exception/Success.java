@@ -39,6 +39,7 @@ public enum Success {
 	DELETE_CATEGORY_SUCCESS(HttpStatus.OK, "카테고리 삭제 성공"),
 	DELETE_TIMER_SUCCESS(HttpStatus.OK, "타이머 삭제 성공"),
 	SEARCH_SUCCESS(HttpStatus.OK, "검색 성공"),
+	SEARCH_PLACE_LIST_SUCCESS(HttpStatus.OK, "여행지 검색 성공"),
 	PARSING_OG_SUCCESS(HttpStatus.OK, "og 데이터 파싱 결과입니다. 크롤링을 막은 페이지는 기본이미지가 나옵니다."),
 	UPDATE_PUSH_ALLOWED_SUCCESS(HttpStatus.OK, "푸시알림 수정 성공"),
 	UPDATE_TOAST_TITLE_SUCCESS(HttpStatus.OK, "토스트 제목 수정 성공"),
