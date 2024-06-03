@@ -8,6 +8,6 @@ public record PlanReq(
         LocalDate startDate,
         LocalDate endDate,
         Boolean isPublic,
-        List<DaliyPlace> daliyplace
+        List<DailyPlace> dailyplace
 ) {
 }

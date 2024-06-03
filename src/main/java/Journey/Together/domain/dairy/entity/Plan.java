@@ -19,6 +19,10 @@ public class Plan extends BaseTimeEntity {
     @Column(name = "plan_id",columnDefinition = "bigint")
     private Long planId;
 
+    @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     @Column(name = "title",columnDefinition = "varchar(255)" )
     private String title;
 
@@ -31,16 +35,12 @@ public class Plan extends BaseTimeEntity {
     @Column(name = "is_public")
     private Boolean isPublic;
 
-    @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
     @Builder
-    public Plan(String title, LocalDate startDate, LocalDate endDate, Boolean isPublic, Member member){
+    public Plan( Member member, String title, LocalDate startDate, LocalDate endDate, Boolean isPublic){
+        this.member = member;
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPublic = isPublic;
-        this.member = member;
     }
 }

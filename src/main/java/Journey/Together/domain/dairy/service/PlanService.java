@@ -1,6 +1,6 @@
 package Journey.Together.domain.dairy.service;
 
-import Journey.Together.domain.dairy.dto.DaliyPlace;
+import Journey.Together.domain.dairy.dto.DailyPlace;
 import Journey.Together.domain.dairy.dto.PlanReq;
 import Journey.Together.domain.dairy.entity.Day;
 import Journey.Together.domain.dairy.entity.Plan;
@@ -25,6 +25,7 @@ public class PlanService {
     private final DayRepository dayRepository;
     private final PlaceRepository placeRepository;
 
+    @Transactional
     public void savePlan(Member member, PlanReq planReq){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
@@ -37,10 +38,9 @@ public class PlanService {
                 .isPublic(planReq.isPublic())
                 .build();
         planRepository.save(plan);
-        System.out.println("저장");
         //날짜별 장소 정보 저장
-        for(DaliyPlace daliyPlace : planReq.daliyplace()){
-            Place place = placeRepository.findPlaceById(daliyPlace.placeId());
+        for(DailyPlace dailyPlace : planReq.dailyplace()){
+            Place place = placeRepository.findPlaceById(dailyPlace.placeId());
             if(place == null){
                 throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
             }
@@ -48,7 +48,7 @@ public class PlanService {
                     .member(member)
                     .plan(plan)
                     .place(place)
-                    .date(daliyPlace.date())
+                    .date(dailyPlace.date())
                     .build();
             dayRepository.save(day);
         }
