@@ -1,8 +1,11 @@
 package Journey.Together.domain.member.service;
 
+import Journey.Together.domain.member.dto.InterestDto;
 import Journey.Together.domain.member.dto.MemberReq;
 import Journey.Together.domain.member.dto.MemberRes;
+import Journey.Together.domain.member.entity.Interest;
 import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.member.repository.InterestRepository;
 import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
@@ -10,7 +13,6 @@ import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final InterestRepository interestRepository;
     private final S3Client s3Client;
 
     @Transactional
@@ -62,9 +65,9 @@ public class MemberService {
         if (memberReq.part2_phone() != null) {
             member.setPart2Phone(memberReq.part2_phone());
         }
-
+        memberRepository.save(member);
     }
-
+    @Transactional
     public MemberRes findMemberInfo(Member member){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
@@ -72,6 +75,30 @@ public class MemberService {
         MemberRes memberRes = MemberRes.of(member, s3Client.getUrl()+member.getProfileUuid());
         //Response
         return memberRes;
+    }
+    @Transactional
+    public void updateMemberInterest(Member member, InterestDto interestDto){
+        // Validation
+        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        Interest interest = interestRepository.findByMemberAndDeletedAtIsNull(member);
+        //Business
+        interest.update(interestDto);
+    }
+    @Transactional
+    public InterestDto findMemberInterest(Member member){
+        // Validation
+        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        Interest interest = interestRepository.findByMemberAndDeletedAtIsNull(member);
+        //Business
+        InterestDto interestDto = InterestDto.of(
+                interest.getIsPysical(),
+                interest.getIsHear(),
+                interest.getIsVisual(),
+                interest.getIsElderly(),
+                interest.getIsChild()
+        );
+        //Response
+        return interestDto;
     }
 
 }

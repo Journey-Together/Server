@@ -18,6 +18,8 @@ public enum Success {
 	/**
 	 * 200 OK
 	 */
+
+	GET_USER_INTEREST_SUCCESS(HttpStatus.OK, "사용자 관심 유형 정보 조회 성공"),
 	GET_MAIN_SUCCESS(HttpStatus.OK, "메인 페이지 정보 조회 성공"),
 	GET_PLACE_DETAIL_SUCCESS(HttpStatus.OK, "여행지 상세정보 조회 성공"),
 	GET_MYPAGE_SUCCESS(HttpStatus.OK, "마이 페이지 조회 성공"),

@@ -2,9 +2,11 @@ package Journey.Together.domain.member.service;
 
 import Journey.Together.domain.member.dto.LoginReq;
 import Journey.Together.domain.member.dto.LoginRes;
+import Journey.Together.domain.member.entity.Interest;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.enumerate.MemberType;
+import Journey.Together.domain.member.repository.InterestRepository;
 import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.common.CustomMultipartFile;
 import Journey.Together.global.exception.ApplicationException;
@@ -40,6 +42,7 @@ public class AuthService {
     private final KakaoClient kakaoClient;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
+    private final InterestRepository interestRepository;
     private final S3Client s3Client;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -68,6 +71,15 @@ public class AuthService {
                         .loginType(LoginType.valueOf("KAKAO"))
                         .build();
                 member = memberRepository.save(newMember);
+                Interest interest = Interest.builder()
+                        .member(member)
+                        .isHear(false)
+                        .isChild(false)
+                        .isPysical(false)
+                        .isVisual(false)
+                        .isElderly(false)
+                        .build();
+                interestRepository.save(interest);
             }
             tokenDto = tokenProvider.createToken(member);
             member.setRefreshToken(tokenDto.refreshToken());
@@ -92,6 +104,15 @@ public class AuthService {
                         .build();
 
                 member = memberRepository.save(newMember);
+                Interest interest = Interest.builder()
+                        .member(member)
+                        .isHear(false)
+                        .isChild(false)
+                        .isPysical(false)
+                        .isVisual(false)
+                        .isElderly(false)
+                        .build();
+                interestRepository.save(interest);
             }
 
             tokenDto = tokenProvider.createToken(member);
@@ -132,7 +153,7 @@ public class AuthService {
 
         // Response
     }
-
+    @Transactional
     public TokenDto reissue(String token, Member member) {
         System.out.println(token);
         // Validation - RefreshToken 유효성 검증
