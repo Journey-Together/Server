@@ -53,4 +53,25 @@ public class PlanService {
             dayRepository.save(day);
         }
     }
+    @Transactional
+    public void updatePlan(Member member,Long planId){
+        // Validation
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member,planId);
+        if(plan == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+
+    }
+    @Transactional
+    public void deletePlan(Member member,Long planId){
+        // Validation
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member,planId);
+        if(plan == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+        //Buisness
+        dayRepository.deleteAllByMemberAndPlan(member,plan);
+        planRepository.deletePlanByPlanId(planId);
+
+    }
 }
