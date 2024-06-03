@@ -1,5 +1,6 @@
 package Journey.Together.domain.member.controller;
 
+import Journey.Together.domain.member.dto.InterestDto;
 import Journey.Together.domain.member.dto.MemberReq;
 import Journey.Together.domain.member.dto.MemberRes;
 import Journey.Together.domain.member.service.MemberService;
@@ -28,5 +29,11 @@ public class MemberController {
     public ApiResponse<MemberRes> findMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails){
         MemberRes memberRes = memberService.findMemberInfo(principalDetails.getMember());
         return ApiResponse.success(Success.GET_MYPAGE_SUCCESS,memberRes);
+    }
+
+    @PatchMapping("/interest-type")
+    public ApiResponse updateInterestType(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody InterestDto interestDto) {
+        memberService.updateMemberInterest(principalDetails.getMember(),interestDto);
+        return ApiResponse.success(Success.UPDATE_USER_INFO_SUCCESS);
     }
 }
