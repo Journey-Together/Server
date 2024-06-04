@@ -25,11 +25,11 @@ public class PlanReview extends BaseTimeEntity {
     @Column(name = "content",columnDefinition = "varchar(300)")
     private String content;
 
-    @OneToOne(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    @OneToMany(mappedBy = "planReviewImage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "planReview", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PlanReviewImage> planReviewImages = new ArrayList<>();
 
     @Builder

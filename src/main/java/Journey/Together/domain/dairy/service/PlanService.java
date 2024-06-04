@@ -116,5 +116,6 @@ public class PlanService {
                 .build();
         planReviewRepository.save(planReview);
 
+        plan.setIsPublic(planReviewReq.isPublic());
     }
 }

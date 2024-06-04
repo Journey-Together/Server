@@ -1,5 +1,6 @@
 package Journey.Together.domain.dairy.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +15,10 @@ public class PlanReviewImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "planReviewImage_id")
     private Long planReviewImageId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "planReview_id", nullable = false, columnDefinition = "bigint")
+    private PlanReview planReview;
 
     @Column(name = "imageUrl")
     private String imageUrl;
