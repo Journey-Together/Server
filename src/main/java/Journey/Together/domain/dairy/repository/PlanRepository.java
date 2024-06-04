@@ -8,6 +8,6 @@ import java.time.LocalDate;
 
 public interface PlanRepository extends JpaRepository<Plan, Long> {
     Plan findPlanByMemberAndPlanIdAndDeletedAtIsNull(Member member,Long planId);
-    Plan findPlanByMemberAndPlanIdAndEndDateIsAfterAndDeletedAtIsNull(Member member, Long planId, LocalDate today);
+    Plan findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(Member member, Long planId, LocalDate today);
     void deletePlanByPlanId(Long id);
 }

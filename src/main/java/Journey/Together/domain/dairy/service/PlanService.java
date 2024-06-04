@@ -91,30 +91,32 @@ public class PlanService {
     }
 
     @Transactional
-    public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq){
+    public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq,List<MultipartFile> images){
         // Validation
-        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsAfterAndDeletedAtIsNull(member,planId,LocalDate.now());
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member,planId,LocalDate.now());
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
         //Business
+        PlanReview planReview = PlanReview.builder()
+                .grade(planReviewReq.grade())
+                .content(planReviewReq.content())
+                .plan(plan)
+                .build();
+        planReviewRepository.save(planReview);
+
         List<PlanReviewImage> list = new ArrayList<>();
-        for(MultipartFile file : planReviewReq.images()){
+        for(MultipartFile file : images){
             String uuid = UUID.randomUUID().toString();
             String url = s3Client.upload(file,member.getProfileUuid(),uuid);
             PlanReviewImage planReviewImage = PlanReviewImage.builder()
+                    .planReview(planReview)
                     .imageUrl(url)
                     .build();
             planReviewImageRepository.save(planReviewImage);
             list.add(planReviewImage);
         }
-        PlanReview planReview = PlanReview.builder()
-                .grade(planReviewReq.grade())
-                .content(planReviewReq.content())
-                .plan(plan)
-                .planReviewImages(list)
-                .build();
-        planReviewRepository.save(planReview);
+        planReview.setPlanReviewImages(list);
 
         plan.setIsPublic(planReviewReq.isPublic());
     }

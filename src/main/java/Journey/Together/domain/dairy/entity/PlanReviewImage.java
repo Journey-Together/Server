@@ -24,7 +24,8 @@ public class PlanReviewImage {
     private String imageUrl;
 
     @Builder
-    public PlanReviewImage(String imageUrl){
+    public PlanReviewImage(String imageUrl,PlanReview planReview){
         this.imageUrl=imageUrl;
+        this.planReview= planReview;
     }
 }

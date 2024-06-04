@@ -8,7 +8,6 @@ import java.util.List;
 public record PlanReviewReq(
         float grade,
         String content,
-        List<MultipartFile> images,
         Boolean isPublic
 ) {
 }
