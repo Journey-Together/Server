@@ -61,7 +61,8 @@ public class AuthService {
             // 이메일 존재 시 로그인 , 존재하지 않을 경우 회원가입 진행
             if(member == null) {
                 MultipartFile imageFile = convertUrlToMultipartFile(kakaoProfile.kakao_account().profile().profile_image_url());
-                String uuid = s3Client.upload(imageFile);
+                String uuid = s3Client.createFolder();
+                s3Client.upload(imageFile,uuid,"profiile");
                 Member newMember = Member.builder()
                         .email(kakaoProfile.kakao_account().email())
                         .name(kakaoProfile.kakao_account().profile().nickname())
@@ -93,7 +94,8 @@ public class AuthService {
 
             if (member == null) {
                 MultipartFile imageFile = convertUrlToMultipartFile(naverProfile.getProfile_image() != null ? naverProfile.getProfile_image() : null);
-                String uuid = s3Client.upload(imageFile);
+                String uuid = s3Client.createFolder();
+                s3Client.upload(imageFile,uuid,"profiile");
 
                 Member newMember = Member.builder()
                         .email(naverProfile.getEmail() != null ? naverProfile.getEmail() : "Unknown")

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import Journey.Together.global.exception.ErrorCode;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -23,14 +24,21 @@ public class S3Client {
     @Value("${aws-property.baseUrl}")
     private String baseUrl;
 
-    public String upload(MultipartFile multipartFile) {
+    public String createFolder(){
+        String folderName = UUID.randomUUID().toString();
+        amazonS3Client.putObject(bucket, folderName + "/", new ByteArrayInputStream(new byte[0]), new ObjectMetadata());
+
+        return folderName;
+    }
+
+    public String upload(MultipartFile multipartFile, String folderName, String imageName) {
         // Validation
         if(multipartFile.isEmpty()) {
             throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
         }
 
         // Business Logic
-        String uuid = UUID.randomUUID().toString();
+        String url = folderName+"/"+imageName;
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
@@ -38,7 +46,7 @@ public class S3Client {
 
         // Check File upload
         try {
-            amazonS3Client.putObject(new PutObjectRequest(bucket, uuid, multipartFile.getInputStream(), objectMetadata)
+            amazonS3Client.putObject(new PutObjectRequest(bucket, url, multipartFile.getInputStream(), objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (Exception e) {
             throw new RuntimeException(e);
