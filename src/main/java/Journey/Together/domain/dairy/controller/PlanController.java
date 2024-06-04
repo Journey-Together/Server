@@ -1,5 +1,6 @@
 package Journey.Together.domain.dairy.controller;
 
+import Journey.Together.domain.dairy.dto.MyPlanRes;
 import Journey.Together.domain.dairy.dto.PlanReq;
 import Journey.Together.domain.dairy.dto.PlanReviewReq;
 import Journey.Together.domain.dairy.service.PlanService;
@@ -43,5 +44,10 @@ public class PlanController {
     public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart PlanReviewReq planReviewReq){
         planService.savePlanReview(principalDetails.getMember(),planId,planReviewReq,images);
         return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
+    }
+
+    @GetMapping("/my")
+    public ApiResponse<List<MyPlanRes>> findMyPlans(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ApiResponse.success(Success.GET_MYPLAN_SUCCESS,planService.findMyPlans(principalDetails.getMember()));
     }
 }
