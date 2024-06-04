@@ -1,5 +1,6 @@
 package Journey.Together.domain.dairy.controller;
 
+import Journey.Together.domain.dairy.dto.MyPlanRes;
 import Journey.Together.domain.dairy.dto.PlanReq;
 import Journey.Together.domain.dairy.dto.PlanReviewReq;
 import Journey.Together.domain.dairy.service.PlanService;
@@ -46,7 +47,7 @@ public class PlanController {
     }
 
     @GetMapping("/my")
-    public ApiResponse findMyPlans(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ApiResponse.success(Success.GET_MYPLAN_SUCCESS);
+    public ApiResponse<List<MyPlanRes>> findMyPlans(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ApiResponse.success(Success.GET_MYPLAN_SUCCESS,planService.findMyPlans(principalDetails.getMember()));
     }
 }

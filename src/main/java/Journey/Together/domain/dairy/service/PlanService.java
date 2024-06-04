@@ -1,6 +1,7 @@
 package Journey.Together.domain.dairy.service;
 
 import Journey.Together.domain.dairy.dto.DailyPlace;
+import Journey.Together.domain.dairy.dto.MyPlanRes;
 import Journey.Together.domain.dairy.dto.PlanReq;
 import Journey.Together.domain.dairy.dto.PlanReviewReq;
 import Journey.Together.domain.dairy.entity.Day;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -50,7 +52,6 @@ public class PlanService {
                 .title(planReq.title())
                 .startDate(planReq.startDate())
                 .endDate(planReq.endDate())
-                .isPublic(planReq.isPublic())
                 .build();
         planRepository.save(plan);
         //날짜별 장소 정보 저장
@@ -89,9 +90,6 @@ public class PlanService {
         planRepository.deletePlanByPlanId(planId);
 
     }
-    @Transactional
-    public void findMyPlans(Member member) {
-    }
 
     @Transactional
     public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq,List<MultipartFile> images){
@@ -122,5 +120,54 @@ public class PlanService {
         planReview.setPlanReviewImages(list);
 
         plan.setIsPublic(planReviewReq.isPublic());
+    }
+
+    @Transactional
+    public List<MyPlanRes> findMyPlans(Member member) {
+        //Vaildation
+        List<Plan> list = planRepository.findAllByMemberAndDeletedAtIsNull(member);
+        if(list == null){
+            return null;
+        }
+        //Business
+        List<MyPlanRes> myPlanResList = new ArrayList<>();
+        for(Plan plan : list){
+            List<Day> dayList = dayRepository.findByMemberAndDateAndPlan(member,plan.getStartDate(),plan);
+            String image = dayList.get(0).getPlace().getFirstImg();
+            if (LocalDate.now().isBefore(plan.getEndDate())){
+                //true : 이후 날짜
+                //imageUrl - startDate의 장소 중 가장 첫번째(createdAt 기준) //이건... 그냥 이야기 해봐야댈뜻..
+                //remainDate - null
+                //hasReview : review 찾아서 null 값이면 false 아니면 true
+                Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
+                MyPlanRes myPlanRes = MyPlanRes.builder()
+                        .planId(plan.getPlanId())
+                        .startDate(plan.getStartDate())
+                        .endDate(plan.getEndDate())
+                        .imageUrl(image)
+                        .remainDate(null)
+                        .hasReview(hasReview)
+                        .build();
+                myPlanResList.add(myPlanRes);
+            }else{
+                //false : 이전 날짜
+                //imageUrl - startDate의 장소 중 가장 첫번째(createdAt 기준)
+                //remainDate - endDate-startDate
+                //hasReview : null
+                Period period = Period.between(plan.getStartDate(),plan.getEndDate());
+                MyPlanRes myPlanRes = MyPlanRes.builder()
+                        .planId(plan.getPlanId())
+                        .startDate(plan.getStartDate())
+                        .endDate(plan.getEndDate())
+                        .imageUrl(image)
+                        .remainDate("D - "+ period.getDays())
+                        .hasReview(null)
+                        .build();
+                myPlanResList.add(myPlanRes);
+            }
+        }
+
+        //Response
+        return myPlanResList;
     }
 }
