@@ -142,6 +142,7 @@ public class PlanService {
                 Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
                 MyPlanRes myPlanRes = MyPlanRes.builder()
                         .planId(plan.getPlanId())
+                        .title(plan.getTitle())
                         .startDate(plan.getStartDate())
                         .endDate(plan.getEndDate())
                         .imageUrl(image)
@@ -157,6 +158,7 @@ public class PlanService {
                 Period period = Period.between(plan.getStartDate(),plan.getEndDate());
                 MyPlanRes myPlanRes = MyPlanRes.builder()
                         .planId(plan.getPlanId())
+                        .title(plan.getTitle())
                         .startDate(plan.getStartDate())
                         .endDate(plan.getEndDate())
                         .imageUrl(image)
