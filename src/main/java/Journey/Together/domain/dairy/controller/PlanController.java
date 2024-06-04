@@ -34,4 +34,8 @@ public class PlanController {
         return ApiResponse.success(Success.DELETE_PLAN_SUCCESS);
     }
 
+    @GetMapping("/my")
+    public ApiResponse findMyPlans(@AuthenticationPrincipal PrincipalDetails principalDetails){
+        return ApiResponse.success(Success.GET_MYPLAN_SUCCESS);
+    }
 }

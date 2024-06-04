@@ -74,4 +74,8 @@ public class PlanService {
         planRepository.deletePlanByPlanId(planId);
 
     }
+    @Transactional
+    public void findMyPlans(Member member){
+
+    }
 }

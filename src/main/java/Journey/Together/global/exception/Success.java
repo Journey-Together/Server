@@ -23,7 +23,7 @@ public enum Success {
 	GET_MAIN_SUCCESS(HttpStatus.OK, "메인 페이지 정보 조회 성공"),
 	GET_PLACE_DETAIL_SUCCESS(HttpStatus.OK, "여행지 상세정보 조회 성공"),
 	GET_MYPAGE_SUCCESS(HttpStatus.OK, "마이 페이지 조회 성공"),
-	GET_LINKS_SUCCESS(HttpStatus.OK, "이주의 링크 조회 성공"),
+	GET_MYPLAN_SUCCESS(HttpStatus.OK, "내 일정 조회 성공"),
 	GET_SITES_SUCCESS(HttpStatus.OK, "추천 사이트 조회 성공"),
 	GET_SETTINGS_SUCCESS(HttpStatus.OK, "설정 페이지 조회 성공"),
 
