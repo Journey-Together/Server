@@ -23,7 +23,7 @@ public class PlaceController {
     private final PlaceService placeService;
 
     @GetMapping("/main")
-    public ApiResponse<MainRes> getMain(@RequestHeader("Authorization") String accesstoken,
+    public ApiResponse<MainRes> getMain(
                                         @RequestParam String areacode, @RequestParam String sigungucode) {
         return ApiResponse.success(Success.GET_MAIN_SUCCESS, placeService.getMainPage(areacode, sigungucode));
     }
