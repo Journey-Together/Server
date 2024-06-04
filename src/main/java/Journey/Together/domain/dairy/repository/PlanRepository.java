@@ -4,6 +4,7 @@ import Journey.Together.domain.dairy.entity.Plan;
 import Journey.Together.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface PlanRepository extends JpaRepository<Plan, Long> {
