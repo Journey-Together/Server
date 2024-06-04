@@ -34,4 +34,9 @@ public class PlanController {
         return ApiResponse.success(Success.DELETE_PLAN_SUCCESS);
     }
 
+    @PostMapping("/review/{plan_id}")
+    public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
+    }
+
 }

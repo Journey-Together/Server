@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -72,6 +75,17 @@ public class PlanService {
         //Buisness
         dayRepository.deleteAllByMemberAndPlan(member,plan);
         planRepository.deletePlanByPlanId(planId);
+
+    }
+
+    @Transactional
+    public void savePlanReview(Member member,Long planId){
+        // Validation
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsAfterAndDeletedAtIsNull(member,planId,LocalDate.now());
+        if(plan == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+
 
     }
 }
