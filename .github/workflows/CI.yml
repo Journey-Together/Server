@@ -22,7 +22,7 @@ jobs:
       
     - name: application.yaml 생성
       run: | 
-          echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yaml
+          echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yml
       working-directory: ${{ env.working-directory }}
       
     - name: 빌드
