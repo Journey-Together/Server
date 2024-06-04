@@ -1,6 +1,7 @@
 package Journey.Together.domain.dairy.controller;
 
 import Journey.Together.domain.dairy.dto.PlanReq;
+import Journey.Together.domain.dairy.dto.PlanReviewReq;
 import Journey.Together.domain.dairy.service.PlanService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
@@ -9,6 +10,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +31,7 @@ public class PlanController {
         planService.updatePlan(principalDetails.getMember(),planId);
         return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS);
     }
+    
 
     @DeleteMapping("/{plan_id}")
     public ApiResponse deletePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
@@ -34,8 +39,14 @@ public class PlanController {
         return ApiResponse.success(Success.DELETE_PLAN_SUCCESS);
     }
 
+    @PostMapping("/review/{plan_id}")
+    public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart PlanReviewReq planReviewReq){
+        planService.savePlanReview(principalDetails.getMember(),planId,planReviewReq,images);
+        return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
+    }
+
     @GetMapping("/my")
-    public ApiResponse findMyPlans(@AuthenticationPrincipal PrincipalDetails principalDetails){
+    public ApiResponse findMyPlans(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         return ApiResponse.success(Success.GET_MYPLAN_SUCCESS);
     }
 }

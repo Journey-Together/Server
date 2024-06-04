@@ -9,5 +9,7 @@ import java.util.List;
 public interface PlanRepository extends JpaRepository<Plan, Long> {
     Plan findPlanByMemberAndPlanIdAndDeletedAtIsNull(Member member,Long planId);
     List<Plan> findAllByMemberAndDeletedAtIsNull(Member member);
+    Plan findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(Member member, Long planId, LocalDate today);
     void deletePlanByPlanId(Long id);
+
 }

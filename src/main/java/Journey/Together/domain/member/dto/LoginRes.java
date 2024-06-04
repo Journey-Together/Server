@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+
 public record LoginRes(
         @NotNull Long memberId,
         @NotNull String email,
