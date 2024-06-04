@@ -11,5 +11,5 @@ import java.util.List;
 public interface DayRepository extends JpaRepository<Day,Long> {
 
     void deleteAllByMemberAndPlan (Member member, Plan plan);
-    List<Day> findByMemberAndDateAndPlan(Member member, LocalDate date, Plan plan);
+    List<Day> findByMemberAndDateAndPlanOrderByCreatedAtDesc(Member member, LocalDate date, Plan plan);
 }

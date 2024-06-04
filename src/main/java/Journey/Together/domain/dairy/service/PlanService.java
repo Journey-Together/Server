@@ -132,7 +132,7 @@ public class PlanService {
         //Business
         List<MyPlanRes> myPlanResList = new ArrayList<>();
         for(Plan plan : list){
-            List<Day> dayList = dayRepository.findByMemberAndDateAndPlan(member,plan.getStartDate(),plan);
+            List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
             String image = dayList.get(0).getPlace().getFirstImg();
             if (LocalDate.now().isBefore(plan.getEndDate())){
                 //true : 이후 날짜
