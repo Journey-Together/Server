@@ -2,22 +2,31 @@ package Journey.Together.domain.dairy.service;
 
 import Journey.Together.domain.dairy.dto.DailyPlace;
 import Journey.Together.domain.dairy.dto.PlanReq;
+import Journey.Together.domain.dairy.dto.PlanReviewReq;
 import Journey.Together.domain.dairy.entity.Day;
 import Journey.Together.domain.dairy.entity.Plan;
+import Journey.Together.domain.dairy.entity.PlanReview;
+import Journey.Together.domain.dairy.entity.PlanReviewImage;
 import Journey.Together.domain.dairy.repository.DayRepository;
 import Journey.Together.domain.dairy.repository.PlanRepository;
+import Journey.Together.domain.dairy.repository.PlanReviewImageRepository;
+import Journey.Together.domain.dairy.repository.PlanReviewRepository;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
+import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,6 +36,9 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final DayRepository dayRepository;
     private final PlaceRepository placeRepository;
+    private final PlanReviewRepository planReviewRepository;
+    private final PlanReviewImageRepository planReviewImageRepository;
+    private final S3Client s3Client;
 
     @Transactional
     public void savePlan(Member member, PlanReq planReq){
@@ -79,13 +91,30 @@ public class PlanService {
     }
 
     @Transactional
-    public void savePlanReview(Member member,Long planId){
+    public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq){
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsAfterAndDeletedAtIsNull(member,planId,LocalDate.now());
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
-
+        //Business
+        List<PlanReviewImage> list = new ArrayList<>();
+        for(MultipartFile file : planReviewReq.images()){
+            String uuid = UUID.randomUUID().toString();
+            String url = s3Client.upload(file,member.getProfileUuid(),uuid);
+            PlanReviewImage planReviewImage = PlanReviewImage.builder()
+                    .imageUrl(url)
+                    .build();
+            planReviewImageRepository.save(planReviewImage);
+            list.add(planReviewImage);
+        }
+        PlanReview planReview = PlanReview.builder()
+                .grade(planReviewReq.grade())
+                .content(planReviewReq.content())
+                .plan(plan)
+                .planReviewImages(list)
+                .build();
+        planReviewRepository.save(planReview);
 
     }
 }

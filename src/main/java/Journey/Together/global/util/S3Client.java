@@ -53,7 +53,7 @@ public class S3Client {
         }
 
         // Response
-        return uuid;
+        return baseUrl+url;
     }
 
     public String update(String fileName, MultipartFile newFile) {

@@ -19,6 +19,12 @@ public class PlanReview extends BaseTimeEntity {
     @Column(name = "planReview_id",columnDefinition = "bigint")
     private Long planReviewId;
 
+    @Column(name = "grade")
+    private float grade;
+
+    @Column(name = "content",columnDefinition = "varchar(300)")
+    private String content;
+
     @OneToOne(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private Plan plan;
@@ -26,9 +32,11 @@ public class PlanReview extends BaseTimeEntity {
     @OneToMany(mappedBy = "planReviewImage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PlanReviewImage> planReviewImages = new ArrayList<>();
 
-    @Column(name = "grade")
-    private float grade;
-
-    @Column(name = "content",columnDefinition = "varchar(300)")
-    private String content;
+    @Builder
+    public PlanReview(float grade, String content,Plan plan,List<PlanReviewImage> planReviewImages){
+        this.grade = grade;
+        this.content=content;
+        this.plan=plan;
+        this.planReviewImages=planReviewImages;
+    }
 }

@@ -1,6 +1,7 @@
 package Journey.Together.domain.dairy.controller;
 
 import Journey.Together.domain.dairy.dto.PlanReq;
+import Journey.Together.domain.dairy.dto.PlanReviewReq;
 import Journey.Together.domain.dairy.service.PlanService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
@@ -35,7 +36,8 @@ public class PlanController {
     }
 
     @PostMapping("/review/{plan_id}")
-    public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("plan_id")Long planId){
+    public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId, @RequestBody PlanReviewReq planReviewReq){
+        planService.savePlanReview(principalDetails.getMember(),planId,planReviewReq);
         return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
     }
 

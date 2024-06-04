@@ -17,4 +17,9 @@ public class PlanReviewImage {
 
     @Column(name = "imageUrl")
     private String imageUrl;
+
+    @Builder
+    public PlanReviewImage(String imageUrl){
+        this.imageUrl=imageUrl;
+    }
 }
