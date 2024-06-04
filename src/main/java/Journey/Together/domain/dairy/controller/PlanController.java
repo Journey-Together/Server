@@ -31,6 +31,7 @@ public class PlanController {
         planService.updatePlan(principalDetails.getMember(),planId);
         return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS);
     }
+    
 
     @DeleteMapping("/{plan_id}")
     public ApiResponse deletePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
