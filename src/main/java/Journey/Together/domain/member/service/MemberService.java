@@ -30,7 +30,7 @@ public class MemberService {
 
     public MyPageRes getMypage(Member member){
         Long date = Duration.between(member.getCreatedAt(), LocalDateTime.now()).toDays();
-        return new MyPageRes(member.getName(), 0, date, member.getProfileUuid());
+        return new MyPageRes(member.getName(), 0, date, member.getProfileUuid()+"/profile");
     }
   
     @Transactional
@@ -82,7 +82,7 @@ public class MemberService {
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
-        MemberRes memberRes = MemberRes.of(member, s3Client.getUrl()+member.getProfileUuid());
+        MemberRes memberRes = MemberRes.of(member, s3Client.getUrl()+member.getProfileUuid()+"/profile");
         //Response
         return memberRes;
     }
