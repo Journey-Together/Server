@@ -1,10 +1,7 @@
 package Journey.Together.domain.place.service;
 
 import Journey.Together.domain.member.entity.Member;
-import Journey.Together.domain.place.dto.response.MainRes;
-import Journey.Together.domain.place.dto.response.PlaceDetailRes;
-import Journey.Together.domain.place.dto.response.PlaceRes;
-import Journey.Together.domain.place.dto.response.PlaceReviewDto;
+import Journey.Together.domain.place.dto.response.*;
 import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
@@ -63,18 +60,25 @@ public class PlaceService {
 
     }
 
-//    public PlaceRes searchPlaceList(String category, String query,String disabilityType,String detailFilter, String areacode, String sigungucode, String arrange, Integer pageNo){
-//
-//    }
+    public SearchPlaceRes searchPlaceList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange, Integer pageNo){
+        List<PlaceRes> placeResList =new ArrayList<>();
+
+        SearchPlace searchPlace = placeRepository.search(category, query, disabilityType, detailFilter, areacode, sigungucode, arrange, pageNo);
+        searchPlace.places().forEach(
+                place -> placeResList.add(PlaceRes.of(place,disabilityPlaceCategoryRepository.findDisabilityCategoryIds(place.getId())))
+        );
+
+        return new SearchPlaceRes(searchPlace.size(), placeResList);
+    }
 
     private List<PlaceRes> getPlaceRes(List<Place> list){
         List<PlaceRes> placeList = new ArrayList<>();
 
         for(Place place : list){
-            Set<String> disability = new HashSet<>();
+            Set<Long> disability = new HashSet<>();
             disabilityPlaceCategoryRepository.findAllByPlace(place)
                     .forEach(disabilityPlaceCategory -> {
-                        disability.add(disabilityPlaceCategory.getSubCategory().getCategory().getId().toString());
+                        disability.add(disabilityPlaceCategory.getSubCategory().getCategory().getId());
                     });
             placeList.add(PlaceRes.of(place, new ArrayList<>(disability)));
         }

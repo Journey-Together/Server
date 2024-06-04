@@ -6,6 +6,7 @@ import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.domain.place.dto.response.MainRes;
 import Journey.Together.domain.place.dto.response.PlaceDetailRes;
 import Journey.Together.domain.place.dto.response.PlaceRes;
+import Journey.Together.domain.place.dto.response.SearchPlaceRes;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
@@ -15,6 +16,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,15 +40,14 @@ public class PlaceController {
     }
 
     @GetMapping("/search/list")
-    public ApiResponse<PlaceRes> searchPlaceList(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                 @RequestParam @NotNull String category,
-                                                 @RequestParam @NotNull String query,
-                                                 @RequestParam String disabilityType,
-                                                 @RequestParam String detailFilter,
-                                                 @RequestParam String areacode,
-                                                 @RequestParam String sigungucode,
-                                                 @RequestParam String arrange,
-                                                 @RequestParam Integer pageNo){
+    public ApiResponse<SearchPlaceRes> searchPlaceList(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                       @RequestParam @NotNull String category,
+                                                       @RequestParam @NotNull String query,
+                                                       @RequestParam(required = false)List<Long> disabilityType, @RequestParam(required = false) List<Long> detailFilter,
+                                                       @RequestParam(required = false) String areacode,
+                                                       @RequestParam(required = false) String sigungucode,
+                                                       @RequestParam(required = false) String arrange,
+                                                       @RequestParam Integer pageNo){
         return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceList(category,query,disabilityType,detailFilter,areacode,sigungucode,arrange,pageNo));
     }
 

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface PlaceRepository extends JpaRepository<Place, Long> {
+public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceRepositoryCustom {
 
     @Query(value = "SELECT * FROM place p ORDER BY RAND() LIMIT :count", nativeQuery = true)
     List<Place> findRandomProducts(@Param("count") int count);
