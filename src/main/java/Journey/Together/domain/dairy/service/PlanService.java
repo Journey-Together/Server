@@ -162,7 +162,7 @@ public class PlanService {
                         .startDate(plan.getStartDate())
                         .endDate(plan.getEndDate())
                         .imageUrl(image)
-                        .remainDate("D - "+ period.getDays())
+                        .remainDate("D-"+ period.getDays())
                         .hasReview(null)
                         .build();
                 myPlanResList.add(myPlanRes);
