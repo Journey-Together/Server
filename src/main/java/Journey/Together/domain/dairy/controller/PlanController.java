@@ -20,6 +20,7 @@ public class PlanController {
     public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails,@RequestBody PlanReq planReq){
         planService.savePlan(principalDetails.getMember(),planReq);
         return ApiResponse.success(Success.CREATE_PLAN_SUCCESS);
+        
     }
 
     @PostMapping("/{plan_id}")
