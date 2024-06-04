@@ -48,11 +48,11 @@ public class AuthService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
-    public LoginRes signIn(String token, LoginReq loginReq) throws IOException {
+    public LoginRes signIn(String token, String type) throws IOException {
         Member member = null;
         TokenDto tokenDto = null;
 
-        if((loginReq.type()).equals("KAKAO")) {
+        if(type.equals("KAKAO")) {
             //Business Logic
             // 카카오톡에 있는 사용자 정보 반환
             KakaoProfile kakaoProfile = kakaoClient.getMemberInfo(token);
@@ -88,7 +88,7 @@ public class AuthService {
             // Response
             return LoginRes.of(member, tokenDto);
 
-        } else if ((loginReq.type()).equals("NAVER")) {
+        } else if (type.equals("NAVER")) {
             NaverUserResponse.NaverUserDetail naverProfile = toRequestProfile(token.substring(7));
             member = memberRepository.findMemberByEmailAndDeletedAtIsNull(naverProfile.getEmail()).orElse(null);
 
