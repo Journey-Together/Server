@@ -81,6 +81,20 @@ public class PlanService {
 
     }
     @Transactional
+    public PlanRes findPlan(Member member,Long planId) {
+        // Validation
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
+        if (plan == null) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+        //Buisness
+        List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
+        String image = dayList.get(0).getPlace().getFirstImg();
+        PlanRes planRes = PlanRes.of(plan,image,null,null);
+        //Response
+        return planRes;
+    }
+    @Transactional
     public void deletePlan(Member member,Long planId){
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member,planId);
@@ -99,6 +113,9 @@ public class PlanService {
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member,planId,LocalDate.now());
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+        if(planReviewRepository.existsAllByPlan(plan)){
+            throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
         //Business
         PlanReview planReview = PlanReview.builder()
