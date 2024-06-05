@@ -151,22 +151,16 @@ public class PlanService {
         //Business
         List<MyPlanRes> myPlanResList = new ArrayList<>();
         for(Plan plan : list){
-            List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
-            String image = dayList.get(0).getPlace().getFirstImg();
-            if (LocalDate.now().isBefore(plan.getEndDate())){
-                //true : 이후 날짜
-                //imageUrl - startDate의 장소 중 가장 첫번째(createdAt 기준) //이건... 그냥 이야기 해봐야댈뜻..
-                //remainDate - null
-                //hasReview : review 찾아서 null 값이면 false 아니면 true
+            String image = getPlanImageUrl(member,plan);
+            if (LocalDate.now().isAfter(plan.getEndDate())){
                 Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
                 MyPlanRes myPlanRes = MyPlanRes.of(plan,image,null,hasReview);
                 myPlanResList.add(myPlanRes);
-            }else{
-                //false : 이전 날짜
-                //imageUrl - startDate의 장소 중 가장 첫번째(createdAt 기준)
-                //remainDate - endDate-startDate
-                //hasReview : null
-                Period period = Period.between(plan.getStartDate(),plan.getEndDate());
+            }else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
+                MyPlanRes myPlanRes = MyPlanRes.of(plan,image,"D-DAY",null);
+                myPlanResList.add(myPlanRes);
+            }else if (LocalDate.now().isBefore(plan.getStartDate())){
+                Period period = Period.between(LocalDate.now(),plan.getStartDate());
                 MyPlanRes myPlanRes = MyPlanRes.of(plan,image,"D-"+ period.getDays(),null);
                 myPlanResList.add(myPlanRes);
             }
@@ -185,4 +179,53 @@ public class PlanService {
                 .collect(Collectors.toList());
         return PlaceInfoPageRes.of(placeInfoList, placePage.getNumber(), placePage.getSize(), placePage.getTotalPages(), placePage.isLast());
     }
+
+    @Transactional
+    public PlanPageRes findNotComplete(Member member,Pageable page){
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        System.out.println("test");
+        Page<Plan> planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member,LocalDate.now(),pageable);
+        System.out.println("test1");
+        List<PlanRes> planResList = planPage.getContent().stream()
+                .map(plan -> PlanRes.of(plan,getPlanImageUrl(member,plan),isBetween(plan.getStartDate(),plan.getEndDate()),null))
+                .collect(Collectors.toList());
+        System.out.println("test2");
+        return PlanPageRes.of(planResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
+    }
+
+    @Transactional
+    public PlanPageRes findComplete(Member member, Pageable page){
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Page<Plan> planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member,LocalDate.now(),pageable);
+        List<PlanRes> planResList = planPage.getContent().stream()
+                .map(plan -> PlanRes.of(plan,getPlanImageUrl(member,plan),null,planReviewRepository.existsAllByPlan(plan)))
+                .collect(Collectors.toList());
+        return PlanPageRes.of(planResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
+    }
+
+    @Transactional
+    public OpenPlanPageRes findOpenPlans(Pageable page){
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Page<Plan> planPage = planRepository.findAllByEndDateBeforeAndIsPublicIsTrueAndDeletedAtIsNull(LocalDate.now(),pageable);
+        List<OpenPlanRes> openPlanResList = planPage.getContent().stream()
+                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile",getPlanImageUrl(plan.getMember(),plan)))
+                .collect(Collectors.toList());
+        return OpenPlanPageRes.of(openPlanResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
+    }
+
+    public String isBetween(LocalDate startDate,LocalDate endDate){
+       if ((LocalDate.now().isEqual(startDate) || LocalDate.now().isAfter(startDate) && (LocalDate.now().isEqual(endDate) || LocalDate.now().isBefore(endDate)))){
+            return "D-DAY";
+       }else if (LocalDate.now().isBefore(startDate)){
+            Period period = Period.between(LocalDate.now(),startDate);
+            return "D-"+ period.getDays();
+       }
+       return null;
+    }
+
+    public String getPlanImageUrl(Member member,Plan plan){
+        List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
+        return dayList.get(0).getPlace().getFirstImg();
+    }
+
 }

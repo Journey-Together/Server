@@ -2,6 +2,7 @@ package Journey.Together.domain.dairy.controller;
 
 import Journey.Together.domain.dairy.dto.*;
 import Journey.Together.domain.dairy.service.PlanService;
+import Journey.Together.domain.member.entity.Member;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
@@ -44,10 +45,20 @@ public class PlanController {
         return ApiResponse.success(Success.DELETE_PLAN_SUCCESS);
     }
 
+    @GetMapping("/search")
+    public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.searchPlace(word,pageable));
+    }
+
     @PostMapping("/review/{plan_id}")
     public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart PlanReviewReq planReviewReq){
         planService.savePlanReview(principalDetails.getMember(),planId,planReviewReq,images);
         return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
+    }
+
+    @GetMapping("/open")
+    public ApiResponse<OpenPlanPageRes> findOpenPlans(@PageableDefault(size = 6) Pageable pageable){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findOpenPlans(pageable));
     }
 
     @GetMapping("/my")
@@ -55,10 +66,13 @@ public class PlanController {
         return ApiResponse.success(Success.GET_MYPLAN_SUCCESS,planService.findMyPlans(principalDetails.getMember()));
     }
 
-    @GetMapping("/search")
-    public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.searchPlace(word,pageable));
+    @GetMapping("/my/not-complete")
+    public ApiResponse<PlanPageRes> findNotComplete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 6,page = 0) Pageable pageable){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findNotComplete(principalDetails.getMember(),pageable));
     }
-
+    @GetMapping("/my/complete")
+    public ApiResponse<PlanPageRes> findComplete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 6) Pageable pageable){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findComplete(principalDetails.getMember(),pageable));
+    }
 
 }

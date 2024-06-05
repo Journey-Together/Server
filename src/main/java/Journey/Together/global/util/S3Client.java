@@ -24,6 +24,10 @@ public class S3Client {
     @Value("${aws-property.baseUrl}")
     private String baseUrl;
 
+    public String baseUrl(){
+        return this.baseUrl;
+    }
+
     public String createFolder(){
         String folderName = UUID.randomUUID().toString();
         amazonS3Client.putObject(bucket, folderName + "/", new ByteArrayInputStream(new byte[0]), new ObjectMetadata());
