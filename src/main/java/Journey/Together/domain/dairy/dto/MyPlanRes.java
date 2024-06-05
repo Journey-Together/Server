@@ -1,7 +1,6 @@
 package Journey.Together.domain.dairy.dto;
 
 import Journey.Together.domain.dairy.entity.Plan;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Null;
 import lombok.Builder;
 
