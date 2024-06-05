@@ -32,7 +32,11 @@ public class PlanController {
         planService.updatePlan(principalDetails.getMember(),planId);
         return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS);
     }
-    
+
+    @GetMapping("/{plan_id}")
+    public ApiResponse<PlanRes> findPlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
+        return ApiResponse.success(Success.GET_PLAN_SUCCESS,planService.findPlan(principalDetails.getMember(),planId));
+    }
 
     @DeleteMapping("/{plan_id}")
     public ApiResponse deletePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
@@ -55,9 +59,10 @@ public class PlanController {
     public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.searchPlace(word,pageable));
     }
-
+    
     @GetMapping("/my/not-complete")
     public ApiResponse<PlanPageRes> findNotComplete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 6,page = 0) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findNotComplete(principalDetails.getMember(),pageable));
     }
+
 }
