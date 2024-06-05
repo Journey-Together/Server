@@ -1,9 +1,6 @@
 package Journey.Together.domain.dairy.service;
 
-import Journey.Together.domain.dairy.dto.DailyPlace;
-import Journey.Together.domain.dairy.dto.MyPlanRes;
-import Journey.Together.domain.dairy.dto.PlanReq;
-import Journey.Together.domain.dairy.dto.PlanReviewReq;
+import Journey.Together.domain.dairy.dto.*;
 import Journey.Together.domain.dairy.entity.Day;
 import Journey.Together.domain.dairy.entity.Plan;
 import Journey.Together.domain.dairy.entity.PlanReview;
@@ -20,6 +17,10 @@ import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +30,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -140,15 +142,7 @@ public class PlanService {
                 //remainDate - null
                 //hasReview : review 찾아서 null 값이면 false 아니면 true
                 Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
-                MyPlanRes myPlanRes = MyPlanRes.builder()
-                        .planId(plan.getPlanId())
-                        .title(plan.getTitle())
-                        .startDate(plan.getStartDate())
-                        .endDate(plan.getEndDate())
-                        .imageUrl(image)
-                        .remainDate(null)
-                        .hasReview(hasReview)
-                        .build();
+                MyPlanRes myPlanRes = MyPlanRes.of(plan,image,null,hasReview);
                 myPlanResList.add(myPlanRes);
             }else{
                 //false : 이전 날짜
@@ -156,20 +150,22 @@ public class PlanService {
                 //remainDate - endDate-startDate
                 //hasReview : null
                 Period period = Period.between(plan.getStartDate(),plan.getEndDate());
-                MyPlanRes myPlanRes = MyPlanRes.builder()
-                        .planId(plan.getPlanId())
-                        .title(plan.getTitle())
-                        .startDate(plan.getStartDate())
-                        .endDate(plan.getEndDate())
-                        .imageUrl(image)
-                        .remainDate("D-"+ period.getDays())
-                        .hasReview(null)
-                        .build();
+                MyPlanRes myPlanRes = MyPlanRes.of(plan,image,"D-"+ period.getDays(),null);
                 myPlanResList.add(myPlanRes);
             }
         }
 
         //Response
         return myPlanResList;
+    }
+
+    @Transactional
+    public PlaceInfoPageRes searchPlace(String word, Pageable page){
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Page<Place> placePage = placeRepository.findAllByNameContainsOrderByCreatedAtDesc(word,pageable);
+        List<PlaceInfo> placeInfoList = placePage.getContent().stream()
+                .map(PlaceInfo::of)
+                .collect(Collectors.toList());
+        return PlaceInfoPageRes.of(placeInfoList, placePage.getNumber(), placePage.getSize(), placePage.getTotalPages(), placePage.isLast());
     }
 }
