@@ -136,20 +136,15 @@ public class PlanService {
         for(Plan plan : list){
             List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
             String image = dayList.get(0).getPlace().getFirstImg();
-            if (LocalDate.now().isBefore(plan.getEndDate())){
-                //true : 이후 날짜
-                //imageUrl - startDate의 장소 중 가장 첫번째(createdAt 기준) //이건... 그냥 이야기 해봐야댈뜻..
-                //remainDate - null
-                //hasReview : review 찾아서 null 값이면 false 아니면 true
+            if (LocalDate.now().isAfter(plan.getEndDate())){
                 Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
                 MyPlanRes myPlanRes = MyPlanRes.of(plan,image,null,hasReview);
                 myPlanResList.add(myPlanRes);
-            }else{
-                //false : 이전 날짜
-                //imageUrl - startDate의 장소 중 가장 첫번째(createdAt 기준)
-                //remainDate - endDate-startDate
-                //hasReview : null
-                Period period = Period.between(plan.getStartDate(),plan.getEndDate());
+            }else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
+                MyPlanRes myPlanRes = MyPlanRes.of(plan,image,"D-DAY",null);
+                myPlanResList.add(myPlanRes);
+            }else if (LocalDate.now().isBefore(plan.getStartDate())){
+                Period period = Period.between(LocalDate.now(),plan.getStartDate());
                 MyPlanRes myPlanRes = MyPlanRes.of(plan,image,"D-"+ period.getDays(),null);
                 myPlanResList.add(myPlanRes);
             }
