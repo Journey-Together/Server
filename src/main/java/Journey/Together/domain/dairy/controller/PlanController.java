@@ -55,4 +55,9 @@ public class PlanController {
     public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.searchPlace(word,pageable));
     }
+
+    @GetMapping("/my/not-complete")
+    public ApiResponse<PlanPageRes> findNotComplete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 6,page = 0) Pageable pageable){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findNotComplete(principalDetails.getMember(),pageable));
+    }
 }

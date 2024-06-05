@@ -163,4 +163,9 @@ public class PlanService {
                 .collect(Collectors.toList());
         return PlaceInfoPageRes.of(placeInfoList, placePage.getNumber(), placePage.getSize(), placePage.getTotalPages(), placePage.isLast());
     }
+
+    @Transactional
+    public PlanPageRes findNotComplete(Member member,Pageable page){
+
+    }
 }
