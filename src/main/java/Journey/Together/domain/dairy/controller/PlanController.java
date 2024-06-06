@@ -29,8 +29,8 @@ public class PlanController {
         return ApiResponse.success(Success.CREATE_PLAN_SUCCESS);
     }
 
-    @PostMapping("/{plan_id}")
-    public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
+    @PatchMapping("/{plan_id}")
+    public ApiResponse updatePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
         planService.updatePlan(principalDetails.getMember(),planId);
         return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS);
     }
