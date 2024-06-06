@@ -14,6 +14,7 @@ public enum Success {
 	CREATE_PLAN_SUCCESS(HttpStatus.CREATED, "일정 저장이 완료 되었습니다."),
 	CREATE_CATEGORY_SUCCESS(HttpStatus.CREATED, "새 카테고리 추가 성공"),
 	CREATE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 생성 성공"),
+	CREATE_PLACE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 작성 성공"),
 
 	/**
 	 * 200 OK

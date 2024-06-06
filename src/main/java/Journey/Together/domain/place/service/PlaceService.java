@@ -1,6 +1,8 @@
 package Journey.Together.domain.place.service;
 
+import Journey.Together.domain.dairy.entity.PlanReviewImage;
 import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.response.MainRes;
 import Journey.Together.domain.place.dto.response.PlaceDetailRes;
 import Journey.Together.domain.place.dto.response.PlaceRes;
@@ -11,6 +13,10 @@ import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepositor
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.placeBookbark.entity.PlaceBookmark;
 import Journey.Together.domain.placeBookbark.repository.PlaceBookmarkRepository;
+import Journey.Together.domain.placeReview.entity.PlaceReview;
+import Journey.Together.domain.placeReview.entity.PlaceReviewImg;
+import Journey.Together.domain.placeReview.repository.PlaceReviewImgRepository;
+import Journey.Together.domain.placeReview.repository.PlaceReviewRepository;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
@@ -18,18 +24,26 @@ import Journey.Together.global.exception.ErrorResponse;
 import Journey.Together.global.exception.Success;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import Journey.Together.global.util.S3Client;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class PlaceService {
     private final PlaceRepository placeRepository;
+    private final PlaceReviewRepository placeReviewRepository;
+    private final PlaceReviewImgRepository placeReviewImgRepository;
     private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
     private final PlaceBookmarkRepository placeBookmarkRepository;
 
+    private final S3Client s3Client;
 
+    private static final String POST_IMAGE_FOLDER_NAME = "reviews/";
     private final Integer recommnedPlaceNum = 4;
     private final Integer aroundPlaceNum = 2;
 
@@ -59,6 +73,40 @@ public class PlaceService {
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null);
 
+
+
+    }
+
+    //여행지 후기 생성
+    @Transactional
+    public void createReview(Member member, List<MultipartFile> images, PlaceReviewReq placeReviewReq, Long placeId){
+
+        Place place = placeRepository.findById(placeId).orElseThrow(
+                ()->new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
+
+        if(placeReviewRepository.findPlaceReviewByPlace(place) != null)
+            new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
+
+        PlaceReview placeReview = PlaceReview.builder()
+                .member(member)
+                .place(place)
+                .content(placeReviewReq.content())
+                .grade(placeReviewReq.grade())
+                .date(placeReviewReq.date())
+                .build();
+
+        placeReviewRepository.save(placeReview);
+
+        try {
+            for(MultipartFile file : images) {
+                String uuid = UUID.randomUUID().toString();
+                final String imageUrl = s3Client.upload(file, POST_IMAGE_FOLDER_NAME+member.getMemberId(), uuid);
+                PlaceReviewImg placeReviewImg = PlaceReviewImg.builder().placeReview(placeReview).imgUrl(imageUrl).build();
+                placeReviewImgRepository.save(placeReviewImg);
+            }
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
+        }
 
 
     }
