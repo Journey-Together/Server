@@ -7,6 +7,7 @@ import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -59,6 +60,11 @@ public class PlanController {
     @GetMapping("/open")
     public ApiResponse<OpenPlanPageRes> findOpenPlans(@PageableDefault(size = 6) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findOpenPlans(pageable));
+    }
+
+    @GetMapping("/detail/{plan_id}")
+    public ApiResponse<PlanDetailRes> findPalnDetailInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findPlanDetail(principalDetails.getMember(),planId));
     }
 
     @GetMapping("/my")

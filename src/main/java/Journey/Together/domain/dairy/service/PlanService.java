@@ -11,7 +11,9 @@ import Journey.Together.domain.dairy.repository.PlanReviewImageRepository;
 import Journey.Together.domain.dairy.repository.PlanReviewRepository;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.repository.MemberRepository;
+import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
 import Journey.Together.domain.place.entity.Place;
+import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +32,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -42,6 +46,7 @@ public class PlanService {
     private final PlaceRepository placeRepository;
     private final PlanReviewRepository planReviewRepository;
     private final PlanReviewImageRepository planReviewImageRepository;
+    private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
     private final S3Client s3Client;
 
     @Transactional
@@ -106,6 +111,55 @@ public class PlanService {
         dayRepository.deleteAllByMemberAndPlan(member,plan);
         planRepository.deletePlanByPlanId(planId);
 
+    }
+
+    @Transactional
+    public PlanDetailRes findPlanDetail(Member member, Long planId){
+        // Validation
+        Plan plan = planRepository.findPlanByPlanIdAndDeletedAtIsNull(planId);
+        if(plan == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+        //Buisness
+        boolean isWriter;
+        List<String> imageUrls = new ArrayList<>();
+        List<DailyList> dailyLists = new ArrayList<>();
+        List<DailyPlaceInfo> dailyPlaceInfoList = new ArrayList<>();
+        List<Day> dayList = dayRepository.findAllByMemberAndPlanOrderByCreatedAtDesc(plan.getMember(),plan);
+        if(plan.getEndDate().isAfter(LocalDate.now())){
+            //imageUrl : 장소 사진
+            for(Day day : dayList){
+                imageUrls.add(day.getPlace().getFirstImg());
+                System.out.println(day.getDate()+":"+day.getPlace().getFirstImg());
+            }
+        }else {
+            PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
+            List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReview(planReview);
+            if(planReviewImageList == null){
+                //imageUrl : 장소사진
+                for(Day day : dayList){
+                    imageUrls.add(day.getPlace().getFirstImg());
+                }
+            }else {
+                //imageUrl : 리뷰 사진들
+                imageUrls = getReviewImageList(planReviewImageList);
+            }
+        }
+        //DailyPlaceInfo - place, List<Long> disabilityCategoryList(장소 세부 카테고리)
+        for(Day day : dayList){
+            List<Long> disabilityCategoryList = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(day.getPlace().getId());
+            DailyPlaceInfo dailyPlaceInfo = DailyPlaceInfo.of(day.getPlace(),disabilityCategoryList);
+            dailyPlaceInfoList.add(dailyPlaceInfo);
+        }
+        //DailyList - date, List<DailyPlaceInfo> dailyPlaceInfoList(장소 세부 정보)
+        for (Day day : dayList){
+            DailyList dailyList = DailyList.of(day.getDate(),dailyPlaceInfoList);
+            dailyLists.add(dailyList);
+        }
+        isWriter= Objects.equals(plan.getMember().getMemberId(), member.getMemberId());
+        //PlanDetailRes - List<String> imageUrls, List<DailyList> dailyList, Boolean isWriter
+        //Response
+        return PlanDetailRes.of(imageUrls,dailyLists,isWriter);
     }
 
     @Transactional
