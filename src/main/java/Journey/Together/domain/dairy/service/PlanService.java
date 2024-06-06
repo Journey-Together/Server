@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -105,6 +106,18 @@ public class PlanService {
         dayRepository.deleteAllByMemberAndPlan(member,plan);
         planRepository.deletePlanByPlanId(planId);
 
+    }
+
+    @Transactional
+    public PlanDetailRes findPlanDetail(Member member, Long planId){
+        // Validation
+        Plan plan = planRepository.findPlanByDeletedAtIsNull(planId);
+        if(plan == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+        //Buisness
+        String imageUrls = 
+        PlanDetailRes planDetailRes = PlanDetailRes.of()
     }
 
     @Transactional
