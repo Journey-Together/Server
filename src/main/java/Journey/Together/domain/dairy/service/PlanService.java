@@ -58,17 +58,19 @@ public class PlanService {
         planRepository.save(plan);
         //날짜별 장소 정보 저장
         for(DailyPlace dailyPlace : planReq.dailyplace()){
-            Place place = placeRepository.findPlaceById(dailyPlace.placeId());
-            if(place == null){
-                throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+            for(Long placeId : dailyPlace.places()){
+                Place place = placeRepository.findPlaceById(placeId);
+                if(place == null){
+                    throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+                }
+                Day day = Day.builder()
+                        .member(member)
+                        .plan(plan)
+                        .place(place)
+                        .date(dailyPlace.date())
+                        .build();
+                dayRepository.save(day);
             }
-            Day day = Day.builder()
-                    .member(member)
-                    .plan(plan)
-                    .place(place)
-                    .date(dailyPlace.date())
-                    .build();
-            dayRepository.save(day);
         }
     }
     @Transactional
