@@ -1,11 +1,7 @@
 package Journey.Together.domain.place.controller;
 
-import Journey.Together.domain.member.dto.LoginReq;
-import Journey.Together.domain.member.dto.MemberRes;
-import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.response.*;
-import Journey.Together.domain.place.entity.PlaceReview;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
@@ -56,7 +52,7 @@ public class PlaceController {
     }
 
     @GetMapping("/review/my")
-    public ApiResponse<List<MyPlaceReviewRes>> getPlaceMyReview(
+    public ApiResponse<MyPlaceReviewRes> getPlaceMyReview(
             @AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 5,page = 0) Pageable pageable) {
         return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_LIST_SUCCESS, placeService.getMyReviews(principalDetails.getMember(), pageable));
     }
