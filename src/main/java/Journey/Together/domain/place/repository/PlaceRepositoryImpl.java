@@ -13,6 +13,7 @@ import Journey.Together.domain.placeBookbark.entity.QPlaceBookmark;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -57,7 +58,7 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
                 .from(place)
                 .join(place.placeDisabilityCategories, disabilityPlaceCategory)
                 .where(place.name.contains(query))
-                .where(categoryEq(category), disabilityTypeIn(disabilityType), detailFilterIn(detailFilter),
+                .where(categoryEq(category), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
                         areacodeEq(areacode), sigungucodeEq(sigungucode))
                 .orderBy(arg(arrange))
                 .offset(pageable.getOffset())
@@ -69,7 +70,7 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
                 .from(place)
                 .join(place.placeDisabilityCategories, disabilityPlaceCategory)
                 .where(place.name.contains(query))
-                .where(categoryEq(category), disabilityTypeIn(disabilityType), detailFilterIn(detailFilter),
+                .where(categoryEq(category), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
                         areacodeEq(areacode), sigungucodeEq(sigungucode))
                 .fetchOne();
 
@@ -86,35 +87,40 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
         return place.category.in(categoryList);
     }
 
-    private BooleanExpression disabilityTypeIn(List<Long> disabilityType) {
-        BooleanExpression expression = null;
-        if (disabilityType != null) {
-            for (Long typeId : disabilityType) {
-                BooleanExpression typeCondition = disabilityCategory.id.eq(typeId);
-                expression = (expression != null) ? expression.and(typeCondition) : typeCondition;
-            }
-        }
-        return expression;
+    private BooleanExpression disabilityTypeHas(List<Long> disabilityType) {
+        if(disabilityType==null||disabilityType.isEmpty())
+            return null;
+        return place.id.in(
+                JPAExpressions
+                        .select(disabilityPlaceCategory.place.id)
+                        .from(disabilityPlaceCategory)
+                        .where(disabilityPlaceCategory.subCategory.category.id.in(disabilityType))
+                        .groupBy(disabilityPlaceCategory.place.id)
+                        .having(disabilityPlaceCategory.place.id.count().goe((long)disabilityType.size()))
+        );
     }
 
-    private BooleanExpression detailFilterIn(List<Long> detailFilter) {
-        BooleanExpression expression = null;
-        if (detailFilter != null) {
-            for (Long typeId : detailFilter) {
-                BooleanExpression typeCondition = disabilitySubCategory.id.eq(typeId);
-                expression = (expression != null) ? expression.and(typeCondition) : typeCondition;
-            }
-        }
-        return expression;
+    private BooleanExpression detailFilterHas(List<Long> detailFilter) {
+        if(detailFilter==null||detailFilter.isEmpty())
+            return null;
+        return place.id.in(
+                JPAExpressions
+                        .select(disabilityPlaceCategory.place.id)
+                        .from(disabilityPlaceCategory)
+                        .where(disabilityPlaceCategory.subCategory.id.in(detailFilter))
+                        .groupBy(disabilityPlaceCategory.place.id)
+                        .having(disabilityPlaceCategory.place.id.count().goe((long)detailFilter.size()))
+        );
     }
 
     private BooleanExpression areacodeEq(String areacode) {
-        return areacode != null ? place.category.eq(areacode) : null;
+        return areacode != null ? place.areaCode.eq(areacode) : null;
     }
 
     private BooleanExpression sigungucodeEq(String sigungucode) {
-        return sigungucode != null ? place.category.eq(sigungucode) : null;
+        return sigungucode != null ? place.sigunguCode.eq(sigungucode) : null;
     }
+
     private OrderSpecifier<?> arg(String arrange) {
         if ("A".equals(arrange)) { // 최신순
             return place.createdAt.desc();
