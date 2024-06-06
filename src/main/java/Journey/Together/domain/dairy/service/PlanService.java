@@ -129,8 +129,9 @@ public class PlanService {
         if(plan.getEndDate().isAfter(LocalDate.now())){
             //imageUrl : 장소 사진
             for(Day day : dayList){
-                imageUrls.add(day.getPlace().getFirstImg());
-                System.out.println(day.getDate()+":"+day.getPlace().getFirstImg());
+                if(day.getPlace().getFirstImg()!=null){
+                    imageUrls.add(day.getPlace().getFirstImg());
+                }
             }
         }else {
             PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
@@ -138,7 +139,9 @@ public class PlanService {
             if(planReviewImageList == null){
                 //imageUrl : 장소사진
                 for(Day day : dayList){
-                    imageUrls.add(day.getPlace().getFirstImg());
+                    if(day.getPlace().getFirstImg()!=null){
+                        imageUrls.add(day.getPlace().getFirstImg());
+                    }
                 }
             }else {
                 //imageUrl : 리뷰 사진들
@@ -156,7 +159,11 @@ public class PlanService {
             DailyList dailyList = DailyList.of(day.getDate(),dailyPlaceInfoList);
             dailyLists.add(dailyList);
         }
-        isWriter= Objects.equals(plan.getMember().getMemberId(), member.getMemberId());
+        if (member ==null){
+            isWriter = false;
+        }else {
+            isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
+        }
         //PlanDetailRes - List<String> imageUrls, List<DailyList> dailyList, Boolean isWriter
         //Response
         return PlanDetailRes.of(imageUrls,dailyLists,isWriter);
@@ -194,6 +201,29 @@ public class PlanService {
         planReview.setPlanReviewImages(list);
 
         plan.setIsPublic(planReviewReq.isPublic());
+    }
+
+    @Transactional
+    public PlanReviewRes findPlanReview(Member member,long planId){
+        // Validation
+        Plan plan = planRepository.findPlanByPlanIdAndDeletedAtIsNull(planId);
+        if(plan == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+        PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
+        //Buisness
+        boolean isWriter;
+        if (member ==null){
+            isWriter = false;
+        }else {
+            isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
+        }
+        if(planReview==null){
+            return PlanReviewRes.of(null,null,null,isWriter,false);
+        }else {
+            return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true);
+        }
+
     }
 
     @Transactional

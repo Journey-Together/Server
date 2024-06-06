@@ -57,6 +57,16 @@ public class PlanController {
         return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
     }
 
+    @GetMapping("/review/{plan_id}")
+    public ApiResponse<PlanReviewRes> findPlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(principalDetails.getMember(),planId));
+    }
+
+    @GetMapping("/guest/review/{plan_id}")
+    public ApiResponse<PlanReviewRes> findPlanReviewGuest(@PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(null,planId));
+    }
+
     @GetMapping("/open")
     public ApiResponse<OpenPlanPageRes> findOpenPlans(@PageableDefault(size = 6) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findOpenPlans(pageable));
@@ -65,6 +75,11 @@ public class PlanController {
     @GetMapping("/detail/{plan_id}")
     public ApiResponse<PlanDetailRes> findPalnDetailInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findPlanDetail(principalDetails.getMember(),planId));
+    }
+
+    @GetMapping("/guest/detail/{plan_id}")
+    public ApiResponse<PlanDetailRes> findPalnDetailInfo(@PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findPlanDetail(null,planId));
     }
 
     @GetMapping("/my")
