@@ -2,14 +2,15 @@ package Journey.Together.domain.dairy.dto;
 
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Builder
 public record DailyList(
-        String date,
+        LocalDate date,
         List<DailyPlaceInfo> dailyPlaceInfoList
 ) {
-    public static DailyList of(String date,
+    public static DailyList of(LocalDate date,
                                List<DailyPlaceInfo> dailyPlaceInfoList){
         return DailyList.builder()
                 .date(date)

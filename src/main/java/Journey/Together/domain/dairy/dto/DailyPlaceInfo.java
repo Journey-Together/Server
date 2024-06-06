@@ -7,6 +7,7 @@ import java.util.List;
 
 @Builder
 public record DailyPlaceInfo(
+        Long placeId,
         String name,
         String category,
         List<Long> disabilityCategoryList
@@ -19,6 +20,7 @@ public record DailyPlaceInfo(
         else if (place.getCategory().equals("A05"))
             cat = "음식점";
         return DailyPlaceInfo.builder()
+                .placeId(place.getId())
                 .name(place.getName())
                 .category(cat)
                 .disabilityCategoryList(disabilityCategoryList)

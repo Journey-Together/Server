@@ -62,13 +62,9 @@ public class PlanController {
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findOpenPlans(pageable));
     }
 
-    @GetMapping("/detail/{planId}")
-    public ApiResponse<PlanDetailRes> findPalnDetailInfo(@Null @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
-        if(principalDetails.getMember()==null){
-            return ApiResponse.success(Success.SEARCH_SUCCESS);
-        }else{
-            return ApiResponse.success(Success.SEARCH_SUCCESS);
-        }
+    @GetMapping("/detail/{plan_id}")
+    public ApiResponse<PlanDetailRes> findPalnDetailInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findPlanDetail(principalDetails.getMember(),planId));
     }
 
     @GetMapping("/my")
