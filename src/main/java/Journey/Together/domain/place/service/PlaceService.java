@@ -1,25 +1,19 @@
 package Journey.Together.domain.place.service;
 
-import Journey.Together.domain.dairy.dto.PlaceInfo;
-import Journey.Together.domain.dairy.entity.PlanReviewImage;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.response.*;
-import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.placeBookbark.entity.PlaceBookmark;
 import Journey.Together.domain.placeBookbark.repository.PlaceBookmarkRepository;
-import Journey.Together.domain.placeReview.entity.PlaceReview;
-import Journey.Together.domain.placeReview.entity.PlaceReviewImg;
-import Journey.Together.domain.placeReview.repository.PlaceReviewImgRepository;
-import Journey.Together.domain.placeReview.repository.PlaceReviewRepository;
-import Journey.Together.global.common.ApiResponse;
+import Journey.Together.domain.place.entity.PlaceReview;
+import Journey.Together.domain.place.entity.PlaceReviewImg;
+import Journey.Together.domain.place.repository.PlaceReviewImgRepository;
+import Journey.Together.domain.place.repository.PlaceReviewRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
-import Journey.Together.global.exception.ErrorResponse;
-import Journey.Together.global.exception.Success;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,9 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import Journey.Together.global.util.S3Client;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -124,6 +116,15 @@ public class PlaceService {
 
     }
 
+    //나의 여행지 후기
+    public List<MyPlaceReviewRes> getMyReviews(Member member, Pageable page){
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByMemberOrderByCreatedAtDesc(member, pageable);
+        return placeReviewPage.getContent().stream()
+                .map(this::getMyPlaceReview)
+                .toList();
+    }
+
     private List<PlaceRes> getPlaceRes(List<Place> list){
         List<PlaceRes> placeList = new ArrayList<>();
 
@@ -153,6 +154,12 @@ public class PlaceService {
            return PlaceReivewListDto.of(placeReview, imgUrls);
        }
        return PlaceReivewListDto.of(placeReview, new ArrayList<>());
+
+    }
+
+    private MyPlaceReviewRes getMyPlaceReview(PlaceReview placeReview){
+        List<PlaceReviewImg> imgList = placeReviewImgRepository.findAllByPlaceReview(placeReview);
+        return MyPlaceReviewRes.of(placeReview, imgList.get(0).getImgUrl());
 
     }
 

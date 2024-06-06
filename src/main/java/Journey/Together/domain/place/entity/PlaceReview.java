@@ -1,4 +1,4 @@
-package Journey.Together.domain.placeReview.entity;
+package Journey.Together.domain.place.entity;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.entity.Place;

@@ -4,10 +4,8 @@ import Journey.Together.domain.member.dto.LoginReq;
 import Journey.Together.domain.member.dto.MemberRes;
 import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
-import Journey.Together.domain.place.dto.response.MainRes;
-import Journey.Together.domain.place.dto.response.PlaceDetailRes;
-import Journey.Together.domain.place.dto.response.PlaceRes;
-import Journey.Together.domain.place.dto.response.PlaceReviewRes;
+import Journey.Together.domain.place.dto.response.*;
+import Journey.Together.domain.place.entity.PlaceReview;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
@@ -55,6 +53,12 @@ public class PlaceController {
     public ApiResponse<PlaceReviewRes> getPlaceReview(
             @PathVariable Long placeId, @PageableDefault(size = 5,page = 0) Pageable pageable) {
         return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(placeId, pageable));
+    }
+
+    @GetMapping("/review/my")
+    public ApiResponse<List<MyPlaceReviewRes>> getPlaceMyReview(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 5,page = 0) Pageable pageable) {
+        return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_LIST_SUCCESS, placeService.getMyReviews(principalDetails.getMember(), pageable));
     }
 
 }

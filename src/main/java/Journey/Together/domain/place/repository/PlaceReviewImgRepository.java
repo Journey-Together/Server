@@ -1,7 +1,7 @@
-package Journey.Together.domain.placeReview.repository;
+package Journey.Together.domain.place.repository;
 
-import Journey.Together.domain.placeReview.entity.PlaceReview;
-import Journey.Together.domain.placeReview.entity.PlaceReviewImg;
+import Journey.Together.domain.place.entity.PlaceReview;
+import Journey.Together.domain.place.entity.PlaceReviewImg;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -9,4 +9,5 @@ import java.util.List;
 public interface PlaceReviewImgRepository extends JpaRepository<PlaceReviewImg,Long> {
 
     List<PlaceReviewImg> findAllByPlaceReview(PlaceReview placeReview);
+
 }

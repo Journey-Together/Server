@@ -1,6 +1,6 @@
 package Journey.Together.domain.place.dto.response;
 
-import Journey.Together.domain.placeReview.entity.PlaceReview;
+import Journey.Together.domain.place.entity.PlaceReview;
 
 import java.time.LocalDate;
 import java.util.List;

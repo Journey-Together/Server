@@ -1,4 +1,4 @@
-package Journey.Together.domain.placeReview.entity;
+package Journey.Together.domain.place.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
