@@ -1,12 +1,10 @@
 package Journey.Together.domain.place.service;
 
+import Journey.Together.domain.dairy.dto.PlaceInfo;
 import Journey.Together.domain.dairy.entity.PlanReviewImage;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
-import Journey.Together.domain.place.dto.response.MainRes;
-import Journey.Together.domain.place.dto.response.PlaceDetailRes;
-import Journey.Together.domain.place.dto.response.PlaceRes;
-import Journey.Together.domain.place.dto.response.PlaceReviewDto;
+import Journey.Together.domain.place.dto.response.*;
 import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
@@ -23,6 +21,10 @@ import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;
 import Journey.Together.global.exception.Success;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +33,7 @@ import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,8 +64,7 @@ public class PlaceService {
     public PlaceDetailRes getPlaceDetail(Member member, Long placeId){
        // PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<String> disability, List<String> subDisability, List< PlaceReviewDto > reviewList)
 
-        Place place = placeRepository.findById(placeId).orElseThrow(
-                ()->new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
+        Place place = getPlace(placeId);
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlace(place);
         Boolean isMark = placeBookmarkList.stream()
@@ -80,9 +82,7 @@ public class PlaceService {
     //여행지 후기 생성
     @Transactional
     public void createReview(Member member, List<MultipartFile> images, PlaceReviewReq placeReviewReq, Long placeId){
-
-        Place place = placeRepository.findById(placeId).orElseThrow(
-                ()->new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
+        Place place = getPlace(placeId);
 
         if(placeReviewRepository.findPlaceReviewByPlace(place) != null)
             new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
@@ -111,6 +111,19 @@ public class PlaceService {
 
     }
 
+    //관광지 후기 가져오기
+    public PlaceReviewRes getReviews(Long placeId, Pageable page){
+        Place place = getPlace(placeId);
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceOrderByCreatedAtDesc(place, pageable);
+        List<PlaceReivewListDto> placeReviewListDto = placeReviewPage.getContent().stream()
+                .map(this::getPlaceReviewDto)
+                .toList();
+
+        return PlaceReviewRes.of(place, placeReviewListDto, placeReviewPage.getNumber(), placeReviewPage.getSize(), placeReviewPage.getTotalPages());
+
+    }
+
     private List<PlaceRes> getPlaceRes(List<Place> list){
         List<PlaceRes> placeList = new ArrayList<>();
 
@@ -126,5 +139,21 @@ public class PlaceService {
         return placeList;
     }
 
+    private Place getPlace(Long placeId){
+        return placeRepository.findById(placeId).orElseThrow(
+                ()->new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
+    }
+
+    private PlaceReivewListDto getPlaceReviewDto(PlaceReview placeReview){
+       List<PlaceReviewImg> imgList = placeReviewImgRepository.findAllByPlaceReview(placeReview);
+       if(imgList.size()>0){
+           List<String> imgUrls = imgList.stream()
+                   .map(PlaceReviewImg::getImgUrl)
+                   .collect(Collectors.toList());
+           return PlaceReivewListDto.of(placeReview, imgUrls);
+       }
+       return PlaceReivewListDto.of(placeReview, new ArrayList<>());
+
+    }
 
 }

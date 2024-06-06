@@ -7,12 +7,15 @@ import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.response.MainRes;
 import Journey.Together.domain.place.dto.response.PlaceDetailRes;
 import Journey.Together.domain.place.dto.response.PlaceRes;
+import Journey.Together.domain.place.dto.response.PlaceReviewRes;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +49,12 @@ public class PlaceController {
                                        @PathVariable Long placeId) {
         placeService.createReview(principalDetails.getMember(), images,placeReviewReq, placeId);
         return ApiResponse.success(Success.CREATE_PLACE_REVIEW_SUCCESS);
+    }
+
+    @GetMapping("/review/{placeId}")
+    public ApiResponse<PlaceReviewRes> getPlaceReview(
+            @PathVariable Long placeId, @PageableDefault(size = 5,page = 0) Pageable pageable) {
+        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(placeId, pageable));
     }
 
 }
