@@ -169,6 +169,15 @@ public class PlaceService {
         return MyReview.of(placeReview, list);
     }
 
+    //북마크한 여행지 이름만 가져오기
+    public List<PlaceBookmarkDto> getBookmarkPlaceNames(Member member){
+        List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByMemberOrderByPlaceNameAsc(member);
+        if(placeBookmarkList.isEmpty() || placeBookmarkList==null)
+            return new ArrayList<>();
+
+        return placeBookmarkList.stream().map(PlaceBookmarkDto::of).toList();
+    }
+
     private List<PlaceRes> getPlaceRes(List<Place> list){
         List<PlaceRes> placeList = new ArrayList<>();
 
