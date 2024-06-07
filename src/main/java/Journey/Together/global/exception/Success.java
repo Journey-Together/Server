@@ -23,6 +23,8 @@ public enum Success {
 	GET_PLACE_REVIEW_LIST_SUCCESS(HttpStatus.OK, "관광정보 후기 목록 조회 성공"),
 	GET_MY_PLACE_REVIEW_LIST_SUCCESS(HttpStatus.OK, "나의 여행지 후기 목록 조회 성공"),
 	GET_MY_PLACE_REVIEW_SUCCESS(HttpStatus.OK, "나의 여행지 후기 조회 성공"),
+	GET_BOOKMARK_PLACES_SUCCESS(HttpStatus.OK, "여행지 북마크 조회 성공"),
+	GET_BOOKMARK_PLAN_SUCCESS(HttpStatus.OK, "일정 북마크 조회 성공"),
 	GET_BOOKMARK_PLACE_NAMES_SUCCESS(HttpStatus.OK, "북마크한 여행지 조회 성공"),
 	GET_USER_INTEREST_SUCCESS(HttpStatus.OK, "사용자 관심 유형 정보 조회 성공"),
 	GET_MAIN_SUCCESS(HttpStatus.OK, "메인 페이지 정보 조회 성공"),

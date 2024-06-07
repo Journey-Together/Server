@@ -3,13 +3,11 @@ package Journey.Together.domain.place.controller;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.response.*;
 import Journey.Together.domain.place.service.PlaceService;
-import Journey.Together.domain.placeBookbark.entity.PlaceBookmark;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Fetch;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -75,18 +73,4 @@ public class PlaceController {
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long reviewId) {
         return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_SUCCESS,placeService.getReview(principalDetails.getMember(),reviewId));
     }
-
-    @GetMapping("/bookmark")
-    public ApiResponse<List<PlaceBookmarkDto>> getBookmarkPlaceNames(
-            @AuthenticationPrincipal PrincipalDetails principalDetails){
-        return ApiResponse.success(Success.GET_BOOKMARK_PLACE_NAMES_SUCCESS, placeService.getBookmarkPlaceNames(principalDetails.getMember()));
-    }
-
-    @PatchMapping("/bookmark/{placeId}")
-    public ApiResponse<List<PlaceBookmarkDto>> getBookmarkPlaceNames(
-            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long placeId){
-        placeService.bookmark(principalDetails.getMember(), placeId);
-        return ApiResponse.success(Success.CHANGE_BOOKMARK_SUCCESS);
-    }
-
 }
