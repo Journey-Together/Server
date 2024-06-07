@@ -52,16 +52,22 @@ public class PlaceController {
     }
 
     @GetMapping("/review/my")
-    public ApiResponse<MyPlaceReviewRes> getPlaceMyReview(
+    public ApiResponse<MyPlaceReviewRes> getPlaceMyReviews(
             @AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 5,page = 0) Pageable pageable) {
         return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_LIST_SUCCESS, placeService.getMyReviews(principalDetails.getMember(), pageable));
     }
 
     @DeleteMapping("/review/my/{reviewId}")
-    public ApiResponse<?> getPlaceMyReview(
+    public ApiResponse<?> deletePlaceMyReview(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long reviewId) {
         placeService.deleteMyPlaceReview(principalDetails.getMember(),reviewId);
         return ApiResponse.success(Success.DELETE_MY_PLACE_REVIEW_SUCCESS);
+    }
+
+    @GetMapping("/review/my/{reviewId}")
+    public ApiResponse<MyReview> getPlaceMyReview(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long reviewId) {
+        return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_SUCCESS,placeService.getReview(principalDetails.getMember(),reviewId));
     }
 
 }

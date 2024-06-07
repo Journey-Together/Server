@@ -146,6 +146,27 @@ public class PlaceService {
 
     }
 
+    //나의 여행지 후기 보기(1개)
+    public MyReview getReview(Member member, Long reviewId){
+        PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
+
+        if(placeReview.getMember() != member){
+            new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
+        List<String> list = placeReviewImgRepository.findAllByPlaceReview(placeReview)
+                .stream()
+                .map(PlaceReviewImg::getImgUrl)
+                .collect(Collectors.toList());
+
+        if (list.isEmpty()) {
+            list.add(placeReview.getPlace().getFirstImg());
+        }
+
+        return MyReview.of(placeReview, list);
+    }
+
     private List<PlaceRes> getPlaceRes(List<Place> list){
         List<PlaceRes> placeList = new ArrayList<>();
 
