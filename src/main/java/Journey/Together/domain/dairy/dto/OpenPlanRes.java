@@ -9,20 +9,20 @@ import java.time.Period;
 public record OpenPlanRes(
         Long planId,
         String title,
-        String placeImageUrl,
+        String imageUrl,
         Long memberId,
         String memberName,
         String memberImageUrl,
         String date
 ) {
-    public static OpenPlanRes of(Plan plan,String memberImageUrl,String placeImageUrl){
+    public static OpenPlanRes of(Plan plan,String memberImageUrl,String imageUrl){
         Period period = Period.between(plan.getStartDate(),plan.getEndDate());
         String date = period.getDays()+"일일정";
 
         return OpenPlanRes.builder()
                 .planId(plan.getPlanId())
                 .title(plan.getTitle())
-                .placeImageUrl(placeImageUrl)
+                .imageUrl(imageUrl)
                 .memberId(plan.getMember().getMemberId())
                 .memberName(plan.getMember().getName())
                 .memberImageUrl(memberImageUrl)

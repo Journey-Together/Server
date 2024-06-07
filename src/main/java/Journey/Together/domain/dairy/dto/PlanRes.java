@@ -13,7 +13,7 @@ public record PlanRes(
         String title,
         LocalDate startDate,
         LocalDate endDate,
-        String imageUrl,
+        Object imageUrl,
         @Null
         String remainDate,
         @Null
