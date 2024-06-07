@@ -14,11 +14,15 @@ public enum Success {
 	CREATE_PLAN_SUCCESS(HttpStatus.CREATED, "일정 저장이 완료 되었습니다."),
 	CREATE_CATEGORY_SUCCESS(HttpStatus.CREATED, "새 카테고리 추가 성공"),
 	CREATE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 생성 성공"),
+	CREATE_PLACE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 작성 성공"),
 
 	/**
 	 * 200 OK
 	 */
 
+	GET_PLACE_REVIEW_LIST_SUCCESS(HttpStatus.OK, "관광정보 후기 목록 조회 성공"),
+	GET_MY_PLACE_REVIEW_LIST_SUCCESS(HttpStatus.OK, "나의 여행지 후기 목록 조회 성공"),
+	GET_MY_PLACE_REVIEW_SUCCESS(HttpStatus.OK, "나의 여행지 후기 조회 성공"),
 	GET_USER_INTEREST_SUCCESS(HttpStatus.OK, "사용자 관심 유형 정보 조회 성공"),
 	GET_MAIN_SUCCESS(HttpStatus.OK, "메인 페이지 정보 조회 성공"),
 	GET_PLACE_DETAIL_SUCCESS(HttpStatus.OK, "여행지 상세정보 조회 성공"),
@@ -40,7 +44,7 @@ public enum Success {
 	DELETE_USER_SUCCESS(HttpStatus.OK, "회원 탈퇴가 정상적으로 이루어졌습니다."),
 	DELETE_PLAN_SUCCESS(HttpStatus.OK, "일정 삭제 성공"),
 	DELETE_CATEGORY_SUCCESS(HttpStatus.OK, "카테고리 삭제 성공"),
-	DELETE_TIMER_SUCCESS(HttpStatus.OK, "타이머 삭제 성공"),
+	DELETE_MY_PLACE_REVIEW_SUCCESS(HttpStatus.OK, "나의 여행지 후기 삭제 성공"),
 	SEARCH_SUCCESS(HttpStatus.OK, "검색 성공"),
 	PARSING_OG_SUCCESS(HttpStatus.OK, "og 데이터 파싱 결과입니다. 크롤링을 막은 페이지는 기본이미지가 나옵니다."),
 	UPDATE_PUSH_ALLOWED_SUCCESS(HttpStatus.OK, "푸시알림 수정 성공"),

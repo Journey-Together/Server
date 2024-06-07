@@ -1,5 +1,6 @@
 package Journey.Together.domain.place.dto.response;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record PlaceReviewDto(
@@ -9,5 +10,5 @@ public record PlaceReviewDto(
         String content,
         String reviewImg,
         Float grade,
-        LocalDateTime date) {
+        LocalDate date) {
 }
