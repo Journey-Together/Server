@@ -89,7 +89,7 @@ public class BookmarkService {
 
         List<PlanBookmark> planBookmarkList = planBookmarkRepository.findAllByMemberOrderByCreatedAtDesc(member);
         planBookmarkList.forEach( planBookmark -> {
-            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),getPlanImageUrl(member, planBookmarkList.getFirst().getPlan())));
+            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),getPlanImageUrl(member, planBookmark.getPlan())));
         });
 
         return list;
