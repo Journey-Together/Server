@@ -79,7 +79,7 @@ public class PlaceService {
         Place place = getPlace(placeId);
 
         if(placeReviewRepository.findPlaceReviewByPlace(place) != null)
-            new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
+            throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
 
         PlaceReview placeReview = PlaceReview.builder()
                 .member(member)
