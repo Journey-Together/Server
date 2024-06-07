@@ -91,15 +91,17 @@ public class PlaceService {
 
         placeReviewRepository.save(placeReview);
 
-        try {
-            for(MultipartFile file : images) {
-                String uuid = UUID.randomUUID().toString();
-                final String imageUrl = s3Client.upload(file, POST_IMAGE_FOLDER_NAME+member.getMemberId(), uuid);
-                PlaceReviewImg placeReviewImg = PlaceReviewImg.builder().placeReview(placeReview).imgUrl(imageUrl).build();
-                placeReviewImgRepository.save(placeReviewImg);
+        if(images.isEmpty() || images != null){
+            try {
+                for(MultipartFile file : images) {
+                    String uuid = UUID.randomUUID().toString();
+                    final String imageUrl = s3Client.upload(file, POST_IMAGE_FOLDER_NAME+member.getMemberId(), uuid);
+                    PlaceReviewImg placeReviewImg = PlaceReviewImg.builder().placeReview(placeReview).imgUrl(imageUrl).build();
+                    placeReviewImgRepository.save(placeReviewImg);
+                }
+            } catch (RuntimeException e) {
+                throw new RuntimeException(e.getMessage());
             }
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e.getMessage());
         }
 
 

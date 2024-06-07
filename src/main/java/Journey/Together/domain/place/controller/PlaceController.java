@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -41,6 +42,9 @@ public class PlaceController {
                                        @RequestPart(required = false) List<MultipartFile> images,
                                        @RequestPart("placeReviewReq") PlaceReviewReq placeReviewReq,
                                        @PathVariable Long placeId) {
+        if (images == null) {
+            images = new ArrayList<>(); // images가 null이면 빈 리스트로 초기화
+        }
         placeService.createReview(principalDetails.getMember(), images,placeReviewReq, placeId);
         return ApiResponse.success(Success.CREATE_PLACE_REVIEW_SUCCESS);
     }
