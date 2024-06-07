@@ -1,6 +1,7 @@
 package Journey.Together.domain.bookbark.controller;
 
 import Journey.Together.domain.bookbark.dto.PlaceBookmarkRes;
+import Journey.Together.domain.bookbark.entity.PlanBookmarkRes;
 import Journey.Together.domain.bookbark.service.BookmarkService;
 import Journey.Together.domain.place.dto.response.PlaceBookmarkDto;
 import Journey.Together.global.common.ApiResponse;
@@ -27,9 +28,15 @@ public class BookmarkController {
         return ApiResponse.success(Success.GET_BOOKMARK_PLACE_NAMES_SUCCESS, bookmarkService.getBookmarkPlaceNames(principalDetails.getMember()));
     }
     @GetMapping("/place")
-    public ApiResponse<List<PlaceBookmarkRes>> getBookmarks(
+    public ApiResponse<List<PlaceBookmarkRes>> getPlaceBookmarks(
             @AuthenticationPrincipal PrincipalDetails principalDetails){
         return ApiResponse.success(Success.GET_BOOKMARK_PLACES_SUCCESS, bookmarkService.getPlaceBookmarks(principalDetails.getMember()));
+    }
+
+    @GetMapping("/plan")
+    public ApiResponse<List<PlanBookmarkRes>> getPlanBookmarks(
+            @AuthenticationPrincipal PrincipalDetails principalDetails){
+        return ApiResponse.success(Success.GET_BOOKMARK_PLAN_SUCCESS, bookmarkService.getPlanBookmarks(principalDetails.getMember()));
     }
 
 

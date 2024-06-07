@@ -2,7 +2,14 @@ package Journey.Together.domain.bookbark.service;
 
 import Journey.Together.domain.bookbark.dto.PlaceBookmarkRes;
 import Journey.Together.domain.bookbark.entity.PlaceBookmark;
+import Journey.Together.domain.bookbark.entity.PlanBookmark;
+import Journey.Together.domain.bookbark.entity.PlanBookmarkRes;
 import Journey.Together.domain.bookbark.repository.PlaceBookmarkRepository;
+import Journey.Together.domain.bookbark.repository.PlanBookmarkRepository;
+import Journey.Together.domain.dairy.entity.Day;
+import Journey.Together.domain.dairy.entity.Plan;
+import Journey.Together.domain.dairy.repository.DayRepository;
+import Journey.Together.domain.dairy.service.PlanService;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.dto.response.PlaceBookmarkDto;
 import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
@@ -23,8 +30,11 @@ import java.util.List;
 public class BookmarkService {
 
     private final PlaceBookmarkRepository placeBookmarkRepository;
+    private final PlanBookmarkRepository planBookmarkRepository;
     private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
     private final PlaceRepository placeRepository;
+
+    private final DayRepository dayRepository;
 
 
     //북마크한 여행지 이름만 가져오기
@@ -73,4 +83,24 @@ public class BookmarkService {
 
         return list;
     }
+
+    public List<PlanBookmarkRes> getPlanBookmarks(Member member) {
+        List<PlanBookmarkRes> list = new ArrayList<>();
+
+        List<PlanBookmark> planBookmarkList = planBookmarkRepository.findAllByMemberOrderByCreatedAtDesc(member);
+        planBookmarkList.forEach( planBookmark -> {
+            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),getPlanImageUrl(member, planBookmarkList.getFirst().getPlan())));
+        });
+
+        return list;
+    }
+
+    private String getPlanImageUrl(Member member, Plan plan){
+        List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
+        if (dayList.isEmpty() || dayList == null) {
+            return null;
+        }
+        return dayList.get(0).getPlace().getFirstImg();
+    }
+
 }
