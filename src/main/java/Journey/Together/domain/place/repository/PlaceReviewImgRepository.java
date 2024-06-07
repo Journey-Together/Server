@@ -10,4 +10,7 @@ public interface PlaceReviewImgRepository extends JpaRepository<PlaceReviewImg,L
 
     List<PlaceReviewImg> findAllByPlaceReview(PlaceReview placeReview);
 
+    void deleteByPlaceReview(PlaceReview placeReview);
+
+
 }

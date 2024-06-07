@@ -15,6 +15,7 @@ import Journey.Together.domain.place.repository.PlaceReviewRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,7 @@ public class PlaceService {
     private static final String POST_IMAGE_FOLDER_NAME = "reviews/";
     private final Integer recommnedPlaceNum = 4;
     private final Integer aroundPlaceNum = 2;
+    private final String partToFind = "com/";
 
     // 메인페이지 가져오기
     public MainRes getMainPage(String areacode, String sigungucode){
@@ -125,6 +127,25 @@ public class PlaceService {
                 .toList(),placeReviewPage.getNumber(),placeReviewPage.getSize(),placeReviewPage.getTotalPages());
     }
 
+    //나의 여행지 후기 삭제
+    @Transactional
+    public void deleteMyPlaceReview(Member member, Long reviewId){
+
+        PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
+
+        if(placeReview.getMember() != member){
+            new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+        placeReviewImgRepository.findAllByPlaceReview(placeReview).forEach(
+                placeReviewImg -> s3Client.delete(StringUtils.substringAfter(placeReviewImg.getImgUrl(), partToFind))
+        );
+
+        placeReviewImgRepository.deleteByPlaceReview(placeReview);
+        placeReviewRepository.delete(placeReview);
+
+    }
+
     private List<PlaceRes> getPlaceRes(List<Place> list){
         List<PlaceRes> placeList = new ArrayList<>();
 
@@ -162,5 +183,7 @@ public class PlaceService {
         return MyPlaceReviewDto.of(placeReview, imgList.get(0).getImgUrl());
 
     }
+
+
 
 }

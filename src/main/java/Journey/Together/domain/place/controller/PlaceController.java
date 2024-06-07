@@ -57,4 +57,11 @@ public class PlaceController {
         return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_LIST_SUCCESS, placeService.getMyReviews(principalDetails.getMember(), pageable));
     }
 
+    @DeleteMapping("/review/my/{reviewId}")
+    public ApiResponse<?> getPlaceMyReview(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long reviewId) {
+        placeService.deleteMyPlaceReview(principalDetails.getMember(),reviewId);
+        return ApiResponse.success(Success.DELETE_MY_PLACE_REVIEW_SUCCESS);
+    }
+
 }
