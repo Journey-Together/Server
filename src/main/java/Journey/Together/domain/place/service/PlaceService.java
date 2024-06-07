@@ -91,7 +91,7 @@ public class PlaceService {
 
         placeReviewRepository.save(placeReview);
 
-        if(images != null || images.isEmpty()){
+        if(images.isEmpty() || images != null){
             try {
                 for(MultipartFile file : images) {
                     String uuid = UUID.randomUUID().toString();
