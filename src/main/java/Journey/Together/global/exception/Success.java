@@ -23,6 +23,7 @@ public enum Success {
 	GET_PLACE_REVIEW_LIST_SUCCESS(HttpStatus.OK, "관광정보 후기 목록 조회 성공"),
 	GET_MY_PLACE_REVIEW_LIST_SUCCESS(HttpStatus.OK, "나의 여행지 후기 목록 조회 성공"),
 	GET_MY_PLACE_REVIEW_SUCCESS(HttpStatus.OK, "나의 여행지 후기 조회 성공"),
+	GET_BOOKMARK_PLACE_NAMES_SUCCESS(HttpStatus.OK, "북마크한 여행지 조회 성공"),
 	GET_USER_INTEREST_SUCCESS(HttpStatus.OK, "사용자 관심 유형 정보 조회 성공"),
 	GET_MAIN_SUCCESS(HttpStatus.OK, "메인 페이지 정보 조회 성공"),
 	GET_PLACE_DETAIL_SUCCESS(HttpStatus.OK, "여행지 상세정보 조회 성공"),
@@ -38,7 +39,7 @@ public enum Success {
 	GET_TIMER_PAGE_SUCCESS(HttpStatus.OK, "타이머 페이지 조회 성공"),
 	GET_DUPLICATED_SUCCESS(HttpStatus.OK, "중복 여부 체크 성공"),
 
-  	LOGIN_SUCCESS(HttpStatus.OK, "로그인 성공"),
+	LOGIN_SUCCESS(HttpStatus.OK, "로그인 성공"),
 	RE_ISSUE_TOKEN_SUCCESS(HttpStatus.OK, "토큰 재발급 성공"),
 	SIGNOUT_SUCCESS(HttpStatus.OK, "로그아웃 성공"),
 	DELETE_USER_SUCCESS(HttpStatus.OK, "회원 탈퇴가 정상적으로 이루어졌습니다."),
@@ -65,9 +66,7 @@ public enum Success {
 	/**
 	 * 204 NO_CONTENT
 	 */
-	SEARCH_SUCCESS_BUT_IS_EMPTY(HttpStatus.NO_CONTENT, "검색에 성공했지만 조회된 내용이 없습니다.")
-
-	;
+	SEARCH_SUCCESS_BUT_IS_EMPTY(HttpStatus.NO_CONTENT, "검색에 성공했지만 조회된 내용이 없습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
