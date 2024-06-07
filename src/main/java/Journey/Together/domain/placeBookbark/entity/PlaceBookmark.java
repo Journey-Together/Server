@@ -25,4 +25,10 @@ public class PlaceBookmark extends BaseTimeEntity {
     @JoinColumn(name = "place_id")
     Place place;
 
+    @Builder
+    public PlaceBookmark(Member member, Place place){
+        this.member=member;
+        this.place=place;
+    }
+
 }

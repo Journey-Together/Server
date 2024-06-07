@@ -17,5 +17,7 @@ public interface PlaceBookmarkRepository extends JpaRepository<PlaceBookmark, Lo
 
     List<PlaceBookmark> findAllByMemberOrderByPlaceNameAsc(Member member);
 
+    PlaceBookmark findPlaceBookmarkByPlaceAndMember(Place place, Member member);
+
 
 }

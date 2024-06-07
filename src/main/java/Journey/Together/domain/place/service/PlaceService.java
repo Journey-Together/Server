@@ -178,6 +178,25 @@ public class PlaceService {
         return placeBookmarkList.stream().map(PlaceBookmarkDto::of).toList();
     }
 
+
+    @Transactional
+    // 북마크 상태변경
+    public void bookmark(Member member, Long placeId){
+        Place place = getPlace(placeId);
+
+        PlaceBookmark placeBookmark = placeBookmarkRepository.findPlaceBookmarkByPlaceAndMember(place, member);// 북마크 설정
+        if (placeBookmark == null) {
+            PlaceBookmark newPlaceBookmark = PlaceBookmark.builder()
+                    .place(place)
+                    .member(member)
+                    .build();
+            placeBookmarkRepository.save(newPlaceBookmark);
+        } else {
+            // 북마크 해체
+            placeBookmarkRepository.delete(placeBookmark);
+        }
+    }
+
     private List<PlaceRes> getPlaceRes(List<Place> list){
         List<PlaceRes> placeList = new ArrayList<>();
 

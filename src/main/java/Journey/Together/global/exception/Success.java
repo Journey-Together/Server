@@ -55,7 +55,7 @@ public enum Success {
 	UPDATE_CATEGORY_TITLE_SUCCESS(HttpStatus.OK, "카테고리 수정 완료"),
 	UPDATE_TIMER_DATETIME_SUCCESS(HttpStatus.OK, "타이머 시간/날짜 수정 완료"),
 	UPDATE_TIMER_COMMENT_SUCCESS(HttpStatus.OK, "타이머 코멘트 수정 완료"),
-	CHANGE_TIMER_ALARM_SUCCESS(HttpStatus.OK, "타이머 알람여부 수정 완료"),
+	CHANGE_BOOKMARK_SUCCESS(HttpStatus.OK, "북마크 상태 수정 완료"),
 	PUSH_ALARM_PERIODIC_SUCCESS(HttpStatus.OK, "푸시알림 활성에 성공했습니다."),
 	PUSH_ALARM_SUCCESS(HttpStatus.OK, "푸시알림 전송에 성공했습니다."),
 	CLEAR_SCHEDULED_TASKS_SUCCESS(HttpStatus.OK, "스케줄러에서 예약된 작업을 제거했습니다."),
