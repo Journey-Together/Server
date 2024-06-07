@@ -1,7 +1,6 @@
 package Journey.Together.domain.place.dto.response;
 
-import Journey.Together.domain.place.entity.Place;
-import Journey.Together.domain.placeBookbark.entity.PlaceBookmark;
+import Journey.Together.domain.bookbark.entity.PlaceBookmark;
 
 public record PlaceBookmarkDto(
         Long placeId,
