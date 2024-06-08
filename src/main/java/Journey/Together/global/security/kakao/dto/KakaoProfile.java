@@ -12,7 +12,8 @@ public record KakaoProfile(
     public record Properties(
             String nickname,
             String profile_image,
-            String thumbnail_image
+            String thumbnail_image,
+            String name
     ) {
     }
 
@@ -20,12 +21,14 @@ public record KakaoProfile(
     public record KakaoAccount(
             Boolean profile_nickname_needs_agreement,
             Boolean profile_image_needs_agreement,
+            Boolean name_needs_agreement,
             Profile profile,
             Boolean has_email,
             Boolean email_needs_agreement,
             Boolean is_email_valid,
             Boolean is_email_verified,
-            String email
+            String email,
+            String name
     ) {
         public record Profile(
                 String nickname,

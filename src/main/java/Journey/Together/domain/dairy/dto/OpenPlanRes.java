@@ -11,7 +11,7 @@ public record OpenPlanRes(
         String title,
         String imageUrl,
         Long memberId,
-        String memberName,
+        String memberNickname,
         String memberImageUrl,
         String date
 ) {
@@ -24,7 +24,7 @@ public record OpenPlanRes(
                 .title(plan.getTitle())
                 .imageUrl(imageUrl)
                 .memberId(plan.getMember().getMemberId())
-                .memberName(plan.getMember().getName())
+                .memberNickname(plan.getMember().getNickname())
                 .memberImageUrl(memberImageUrl)
                 .date(date)
                 .build();

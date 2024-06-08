@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Builder
 public record MemberRes(
         String name,
+        String nickname,
         String phone,
         String profileImage,
         String bloodType,
@@ -22,6 +23,7 @@ public record MemberRes(
     public static MemberRes of(Member member,String profileUrl){
         return MemberRes.builder()
                 .name(member.getName())
+                .nickname(member.getNickname())
                 .phone(member.getPhone())
                 .profileImage(profileUrl)
                 .bloodType(member.getBloodType())

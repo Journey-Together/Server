@@ -166,7 +166,7 @@ public class PlanService {
         }
         //PlanDetailRes - List<String> imageUrls, List<DailyList> dailyList, Boolean isWriter
         //Response
-        return PlanDetailRes.of(imageUrls,dailyLists,isWriter);
+        return PlanDetailRes.of(imageUrls,dailyLists,isWriter,plan);
     }
 
     @Transactional
