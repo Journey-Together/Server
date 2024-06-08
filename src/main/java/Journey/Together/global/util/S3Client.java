@@ -60,7 +60,7 @@ public class S3Client {
         return baseUrl+url;
     }
 
-    public String update(String fileName, MultipartFile newFile) {
+    public void update(String fileName, MultipartFile newFile) {
         // Validation
         if(newFile.isEmpty()) {
             throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
@@ -84,9 +84,6 @@ public class S3Client {
         } catch (IOException e) {
             throw new ApplicationException(ErrorCode.INTERNAL_SERVER_EXCEPTION);
         }
-
-        // Response
-        return fileName;
     }
 
     public String getUrl(){
