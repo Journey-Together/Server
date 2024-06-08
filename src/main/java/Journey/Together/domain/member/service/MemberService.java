@@ -45,8 +45,7 @@ public class MemberService {
             member.setPhone(memberReq.phone());
         }
         if (memberReq.profileImage() != null) {
-            String uuid = s3Client.update(member.getProfileUuid(),memberReq.profileImage());
-            member.setProfileUuid(uuid);
+            s3Client.update(member.getProfileUuid()+"/profile",memberReq.profileImage());
         }
         if (memberReq.bloodType() != null) {
             member.setBloodType(memberReq.bloodType());
