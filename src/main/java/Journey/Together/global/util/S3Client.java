@@ -91,6 +91,7 @@ public class S3Client {
     }
 
     public void delete(String fileName) {
+        System.out.println("delete : "+bucket+fileName);
         // Validation
         if(!amazonS3Client.doesObjectExist(bucket, fileName)) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);

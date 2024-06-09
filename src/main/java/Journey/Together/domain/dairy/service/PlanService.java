@@ -135,7 +135,7 @@ public class PlanService {
             }
         }else {
             PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
-            List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReview(planReview);
+            List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
             if(planReviewImageList == null){
                 //imageUrl : 장소사진
                 for(Day day : dayList){
@@ -245,6 +245,25 @@ public class PlanService {
     }
 
     @Transactional
+    public void deletePlanReview(Member member,Long reviewId){
+        PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
+        if(planReview.getPlan().getMember().getMemberId()!=member.getMemberId()){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+        List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
+        if(planReviewImageList!=null){
+            for(PlanReviewImage planReviewImage : planReviewImageList){
+                String filename = planReviewImage.getImageUrl().replace(s3Client.baseUrl(), "");
+                System.out.println(filename);
+                s3Client.delete(filename);
+                planReviewImageRepository.deletePlanReviewImageByPlanReviewImageId(planReviewImage.getPlanReviewImageId());
+            }
+        }
+        System.out.println("test4");
+        planReviewRepository.deletePlanReviewByPlanReviewId(planReview.getPlanReviewId());
+    }
+
+    @Transactional
     public List<MyPlanRes> findMyPlans(Member member) {
         //Vaildation
         List<Plan> list = planRepository.findAllByMemberAndDeletedAtIsNull(member);
@@ -339,7 +358,7 @@ public class PlanService {
             //후기가 있을 경우
             else {
                 //후기가 있지만 후기 사진이 없을 경우 -> 첫번째날 첫번째 장소 사진(1장)
-                List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReview(planReview);
+                List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
                 if(planReviewImageList == null){
                     return getPlaceFirstImage(member,plan);
                 }
