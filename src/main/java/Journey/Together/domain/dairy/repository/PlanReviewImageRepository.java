@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PlanReviewImageRepository extends JpaRepository<PlanReviewImage,Long> {
-    List<PlanReviewImage> findAllByPlanReview(PlanReview planReview);
+    List<PlanReviewImage> findAllByPlanReviewAndDeletedAtIsNull(PlanReview planReview);
+    void deletePlanReviewImageByPlanReviewImageId(Long planReviewImageId);
 }

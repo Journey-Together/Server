@@ -48,6 +48,7 @@ public enum Success {
 	DELETE_PLAN_SUCCESS(HttpStatus.OK, "일정 삭제 성공"),
 	DELETE_CATEGORY_SUCCESS(HttpStatus.OK, "카테고리 삭제 성공"),
 	DELETE_MY_PLACE_REVIEW_SUCCESS(HttpStatus.OK, "나의 여행지 후기 삭제 성공"),
+	DELETE_PLAN_REVIEW_SUCCESS(HttpStatus.OK, "나의 일정 후기 삭제 성공"),
 	SEARCH_SUCCESS(HttpStatus.OK, "검색 성공"),
 	PARSING_OG_SUCCESS(HttpStatus.OK, "og 데이터 파싱 결과입니다. 크롤링을 막은 페이지는 기본이미지가 나옵니다."),
 	UPDATE_PUSH_ALLOWED_SUCCESS(HttpStatus.OK, "푸시알림 수정 성공"),

@@ -67,6 +67,12 @@ public class PlanController {
         return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(principalDetails.getMember(),planId));
     }
 
+    @DeleteMapping("/review/{review_id}")
+    public ApiResponse deletePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId){
+        planService.deletePlanReview(principalDetails.getMember(),reviewId);
+        return ApiResponse.success(Success.DELETE_PLAN_REVIEW_SUCCESS);
+    }
+
     @GetMapping("/guest/review/{plan_id}")
     public ApiResponse<PlanReviewRes> findPlanReviewGuest(@PathVariable("plan_id")Long planId){
         return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(null,planId));
