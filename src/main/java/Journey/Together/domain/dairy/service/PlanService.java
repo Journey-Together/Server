@@ -170,6 +170,24 @@ public class PlanService {
     }
 
     @Transactional
+    public Boolean updatePlanIsPublic(Member member,Long planId){
+        // Validation
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member,planId,LocalDate.now());
+        if(plan == null){
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+        if(!Objects.equals(plan.getMember().getMemberId(), member.getMemberId())){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+        //Business
+        plan.setIsPublic(!plan.getIsPublic());
+
+        //Response
+        return plan.getIsPublic();
+    }
+
+    @Transactional
     public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq,List<MultipartFile> images){
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member,planId,LocalDate.now());

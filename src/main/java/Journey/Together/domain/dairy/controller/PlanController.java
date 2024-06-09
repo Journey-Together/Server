@@ -46,6 +46,11 @@ public class PlanController {
         return ApiResponse.success(Success.DELETE_PLAN_SUCCESS);
     }
 
+    @PatchMapping("/{planId}/ispublic")
+    public ApiResponse updatePlanIsPublic(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("plan_id") Long planId){
+        return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS,planService.updatePlanIsPublic(principalDetails.getMember(),planId));
+    }
+
     @GetMapping("/search")
     public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.searchPlace(word,pageable));
