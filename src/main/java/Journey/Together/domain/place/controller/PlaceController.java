@@ -1,6 +1,7 @@
 package Journey.Together.domain.place.controller;
 
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
+import Journey.Together.domain.place.dto.request.UpdateReviewDto;
 import Journey.Together.domain.place.dto.response.*;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.global.common.ApiResponse;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,11 +42,9 @@ public class PlaceController {
     @PostMapping("/review/{placeId}")
     public ApiResponse<?> createReivew(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                        @RequestPart(required = false) List<MultipartFile> images,
-                                       @RequestPart("placeReviewReq") PlaceReviewReq placeReviewReq,
+                                       @RequestBody PlaceReviewReq placeReviewReq,
                                        @PathVariable Long placeId) {
-        if (images == null) {
-            images = new ArrayList<>(); // images가 null이면 빈 리스트로 초기화
-        }
+        images = (images == null) ? new ArrayList<>() : images;
         placeService.createReview(principalDetails.getMember(), images,placeReviewReq, placeId);
         return ApiResponse.success(Success.CREATE_PLACE_REVIEW_SUCCESS);
     }
@@ -72,5 +72,18 @@ public class PlaceController {
     public ApiResponse<MyReview> getPlaceMyReview(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long reviewId) {
         return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_SUCCESS,placeService.getReview(principalDetails.getMember(),reviewId));
+    }
+
+    @PatchMapping("/review/my/{reviewId}")
+    public ApiResponse<?> updatePlaceMyReview(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestBody UpdateReviewDto updateReviewDto,
+            @RequestParam(required = false) List<String> deleteImages,
+            @RequestParam(required = false) List<MultipartFile> addImages,
+            @PathVariable Long reviewId) {
+        deleteImages = (deleteImages == null) ? new ArrayList<>() : deleteImages;
+        addImages = (addImages == null) ? new ArrayList<>() : addImages;
+        placeService.updateMyPlaceReview(principalDetails.getMember(),updateReviewDto,deleteImages,addImages,reviewId);
+        return ApiResponse.success(Success.UPDATE_MY_PLACE_REVIEW_SUCCESS);
     }
 }

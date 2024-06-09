@@ -2,6 +2,7 @@ package Journey.Together.domain.place.service;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
+import Journey.Together.domain.place.dto.request.UpdateReviewDto;
 import Journey.Together.domain.place.dto.response.*;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
@@ -208,5 +209,13 @@ public class PlaceService {
     }
 
 
+    public UpdateReviewDto updateMyPlaceReview(Member member, UpdateReviewDto updateReviewDto, List<String> deleteImages, List<MultipartFile> addImages, Long reviewId) {
+        PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
 
+        if(placeReview.getMember() != member){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+
+    }
 }
