@@ -33,6 +33,9 @@ public class KakaoClient {
     @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
     private String kakaoUserInfoUri;
 
+    @Value("${spring.security.oauth2.kakao.admin-key}")
+    private String adminKey;
+
     public KakaoProfile getMemberInfo(String accesToken) {
         // 요청 기본 객체 생성
         WebClient webClient = WebClient.create(kakaoUserInfoUri);
@@ -55,5 +58,17 @@ public class KakaoClient {
         }
 
         return kakaoProfile;
+    }
+
+    public void unlink(){
+        WebClient webClient = WebClient.create("https://kapi.kakao.com/v1/user/unlink");
+        // 요청 보내서 응답 받기
+        String response = webClient.post()
+                .uri("https://kapi.kakao.com/v1/user/unlink")
+                .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
+                .header("Authorization", adminKey)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 }

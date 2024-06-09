@@ -1,6 +1,5 @@
 package Journey.Together.domain.member.service;
 
-import Journey.Together.domain.member.dto.LoginReq;
 import Journey.Together.domain.member.dto.LoginRes;
 import Journey.Together.domain.member.entity.Interest;
 import Journey.Together.domain.member.entity.Member;
@@ -65,7 +64,8 @@ public class AuthService {
                 s3Client.upload(imageFile,uuid,"profile");
                 Member newMember = Member.builder()
                         .email(kakaoProfile.kakao_account().email())
-                        .name(kakaoProfile.kakao_account().profile().nickname())
+                        .name(kakaoProfile.kakao_account().name())
+                        .nickname(kakaoProfile.kakao_account().profile().nickname())
                         .profileUuid(uuid)
                         .phone(null)
                         .memberType(MemberType.valueOf("GENERAL"))
@@ -101,6 +101,7 @@ public class AuthService {
                         .email(naverProfile.getEmail() != null ? naverProfile.getEmail() : "Unknown")
                         .profileUuid(uuid)
                         .name(naverProfile.getName() != null ? naverProfile.getName() : "Unknown")
+                        .nickname(naverProfile.getNickname() != null ? naverProfile.getNickname() : "Unknown")
                         .memberType(MemberType.GENERAL)
                         .loginType(LoginType.NAVER)
                         .build();

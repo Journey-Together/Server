@@ -29,6 +29,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "name", nullable = false, columnDefinition = "varchar(50)")
     private String name;
 
+    @Column(name = "nickname", nullable = false, columnDefinition = "varchar(50)")
+    private String nickname;
+
     @Column(name = "phone", columnDefinition = "varchar(15)")
     private String phone;
 
@@ -74,9 +77,10 @@ public class Member extends BaseTimeEntity {
     private String refreshToken;
 
     @Builder
-    public Member(String email, String name, String phone, String profileUuid, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,String part1Rel,String part1Phone,String part2Rel,String part2Phone, String refreshToken) {
+    public Member(String email, String name,String nickname, String phone, String profileUuid, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,String part1Rel,String part1Phone,String part2Rel,String part2Phone, String refreshToken) {
         this.email = email;
         this.name = name;
+        this.nickname=nickname;
         this.phone = phone;
         this.profileUuid = profileUuid;
         this.loginType = loginType;
