@@ -20,6 +20,7 @@ import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepositor
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
+import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,9 @@ public class BookmarkService {
 
     private final DayRepository dayRepository;
     private final PlanRepository planRepository;
+
+
+    private final S3Client s3Client;
 
 
     //북마크한 여행지 이름만 가져오기
@@ -111,7 +115,7 @@ public class BookmarkService {
 
         List<PlanBookmark> planBookmarkList = planBookmarkRepository.findAllByMemberOrderByCreatedAtDesc(member);
         planBookmarkList.forEach( planBookmark -> {
-            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),getPlanImageUrl(member, planBookmark.getPlan())));
+            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),s3Client.getUrl()+planBookmark.getMember().getProfileUuid()+"/profile",getPlanImageUrl(member, planBookmark.getPlan())));
         });
 
         return list;
