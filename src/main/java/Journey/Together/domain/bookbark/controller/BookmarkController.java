@@ -40,10 +40,17 @@ public class BookmarkController {
     }
 
 
-    @PatchMapping("/{placeId}")
-    public ApiResponse<List<PlaceBookmarkDto>> getBookmarkPlaceNames(
+    @PatchMapping("/place/{placeId}")
+    public ApiResponse<?> updatePlaceBookmark(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long placeId){
-        bookmarkService.bookmark(principalDetails.getMember(), placeId);
+        bookmarkService.placeBookmark(principalDetails.getMember(), placeId);
+        return ApiResponse.success(Success.CHANGE_BOOKMARK_SUCCESS);
+    }
+
+    @PatchMapping("/plan/{planId}")
+    public ApiResponse<?> updatePlanBookmark(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long planId){
+        bookmarkService.planBookmark(principalDetails.getMember(), planId);
         return ApiResponse.success(Success.CHANGE_BOOKMARK_SUCCESS);
     }
 
