@@ -25,7 +25,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PatchMapping ("")
-    public ApiResponse saveMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile profileImage, @RequestPart MemberReq memberReq) {
+    public ApiResponse saveMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile profileImage, @RequestPart(required = false) MemberReq memberReq) {
         memberService.saveInfo(principalDetails.getMember(),profileImage,memberReq);
         return ApiResponse.success(Success.UPDATE_USER_INFO_SUCCESS);
     }

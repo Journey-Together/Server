@@ -33,20 +33,24 @@ public class MemberService {
         Long date = Duration.between(member.getCreatedAt(), LocalDateTime.now()).toDays();
         return new MyPageRes(member.getNickname(), 0, date, s3Client.getUrl()+member.getProfileUuid()+"/profile");
     }
-  
+
     @Transactional
     public void saveInfo(Member member, MultipartFile profileImage, MemberReq memberReq){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
+        if (profileImage != null) {
+            s3Client.update(member.getProfileUuid()+"/profile",profileImage);
+            memberRepository.save(member);
+        }
+        if(memberReq == null){
+            return;
+        }
         if (memberReq.nickname() != null) {
             member.setNickname(memberReq.nickname());
         }
         if (memberReq.phone() != null) {
             member.setPhone(memberReq.phone());
-        }
-        if (profileImage != null) {
-            s3Client.update(member.getProfileUuid()+"/profile",profileImage);
         }
         if (memberReq.bloodType() != null) {
             member.setBloodType(memberReq.bloodType());
