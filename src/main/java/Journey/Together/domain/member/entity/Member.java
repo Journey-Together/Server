@@ -1,6 +1,5 @@
 package Journey.Together.domain.member.entity;
 
-import Journey.Together.domain.member.enumerate.BloodType;
 import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.enumerate.MemberType;
 import Journey.Together.global.common.BaseTimeEntity;
@@ -30,19 +29,21 @@ public class Member extends BaseTimeEntity {
     @Column(name = "name", nullable = false, columnDefinition = "varchar(50)")
     private String name;
 
+    @Column(name = "nickname", nullable = false, columnDefinition = "varchar(50)")
+    private String nickname;
+
     @Column(name = "phone", columnDefinition = "varchar(15)")
     private String phone;
 
     @Column(name = "profile_url", columnDefinition = "text")
-    private String profileUrl;
+    private String profileUuid;
 
     @Column(name = "login_type", nullable = false, columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
     @Column(name = "blood_type", columnDefinition = "varchar(255)")
-    @Enumerated(EnumType.STRING)
-    private BloodType bloodType;
+    private String bloodType;
 
     @Column(name = "member_type", nullable = false, columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
@@ -60,21 +61,38 @@ public class Member extends BaseTimeEntity {
     @Column(name = "medication", columnDefinition = "varchar(255)")
     private String medication;
 
+    @Column(name = "part1_rel", columnDefinition = "varchar(255)")
+    private String part1Rel;
+
+    @Column(name = "part1_phone", columnDefinition = "varchar(255)")
+    private String part1Phone;
+
+    @Column(name = "part2_rel", columnDefinition = "varchar(255)")
+    private String part2Rel;
+
+    @Column(name = "part2_phone", columnDefinition = "varchar(255)")
+    private String part2Phone;
+
     @Column(name = "refreshToken", columnDefinition = "varchar(255)")
     private String refreshToken;
 
     @Builder
-    public Member(String email, String name, String phone, String profileUrl, LoginType loginType,BloodType bloodType,MemberType memberType, String birth, String allergy, String medication, String refreshToken) {
+    public Member(String email, String name,String nickname, String phone, String profileUuid, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,String part1Rel,String part1Phone,String part2Rel,String part2Phone, String refreshToken) {
         this.email = email;
         this.name = name;
+        this.nickname=nickname;
         this.phone = phone;
-        this.profileUrl = profileUrl;
+        this.profileUuid = profileUuid;
         this.loginType = loginType;
         this.bloodType = bloodType;
         this.memberType = memberType;
         this.birth = birth;
         this.allergy = allergy;
         this.medication=medication;
+        this.part1Rel=part1Rel;
+        this.part1Phone=part1Phone;
+        this.part2Rel=part2Rel;
+        this.part2Phone=part2Phone;
         this.refreshToken=refreshToken;
     }
 }

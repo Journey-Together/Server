@@ -1,4 +1,4 @@
-package Journey.Together.domain.placeReview.entity;
+package Journey.Together.domain.place.entity;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.entity.Place;
@@ -6,7 +6,9 @@ import Journey.Together.global.common.BaseTimeEntity;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import jakarta.persistence.*;
 import lombok.*;
+import org.joda.time.DateTime;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -33,6 +35,16 @@ public class PlaceReview extends BaseTimeEntity {
 
     String content;
 
+    LocalDate date;
 
+
+    @Builder
+    public PlaceReview(Member member, Place place, Float grade, String content, LocalDate date){
+        this.member = member;
+        this.place = place;
+        this.date =date;
+        this.grade =grade;
+        this.content=content;
+    }
 
 }

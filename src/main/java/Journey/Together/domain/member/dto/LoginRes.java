@@ -9,12 +9,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+
 public record LoginRes(
         @NotNull Long memberId,
         @NotNull String email,
         @NotNull String name,
-        String profileUrl,
+        @NotNull String nickname,
+        String profileUuid,
         MemberType memberType,
         LoginType loginType,
         @NotNull String accessToken,
@@ -25,7 +26,8 @@ public record LoginRes(
                 .memberId(member.getMemberId())
                 .email(member.getEmail())
                 .name(member.getName())
-                .profileUrl(member.getProfileUrl())
+                .nickname(member.getNickname())
+                .profileUuid(member.getProfileUuid())
                 .memberType(member.getMemberType())
                 .loginType(member.getLoginType())
                 .accessToken(tokenDto.accessToken())

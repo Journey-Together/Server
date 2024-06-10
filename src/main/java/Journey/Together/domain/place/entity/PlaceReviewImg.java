@@ -1,4 +1,4 @@
-package Journey.Together.domain.placeReview.entity;
+package Journey.Together.domain.place.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,4 +19,10 @@ public class PlaceReviewImg {
     PlaceReview placeReview;
 
     String imgUrl;
+
+    @Builder
+    public PlaceReviewImg(PlaceReview placeReview, String imgUrl){
+        this.imgUrl = imgUrl;
+        this.placeReview =placeReview;
+    }
 }
