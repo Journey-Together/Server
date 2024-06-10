@@ -76,7 +76,7 @@ public class AuthService {
                         .member(member)
                         .isHear(false)
                         .isChild(false)
-                        .isPysical(false)
+                        .isPhysical(false)
                         .isVisual(false)
                         .isElderly(false)
                         .build();
@@ -111,7 +111,7 @@ public class AuthService {
                         .member(member)
                         .isHear(false)
                         .isChild(false)
-                        .isPysical(false)
+                        .isPhysical(false)
                         .isVisual(false)
                         .isElderly(false)
                         .build();

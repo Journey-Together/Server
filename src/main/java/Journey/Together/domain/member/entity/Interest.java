@@ -21,8 +21,8 @@ public class Interest extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name = "pysical")
-    private Boolean isPysical;
+    @Column(name = "physical")
+    private Boolean isPhysical;
 
     @Column(name = "hear")
     private Boolean isHear;
@@ -37,7 +37,7 @@ public class Interest extends BaseTimeEntity {
     private Boolean isElderly;
 
     public void update(InterestDto interestDto) {
-        this.isPysical=interestDto.isPysical();
+        this.isPhysical=interestDto.isPhysical();
         this.isHear=interestDto.isHear();
         this.isVisual=interestDto.isVisual();
         this.isChild=interestDto.isChild();
@@ -45,9 +45,9 @@ public class Interest extends BaseTimeEntity {
     }
 
     @Builder
-    public Interest(Member member, Boolean isPysical, Boolean isHear, Boolean isVisual, Boolean isElderly, Boolean isChild){
+    public Interest(Member member, Boolean isPhysical, Boolean isHear, Boolean isVisual, Boolean isElderly, Boolean isChild){
         this.member = member;
-        this.isPysical=isPysical;
+        this.isPhysical=isPhysical;
         this.isHear=isHear;
         this.isVisual=isVisual;
         this.isChild=isChild;
