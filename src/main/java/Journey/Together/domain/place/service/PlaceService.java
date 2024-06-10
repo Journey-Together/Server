@@ -90,7 +90,7 @@ public class PlaceService {
                 place -> placeResList.add(PlaceRes.of(place,disabilityPlaceCategoryRepository.findDisabilityCategoryIds(place.getId())))
         );
 
-        return new SearchPlaceRes(searchPlace.size(), placeResList);
+        return new SearchPlaceRes(placeResList, pageable.getPageNumber(), pageable.getPageSize(), searchPlace.size());
     }
 
     //여행지 후기 생성

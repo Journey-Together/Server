@@ -2,8 +2,6 @@ package Journey.Together.domain.place.controller;
 
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.response.*;
-import Journey.Together.domain.member.dto.LoginReq;
-import Journey.Together.domain.member.dto.MemberRes;
 import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.domain.place.dto.response.MainRes;
 import Journey.Together.domain.place.dto.response.PlaceDetailRes;

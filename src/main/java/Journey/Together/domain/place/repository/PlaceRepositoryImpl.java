@@ -1,5 +1,6 @@
 package Journey.Together.domain.place.repository;
 
+import Journey.Together.domain.bookbark.entity.QPlaceBookmark;
 import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.domain.place.dto.response.PlaceRes;
 import Journey.Together.domain.place.dto.response.SearchPlace;
@@ -8,8 +9,6 @@ import Journey.Together.domain.place.entity.Place;
 import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.jpa.JPAExpressions;
 import Journey.Together.domain.place.entity.QDisabilityCategory;
-import Journey.Together.domain.placeBookbark.entity.PlaceBookmark;
-import Journey.Together.domain.placeBookbark.entity.QPlaceBookmark;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import com.querydsl.core.types.Order;
@@ -31,11 +30,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static Journey.Together.domain.bookbark.entity.QPlaceBookmark.placeBookmark;
 import static Journey.Together.domain.place.entity.QDisabilityCategory.disabilityCategory;
 import static Journey.Together.domain.place.entity.QDisabilityPlaceCategory.disabilityPlaceCategory;
 import static Journey.Together.domain.place.entity.QDisabilitySubCategory.disabilitySubCategory;
 import static Journey.Together.domain.place.entity.QPlace.place;
-import static Journey.Together.domain.placeBookbark.entity.QPlaceBookmark.placeBookmark;
+
 
 public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
 
