@@ -228,14 +228,47 @@ public class PlaceService {
 
     }
 
-
-    public UpdateReviewDto updateMyPlaceReview(Member member, UpdateReviewDto updateReviewDto, List<String> deleteImages, List<MultipartFile> addImages, Long reviewId) {
+@Transactional
+    public void updateMyPlaceReview(Member member, UpdateReviewDto updateReviewDto, List<MultipartFile> addImages, Long reviewId) {
         PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
                 () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
 
-        if(placeReview.getMember() != member){
+        if(placeReview.getMember().getMemberId() != member.getMemberId()){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
+
+        if (addImages != null) {
+            try {
+                for(MultipartFile file : addImages) {
+                    String uuid = UUID.randomUUID().toString();
+                    final String imageUrl = s3Client.upload(file, POST_IMAGE_FOLDER_NAME+member.getMemberId(), uuid);
+                    PlaceReviewImg placeReviewImg = PlaceReviewImg.builder().placeReview(placeReview).imgUrl(imageUrl).build();
+                    placeReviewImgRepository.save(placeReviewImg);
+                }
+            } catch (RuntimeException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+
+        if (updateReviewDto != null) {
+            if (updateReviewDto.content() != null) {
+                placeReview.setContent(updateReviewDto.content());
+            }if (updateReviewDto.date() != null) {
+                placeReview.setDate(updateReviewDto.date());
+            }if (updateReviewDto.grade() != null) {
+                placeReview.setGrade(updateReviewDto.grade());
+            }
+            if (updateReviewDto.deleteImgUrls() != null) {
+                updateReviewDto.deleteImgUrls().forEach(
+                        deleteImg -> {
+                            placeReviewImgRepository.deleteByImgUrl(deleteImg);
+                            s3Client.delete(StringUtils.substringAfter(deleteImg, partToFind));
+                        }
+                );
+            }
+        }
+
+        placeReviewRepository.save(placeReview);
 
     }
 }

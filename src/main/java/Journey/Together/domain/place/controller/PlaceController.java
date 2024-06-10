@@ -47,7 +47,7 @@ public class PlaceController {
     @PostMapping("/review/{placeId}")
     public ApiResponse<?> createReivew(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                        @RequestPart(required = false) List<MultipartFile> images,
-                                       @RequestBody PlaceReviewReq placeReviewReq,
+                                       @RequestPart PlaceReviewReq placeReviewReq,
                                        @PathVariable Long placeId) {
         images = (images == null) ? new ArrayList<>() : images;
         placeService.createReview(principalDetails.getMember(), images,placeReviewReq, placeId);
@@ -82,13 +82,11 @@ public class PlaceController {
     @PatchMapping("/review/my/{reviewId}")
     public ApiResponse<?> updatePlaceMyReview(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @RequestBody UpdateReviewDto updateReviewDto,
-            @RequestParam(required = false) List<String> deleteImages,
-            @RequestParam(required = false) List<MultipartFile> addImages,
+            @RequestPart(required = false) UpdateReviewDto updateReviewDto,
+            @RequestPart(required = false) List<MultipartFile> addImages,
             @PathVariable Long reviewId) {
-        deleteImages = (deleteImages == null) ? new ArrayList<>() : deleteImages;
         addImages = (addImages == null) ? new ArrayList<>() : addImages;
-        placeService.updateMyPlaceReview(principalDetails.getMember(),updateReviewDto,deleteImages,addImages,reviewId);
+        placeService.updateMyPlaceReview(principalDetails.getMember(),updateReviewDto,addImages,reviewId);
         return ApiResponse.success(Success.UPDATE_MY_PLACE_REVIEW_SUCCESS);
     }
     @GetMapping("/search/list")
