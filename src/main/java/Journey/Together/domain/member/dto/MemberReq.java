@@ -11,8 +11,6 @@ public record MemberReq(
         @Null
         String phone,
         @Null
-        MultipartFile profileImage,
-        @Null
         String bloodType,
         @Null
         String birth,
@@ -26,6 +24,7 @@ public record MemberReq(
         String part1_rel,
         @Null
         String part1_phone,
+        @Null
         @Null
         String part2_rel,
         @Null

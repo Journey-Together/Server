@@ -3,6 +3,8 @@ package Journey.Together.domain.place.service;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.response.*;
+import Journey.Together.domain.place.dto.response.*;
+import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
@@ -14,6 +16,11 @@ import Journey.Together.domain.place.repository.PlaceReviewImgRepository;
 import Journey.Together.domain.place.repository.PlaceReviewRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
+import Journey.Together.global.exception.ErrorResponse;
+
+import org.springframework.data.domain.Pageable;
+import Journey.Together.global.exception.Success;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -24,6 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import Journey.Together.global.util.S3Client;
+import org.springframework.web.bind.annotation.RequestParam;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,8 +78,19 @@ public class PlaceService {
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null);
 
+    }
 
+    public SearchPlaceRes searchPlaceList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange,
+                                          Pageable pageable, Double minX, Double maxX, Double minY, Double maxY){
+        List<PlaceRes> placeResList =new ArrayList<>();
 
+        SearchPlace searchPlace = placeRepository.search(category, query, disabilityType, detailFilter, areacode, sigungucode, arrange, pageable,
+                minX, maxX, minY, maxY);
+        searchPlace.places().forEach(
+                place -> placeResList.add(PlaceRes.of(place,disabilityPlaceCategoryRepository.findDisabilityCategoryIds(place.getId())))
+        );
+
+        return new SearchPlaceRes(placeResList, pageable.getPageNumber(), pageable.getPageSize(), searchPlace.size());
     }
 
     //여행지 후기 생성
@@ -173,10 +193,10 @@ public class PlaceService {
         List<PlaceRes> placeList = new ArrayList<>();
 
         for(Place place : list){
-            Set<String> disability = new HashSet<>();
+            Set<Long> disability = new HashSet<>();
             disabilityPlaceCategoryRepository.findAllByPlace(place)
                     .forEach(disabilityPlaceCategory -> {
-                        disability.add(disabilityPlaceCategory.getSubCategory().getCategory().getId().toString());
+                        disability.add(disabilityPlaceCategory.getSubCategory().getCategory().getId());
                     });
             placeList.add(PlaceRes.of(place, new ArrayList<>(disability)));
         }

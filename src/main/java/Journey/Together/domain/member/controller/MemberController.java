@@ -1,5 +1,6 @@
 package Journey.Together.domain.member.controller;
 
+import Journey.Together.domain.dairy.dto.PlanReviewReq;
 import Journey.Together.domain.member.dto.InterestDto;
 import Journey.Together.domain.member.dto.MemberReq;
 import Journey.Together.domain.member.dto.MemberRes;
@@ -8,9 +9,13 @@ import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,8 +25,8 @@ public class MemberController {
     private final MemberService memberService;
 
     @PatchMapping ("")
-    public ApiResponse saveMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody MemberReq memberReq) {
-        memberService.saveInfo(principalDetails.getMember(),memberReq);
+    public ApiResponse saveMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile profileImage, @RequestPart(required = false) MemberReq memberReq) {
+        memberService.saveInfo(principalDetails.getMember(),profileImage,memberReq);
         return ApiResponse.success(Success.UPDATE_USER_INFO_SUCCESS);
     }
 
