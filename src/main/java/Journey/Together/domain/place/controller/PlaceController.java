@@ -90,7 +90,7 @@ public class PlaceController {
         return ApiResponse.success(Success.UPDATE_MY_PLACE_REVIEW_SUCCESS);
     }
     @GetMapping("/search/list")
-    public ApiResponse<SearchPlaceRes> searchPlaceList(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ApiResponse<SearchPlaceRes> searchPlaceList(
                                                        @RequestParam @NotNull String category,
                                                        @RequestParam @NotNull String query,
                                                        @RequestParam(required = false) Double minX,
