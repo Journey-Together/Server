@@ -16,7 +16,6 @@ public class DisabilitySubCategory {
     private String subname;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id") // 외래 키
     private DisabilityCategory category;
-
 }
