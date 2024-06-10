@@ -100,7 +100,7 @@ public class MemberService {
         Interest interest = interestRepository.findByMemberAndDeletedAtIsNull(member);
         //Business
         InterestDto interestDto = InterestDto.of(
-                interest.getIsPysical(),
+                interest.getIsPhysical(),
                 interest.getIsHear(),
                 interest.getIsVisual(),
                 interest.getIsElderly(),

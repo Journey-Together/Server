@@ -7,19 +7,19 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record InterestDto (
-       Boolean isPysical,
+       Boolean isPhysical,
        Boolean isHear,
        Boolean isVisual,
        Boolean isElderly,
        Boolean isChild
 ){
-    public static InterestDto of( Boolean isPysical,
+    public static InterestDto of( Boolean isPhysical,
                                   Boolean isHear,
                                   Boolean isVisual,
                                   Boolean isElderly,
                                   Boolean isChild){
             return InterestDto.builder()
-                    .isPysical(isPysical)
+                    .isPhysical(isPhysical)
                     .isHear(isHear)
                     .isChild(isChild)
                     .isElderly(isElderly)
