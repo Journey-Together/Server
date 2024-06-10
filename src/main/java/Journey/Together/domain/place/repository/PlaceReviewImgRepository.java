@@ -12,5 +12,7 @@ public interface PlaceReviewImgRepository extends JpaRepository<PlaceReviewImg,L
 
     void deleteByPlaceReview(PlaceReview placeReview);
 
+    void deleteByImgUrl(String imgUrl);
+
 
 }
