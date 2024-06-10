@@ -17,7 +17,7 @@ public interface DisabilityPlaceCategoryRepository extends JpaRepository<Disabil
             "WHERE dpc.place.id = :placeId")
     List<Long> findDisabilityCategoryIds(@Param("placeId") long placeId);
 
-    @Query("SELECT DISTINCT dpc.subCategory.id FROM DisabilityPlaceCategory dpc " +
+    @Query("SELECT DISTINCT dpc.subCategory.subname FROM DisabilityPlaceCategory dpc " +
             "WHERE dpc.place.id = :placeId")
-    List<Long> findDisabilitySubCategoryIds(@Param("placeId") long placeId);
+    List<String> findDisabilitySubCategoryNames(@Param("placeId") long placeId);
 }

@@ -75,7 +75,7 @@ public class PlaceService {
                 .anyMatch(placeBookmark -> placeBookmark.getMember().equals(member));
 
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
-        List<Long> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategoryIds(placeId);
+        List<String> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategoryNames(placeId);
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null);
 
