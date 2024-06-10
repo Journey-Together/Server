@@ -12,6 +12,8 @@ import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;
+
+import org.springframework.data.domain.Pageable;
 import Journey.Together.global.exception.Success;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -60,10 +62,12 @@ public class PlaceService {
 
     }
 
-    public SearchPlaceRes searchPlaceList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange, Integer pageNo){
+    public SearchPlaceRes searchPlaceList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange,
+                                          Pageable pageable, Double minX, Double maxX, Double minY, Double maxY){
         List<PlaceRes> placeResList =new ArrayList<>();
 
-        SearchPlace searchPlace = placeRepository.search(category, query, disabilityType, detailFilter, areacode, sigungucode, arrange, pageNo);
+        SearchPlace searchPlace = placeRepository.search(category, query, disabilityType, detailFilter, areacode, sigungucode, arrange, pageable,
+                minX, maxX, minY, maxY);
         searchPlace.places().forEach(
                 place -> placeResList.add(PlaceRes.of(place,disabilityPlaceCategoryRepository.findDisabilityCategoryIds(place.getId())))
         );

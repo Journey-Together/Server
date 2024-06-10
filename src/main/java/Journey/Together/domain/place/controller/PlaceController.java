@@ -14,6 +14,8 @@ import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,12 +45,17 @@ public class PlaceController {
     public ApiResponse<SearchPlaceRes> searchPlaceList(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                        @RequestParam @NotNull String category,
                                                        @RequestParam @NotNull String query,
+                                                       @RequestParam(required = false) Double minX,
+                                                       @RequestParam(required = false) Double maxX,
+                                                       @RequestParam(required = false) Double minY,
+                                                       @RequestParam(required = false) Double maxY,
                                                        @RequestParam(required = false)List<Long> disabilityType, @RequestParam(required = false) List<Long> detailFilter,
                                                        @RequestParam(required = false) String areacode,
                                                        @RequestParam(required = false) String sigungucode,
                                                        @RequestParam(required = false) String arrange,
-                                                       @RequestParam Integer pageNo){
-        return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceList(category,query,disabilityType,detailFilter,areacode,sigungucode,arrange,pageNo));
+                                                       @PageableDefault(size = 10,page = 0) Pageable pageable){
+        return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceList(category,query,disabilityType,detailFilter,areacode,sigungucode,arrange,pageable,
+                minX,maxX,minY,maxY));
     }
 
 }

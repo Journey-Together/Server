@@ -31,7 +31,7 @@ public record PlaceDetailRes(
 
 
 
-        return new PlaceDetailRes(place.getId(), place.getName(), place.getFirstImg(), place.getAddress(), cat, place.getOverview(), place.getMapX(), place.getMapY(), isMark,
+        return new PlaceDetailRes(place.getId(), place.getName(), place.getFirstImg(), place.getAddress(), cat, place.getOverview(), place.getMapX().toString(), place.getMapY().toString(), isMark,
                 bookmarkNum, disability, subDisability, reviewList);
     }
 }
