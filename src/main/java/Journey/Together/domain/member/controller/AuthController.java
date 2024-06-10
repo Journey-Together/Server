@@ -1,12 +1,8 @@
 package Journey.Together.domain.member.controller;
 
-import Journey.Together.domain.member.dto.LoginReq;
 import Journey.Together.domain.member.dto.LoginRes;
-import Journey.Together.domain.member.enumerate.LoginType;
 import Journey.Together.domain.member.service.AuthService;
 import Journey.Together.global.common.ApiResponse;
-import Journey.Together.global.exception.ApplicationException;
-import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import Journey.Together.global.security.jwt.dto.TokenDto;

@@ -15,7 +15,7 @@ public record PlaceReivewListDto(
         LocalDate date
 ) {
     public static PlaceReivewListDto of(PlaceReview placeReview, List<String> imageList){
-        return new PlaceReivewListDto(placeReview.getId(),placeReview.getMember().getName(), placeReview.getMember().getProfileUuid(),
+        return new PlaceReivewListDto(placeReview.getId(),placeReview.getMember().getNickname(), placeReview.getMember().getProfileUuid(),
                 placeReview.getContent(), imageList, placeReview.getGrade(), placeReview.getDate());
     }
 }

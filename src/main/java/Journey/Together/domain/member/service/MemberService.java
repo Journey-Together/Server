@@ -14,6 +14,7 @@ import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -30,23 +31,26 @@ public class MemberService {
 
     public MyPageRes getMypage(Member member){
         Long date = Duration.between(member.getCreatedAt(), LocalDateTime.now()).toDays();
-        return new MyPageRes(member.getName(), 0, date, member.getProfileUuid()+"/profile");
+        return new MyPageRes(member.getNickname(), 0, date, s3Client.getUrl()+member.getProfileUuid()+"/profile");
     }
-  
+
     @Transactional
-    public void saveInfo(Member member,MemberReq memberReq){
+    public void saveInfo(Member member, MultipartFile profileImage, MemberReq memberReq){
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
-        if (memberReq.name() != null) {
-            member.setName(memberReq.name());
+        if (profileImage != null) {
+            s3Client.update(member.getProfileUuid()+"/profile",profileImage);
+            memberRepository.save(member);
+        }
+        if(memberReq == null){
+            return;
+        }
+        if (memberReq.nickname() != null) {
+            member.setNickname(memberReq.nickname());
         }
         if (memberReq.phone() != null) {
             member.setPhone(memberReq.phone());
-        }
-        if (memberReq.profileImage() != null) {
-            String uuid = s3Client.update(member.getProfileUuid(),memberReq.profileImage());
-            member.setProfileUuid(uuid);
         }
         if (memberReq.bloodType() != null) {
             member.setBloodType(memberReq.bloodType());

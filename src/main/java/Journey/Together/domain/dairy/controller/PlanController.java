@@ -7,6 +7,7 @@ import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,8 +29,8 @@ public class PlanController {
         return ApiResponse.success(Success.CREATE_PLAN_SUCCESS);
     }
 
-    @PostMapping("/{plan_id}")
-    public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
+    @PatchMapping("/{plan_id}")
+    public ApiResponse updatePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
         planService.updatePlan(principalDetails.getMember(),planId);
         return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS);
     }
@@ -45,6 +46,11 @@ public class PlanController {
         return ApiResponse.success(Success.DELETE_PLAN_SUCCESS);
     }
 
+    @PatchMapping("/{planId}/ispublic")
+    public ApiResponse updatePlanIsPublic(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("plan_id") Long planId){
+        return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS,planService.updatePlanIsPublic(principalDetails.getMember(),planId));
+    }
+
     @GetMapping("/search")
     public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.searchPlace(word,pageable));
@@ -56,9 +62,35 @@ public class PlanController {
         return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
     }
 
+    @GetMapping("/review/{plan_id}")
+    public ApiResponse<PlanReviewRes> findPlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(principalDetails.getMember(),planId));
+    }
+
+    @DeleteMapping("/review/{review_id}")
+    public ApiResponse deletePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId){
+        planService.deletePlanReview(principalDetails.getMember(),reviewId);
+        return ApiResponse.success(Success.DELETE_PLAN_REVIEW_SUCCESS);
+    }
+
+    @GetMapping("/guest/review/{plan_id}")
+    public ApiResponse<PlanReviewRes> findPlanReviewGuest(@PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(null,planId));
+    }
+
     @GetMapping("/open")
     public ApiResponse<OpenPlanPageRes> findOpenPlans(@PageableDefault(size = 6) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findOpenPlans(pageable));
+    }
+
+    @GetMapping("/detail/{plan_id}")
+    public ApiResponse<PlanDetailRes> findPalnDetailInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findPlanDetail(principalDetails.getMember(),planId));
+    }
+
+    @GetMapping("/guest/detail/{plan_id}")
+    public ApiResponse<PlanDetailRes> findPalnDetailInfo(@PathVariable("plan_id")Long planId){
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findPlanDetail(null,planId));
     }
 
     @GetMapping("/my")

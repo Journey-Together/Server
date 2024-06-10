@@ -14,6 +14,7 @@ public record LoginRes(
         @NotNull Long memberId,
         @NotNull String email,
         @NotNull String name,
+        @NotNull String nickname,
         String profileUuid,
         MemberType memberType,
         LoginType loginType,
@@ -25,6 +26,7 @@ public record LoginRes(
                 .memberId(member.getMemberId())
                 .email(member.getEmail())
                 .name(member.getName())
+                .nickname(member.getNickname())
                 .profileUuid(member.getProfileUuid())
                 .memberType(member.getMemberType())
                 .loginType(member.getLoginType())

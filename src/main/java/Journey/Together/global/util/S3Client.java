@@ -11,6 +11,8 @@ import Journey.Together.global.exception.ErrorCode;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
 @Component
@@ -45,7 +47,7 @@ public class S3Client {
         String url = folderName+"/"+imageName;
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentType("image/jpeg");
         objectMetadata.setContentLength(multipartFile.getSize());
 
         // Check File upload
@@ -60,7 +62,7 @@ public class S3Client {
         return baseUrl+url;
     }
 
-    public String update(String fileName, MultipartFile newFile) {
+    public void update(String fileName, MultipartFile newFile) {
         // Validation
         if(newFile.isEmpty()) {
             throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
@@ -74,8 +76,9 @@ public class S3Client {
 
         // 새 파일 메타데이터 설정
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(newFile.getContentType());
+        objectMetadata.setContentType("image/jpeg");
         objectMetadata.setContentLength(newFile.getSize());
+        objectMetadata.setContentDisposition("inline");
 
         // 새 파일 업로드
         try {
@@ -84,9 +87,6 @@ public class S3Client {
         } catch (IOException e) {
             throw new ApplicationException(ErrorCode.INTERNAL_SERVER_EXCEPTION);
         }
-
-        // Response
-        return fileName;
     }
 
     public String getUrl(){
@@ -94,6 +94,7 @@ public class S3Client {
     }
 
     public void delete(String fileName) {
+        System.out.println("delete : "+bucket+fileName);
         // Validation
         if(!amazonS3Client.doesObjectExist(bucket, fileName)) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);

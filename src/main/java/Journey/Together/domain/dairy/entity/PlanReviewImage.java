@@ -1,5 +1,6 @@
 package Journey.Together.domain.dairy.entity;
 
+import Journey.Together.global.common.BaseTimeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,7 @@ import lombok.*;
 @Table(name = "palnReviewImage")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class PlanReviewImage {
+public class PlanReviewImage extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "planReviewImage_id")
