@@ -38,7 +38,9 @@ public enum ErrorCode {
     ALREADY_DECISION_EXCEPION(HttpStatus.BAD_REQUEST,4004,"이미 지원 결정했습니다."),
     NOT_RECRUITING_EXCEPION(HttpStatus.BAD_REQUEST,4005,"이 공고는 모집 중이 아닙니다."),
     NOT_FOUND_CATEGORY_EXCEPTION(HttpStatus.NOT_FOUND,4006,"카테고리가 없습니다"),
-    NOT_FOUND_PLACE_REVIEW_EXCEPTION(HttpStatus.NOT_FOUND,4007,"존재하지 않는 여행지리뷰입니다."),
+    OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다."),
+    INVALID_MAP_EXCEPTION(HttpStatus.NOT_FOUND,4008,"모든 좌표값이 요청되지 않았습니다."),
+    NOT_FOUND_PLACE_REVIEW_EXCEPTION(HttpStatus.NOT_FOUND,4009,"존재하지 않는 여행지리뷰입니다."),
 
     //5000: Post Error
     NOT_POST_EXCEPTION(HttpStatus.BAD_REQUEST,5000,"공고를 더 이상 생성할 수 없습니다"),

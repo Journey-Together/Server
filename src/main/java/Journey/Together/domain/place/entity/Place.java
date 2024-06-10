@@ -24,8 +24,8 @@ public class Place {
     @Column(columnDefinition = "TEXT")
     private String firstImg;
     private String category;
-    private String mapX;
-    private String mapY;
+    private Double mapX;
+    private Double mapY;
     private String createdAt;
     @Column(columnDefinition = "TEXT")
     private String overview;
@@ -55,7 +55,7 @@ public class Place {
     }
 
     @Builder
-    public Place(Long id, String name, String address, String firstImg, String category, String mapX, String mapY, String createdAt, String areaCode, String sigunguCode){
+    public Place(Long id, String name, String address, String firstImg, String category, Double mapX, Double mapY, String createdAt, String areaCode, String sigunguCode){
         this.id =id;
         this.name=name;
         this.address=address;
