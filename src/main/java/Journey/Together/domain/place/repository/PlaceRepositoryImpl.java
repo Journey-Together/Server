@@ -1,7 +1,9 @@
 package Journey.Together.domain.place.repository;
 
 import Journey.Together.domain.bookbark.entity.QPlaceBookmark;
+import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.repository.MemberRepository;
+import Journey.Together.domain.place.dto.request.UpdateReviewDto;
 import Journey.Together.domain.place.dto.response.PlaceRes;
 import Journey.Together.domain.place.dto.response.SearchPlace;
 import Journey.Together.domain.place.dto.response.SearchPlaceRes;
@@ -24,6 +26,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,6 +76,7 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
 
         return new SearchPlace(places,total);
     }
+
     private BooleanExpression categoryEq(String category) {
         List<String> categoryList = new ArrayList<>(Arrays.asList("A01", "A02", "A03", "A04", "B01", "C01"));
 
@@ -183,4 +187,5 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
             return place.createdAt.desc(); // default = 최신순
         }
     }
+
 }

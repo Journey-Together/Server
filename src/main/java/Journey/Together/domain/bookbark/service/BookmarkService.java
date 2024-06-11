@@ -6,9 +6,11 @@ import Journey.Together.domain.bookbark.entity.PlanBookmark;
 import Journey.Together.domain.bookbark.entity.PlanBookmarkRes;
 import Journey.Together.domain.bookbark.repository.PlaceBookmarkRepository;
 import Journey.Together.domain.bookbark.repository.PlanBookmarkRepository;
+import java.util.Optional;
 import Journey.Together.domain.dairy.entity.Day;
 import Journey.Together.domain.dairy.entity.Plan;
 import Journey.Together.domain.dairy.repository.DayRepository;
+import Journey.Together.domain.dairy.repository.PlanRepository;
 import Journey.Together.domain.dairy.service.PlanService;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.dto.response.PlaceBookmarkDto;
@@ -18,6 +20,7 @@ import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepositor
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
+import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +38,10 @@ public class BookmarkService {
     private final PlaceRepository placeRepository;
 
     private final DayRepository dayRepository;
+    private final PlanRepository planRepository;
+
+
+    private final S3Client s3Client;
 
 
     //북마크한 여행지 이름만 가져오기
@@ -49,10 +56,10 @@ public class BookmarkService {
 
     @Transactional
     // 북마크 상태변경
-    public void bookmark(Member member, Long placeId){
+    public void placeBookmark(Member member, Long placeId){
         Place place = getPlace(placeId);
 
-        PlaceBookmark placeBookmark = placeBookmarkRepository.findPlaceBookmarkByPlaceAndMember(place, member);// 북마크 설정
+        PlaceBookmark placeBookmark = placeBookmarkRepository.findPlaceBookmarkByPlaceAndMember(place, member);
         if (placeBookmark == null) {
             PlaceBookmark newPlaceBookmark = PlaceBookmark.builder()
                     .place(place)
@@ -62,6 +69,25 @@ public class BookmarkService {
         } else {
             // 북마크 해체
             placeBookmarkRepository.delete(placeBookmark);
+        }
+    }
+
+    @Transactional
+    // 북마크 상태변경
+    public void planBookmark(Member member, Long planId){
+        Plan plan = planRepository.findById(planId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
+
+        PlanBookmark planBookmark = planBookmarkRepository.findPlanBookmarkByPlanAndMember(plan, member);
+        if (planBookmark == null) {
+            PlanBookmark newPlanBookmark = PlanBookmark.builder()
+                    .plan(plan)
+                    .member(member)
+                    .build();
+            planBookmarkRepository.save(newPlanBookmark);
+        } else {
+            // 북마크 해체
+            planBookmarkRepository.delete(planBookmark);
         }
     }
 
@@ -89,7 +115,7 @@ public class BookmarkService {
 
         List<PlanBookmark> planBookmarkList = planBookmarkRepository.findAllByMemberOrderByCreatedAtDesc(member);
         planBookmarkList.forEach( planBookmark -> {
-            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),getPlanImageUrl(member, planBookmark.getPlan())));
+            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),s3Client.getUrl()+planBookmark.getMember().getProfileUuid()+"/profile",getPlanImageUrl(member, planBookmark.getPlan())));
         });
 
         return list;

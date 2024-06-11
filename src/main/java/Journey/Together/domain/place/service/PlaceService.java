@@ -2,6 +2,7 @@ package Journey.Together.domain.place.service;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
+import Journey.Together.domain.place.dto.request.UpdateReviewDto;
 import Journey.Together.domain.place.dto.response.*;
 import Journey.Together.domain.place.dto.response.*;
 import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
@@ -74,7 +75,7 @@ public class PlaceService {
                 .anyMatch(placeBookmark -> placeBookmark.getMember().equals(member));
 
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
-        List<Long> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategoryIds(placeId);
+        List<String> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategoryNames(placeId);
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null);
 
@@ -227,6 +228,47 @@ public class PlaceService {
 
     }
 
+@Transactional
+    public void updateMyPlaceReview(Member member, UpdateReviewDto updateReviewDto, List<MultipartFile> addImages, Long reviewId) {
+        PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
 
+        if(placeReview.getMember().getMemberId() != member.getMemberId()){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
 
+        if (addImages != null) {
+            try {
+                for(MultipartFile file : addImages) {
+                    String uuid = UUID.randomUUID().toString();
+                    final String imageUrl = s3Client.upload(file, POST_IMAGE_FOLDER_NAME+member.getMemberId(), uuid);
+                    PlaceReviewImg placeReviewImg = PlaceReviewImg.builder().placeReview(placeReview).imgUrl(imageUrl).build();
+                    placeReviewImgRepository.save(placeReviewImg);
+                }
+            } catch (RuntimeException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+
+        if (updateReviewDto != null) {
+            if (updateReviewDto.content() != null) {
+                placeReview.setContent(updateReviewDto.content());
+            }if (updateReviewDto.date() != null) {
+                placeReview.setDate(updateReviewDto.date());
+            }if (updateReviewDto.grade() != null) {
+                placeReview.setGrade(updateReviewDto.grade());
+            }
+            if (updateReviewDto.deleteImgUrls() != null) {
+                updateReviewDto.deleteImgUrls().forEach(
+                        deleteImg -> {
+                            placeReviewImgRepository.deleteByImgUrl(deleteImg);
+                            s3Client.delete(StringUtils.substringAfter(deleteImg, partToFind));
+                        }
+                );
+            }
+        }
+
+        placeReviewRepository.save(placeReview);
+
+    }
 }
