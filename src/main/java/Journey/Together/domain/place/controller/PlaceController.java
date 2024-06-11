@@ -44,6 +44,11 @@ public class PlaceController {
         return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getPlaceDetail(principalDetails.getMember(), placeId));
     }
 
+    @GetMapping("guest/{placeId}")
+    public ApiResponse<PlaceDetailGuestRes> getPlaceDetail(@PathVariable Long placeId){
+        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getGeustPlaceDetail(placeId));
+    }
+
     @PostMapping("/review/{placeId}")
     public ApiResponse<?> createReivew(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                        @RequestPart(required = false) List<MultipartFile> images,

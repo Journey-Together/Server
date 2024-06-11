@@ -81,6 +81,19 @@ public class PlaceService {
 
     }
 
+    public PlaceDetailGuestRes getGeustPlaceDetail(Long placeId){
+        // PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<String> disability, List<String> subDisability, List< PlaceReviewDto > reviewList)
+
+        Place place = getPlace(placeId);
+
+        List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlace(place);
+        List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
+        List<String> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategoryNames(placeId);
+
+        return PlaceDetailGuestRes.of(place, placeBookmarkList.size(), disability, subDisability, null);
+
+    }
+
     public SearchPlaceRes searchPlaceList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange,
                                           Pageable pageable, Double minX, Double maxX, Double minY, Double maxY){
         List<PlaceRes> placeResList =new ArrayList<>();
