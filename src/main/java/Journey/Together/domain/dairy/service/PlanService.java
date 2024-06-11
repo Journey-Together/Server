@@ -59,6 +59,7 @@ public class PlanService {
                 .title(planReq.title())
                 .startDate(planReq.startDate())
                 .endDate(planReq.endDate())
+                .isPublic(false)
                 .build();
         planRepository.save(plan);
         //날짜별 장소 정보 저장
@@ -129,7 +130,7 @@ public class PlanService {
         if(plan.getEndDate().isAfter(LocalDate.now())){
             //imageUrl : 장소 사진
             for(Day day : dayList){
-                if(day.getPlace().getFirstImg()!=null){
+                if(!day.getPlace().getFirstImg().isEmpty()){
                     imageUrls.add(day.getPlace().getFirstImg());
                 }
             }
@@ -139,7 +140,7 @@ public class PlanService {
             if(planReviewImageList == null){
                 //imageUrl : 장소사진
                 for(Day day : dayList){
-                    if(day.getPlace().getFirstImg()!=null){
+                    if(!day.getPlace().getFirstImg().isEmpty()){
                         imageUrls.add(day.getPlace().getFirstImg());
                     }
                 }
@@ -164,9 +165,18 @@ public class PlanService {
         }else {
             isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
         }
+
+        String remainDate = null;
+        if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
+            remainDate = "D-Day";
+        }else if (LocalDate.now().isBefore(plan.getStartDate())){
+            Period period = Period.between(LocalDate.now(),plan.getStartDate());
+            remainDate = "D-"+ period.getDays();
+        }
+
         //PlanDetailRes - List<String> imageUrls, List<DailyList> dailyList, Boolean isWriter
         //Response
-        return PlanDetailRes.of(imageUrls,dailyLists,isWriter,plan);
+        return PlanDetailRes.of(imageUrls,dailyLists,isWriter,plan,remainDate);
     }
 
     @Transactional
@@ -373,7 +383,7 @@ public class PlanService {
     public String getPlaceFirstImage(Member member,Plan plan){
         List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
         String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
-        if(placeImageUrl==null){
+        if(!placeImageUrl.isEmpty()){
             return null;
         }
         return dayList.get(0).getPlace().getFirstImg();
