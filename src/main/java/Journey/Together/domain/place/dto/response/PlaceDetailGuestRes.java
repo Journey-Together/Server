@@ -27,6 +27,9 @@ public record PlaceDetailGuestRes(
         else if (place.getCategory().equals("A05"))
             cat = "맛집";
 
+        else
+            cat = "관광지";
+
 
         return new PlaceDetailGuestRes(place.getId(), place.getName(), place.getFirstImg(), place.getAddress(), cat, place.getOverview(), place.getMapX().toString(), place.getMapY().toString(),
                 bookmarkNum, disability, subDisability, reviewList);

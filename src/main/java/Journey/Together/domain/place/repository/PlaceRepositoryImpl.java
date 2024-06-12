@@ -96,9 +96,9 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
         List<String> categoryList = new ArrayList<>(Arrays.asList("A01", "A02", "A03", "A04", "B01", "C01"));
 
         if(category.equals("ROOM"))
-            categoryList.add("B02");
+            return place.category.eq("B02");
         else if (category.equals("RESTAURANT"))
-            categoryList.add("A05");
+            return place.category.eq("A05");
 
         return place.category.in(categoryList);
     }

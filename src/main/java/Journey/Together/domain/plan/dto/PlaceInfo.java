@@ -17,6 +17,9 @@ public record PlaceInfo(
             cat = "숙소";
         else if (place.getCategory().equals("A05"))
             cat = "음식점";
+        else
+            cat = "관광지";
+
         return PlaceInfo.builder()
                 .placeId(place.getId())
                 .placeName(place.getName())
