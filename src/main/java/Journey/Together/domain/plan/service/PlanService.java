@@ -355,7 +355,7 @@ public class PlanService {
     public String getPlanImageUrl(Member member,Plan plan){
         //Buisness
         //다가오는 일정-> 첫번째날 첫번째 장소 사진(1장) (없을경우 null로 처리)
-        if(LocalDate.now().isAfter(plan.getEndDate())){
+        if(plan.getEndDate().isAfter(LocalDate.now())){
             return getPlaceFirstImage(member,plan);
         }
         //다녀온 일정
