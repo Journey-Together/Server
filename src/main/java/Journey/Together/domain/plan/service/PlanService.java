@@ -28,10 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -279,8 +277,12 @@ public class PlanService {
             return null;
         }
         //Business
+        List<Plan> top3list = list.stream()
+                .sorted(Comparator.comparingLong(plan -> Math.abs(ChronoUnit.DAYS.between(LocalDate.now(), plan.getStartDate()))))
+                .limit(3)
+                .toList();
         List<MyPlanRes> myPlanResList = new ArrayList<>();
-        for(Plan plan : list){
+        for(Plan plan : top3list){
             String image = getPlanImageUrl(member,plan);
             if (LocalDate.now().isAfter(plan.getEndDate())){
                 Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
@@ -380,11 +382,15 @@ public class PlanService {
 
     public String getPlaceFirstImage(Member member,Plan plan){
         List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
-        String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
-        if(!placeImageUrl.isEmpty()){
-            return null;
+        if(!dayList.isEmpty()){
+            System.out.println(dayList);
+            String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
+            if(!placeImageUrl.isEmpty()){
+                return null;
+            }
+            return dayList.get(0).getPlace().getFirstImg();
         }
-        return dayList.get(0).getPlace().getFirstImg();
+        return null;
     }
 
     public List<String> getReviewImageList(List<PlanReviewImage> planReviewImageList){
