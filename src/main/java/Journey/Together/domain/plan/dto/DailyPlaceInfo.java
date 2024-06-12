@@ -1,31 +1,29 @@
-package Journey.Together.domain.dairy.dto;
+package Journey.Together.domain.plan.dto;
 
-import Journey.Together.domain.place.dto.response.PlaceDetailRes;
-import Journey.Together.domain.place.dto.response.PlaceReviewDto;
 import Journey.Together.domain.place.entity.Place;
 import lombok.Builder;
 
 import java.util.List;
 
 @Builder
-public record PlaceInfo(
+public record DailyPlaceInfo(
         Long placeId,
-        String placeName,
+        String name,
         String category,
-        String imageUrl
-
+        List<Long> disabilityCategoryList
 ) {
     static String cat = "관광지";
-    public static PlaceInfo of(Place place){
+    public static DailyPlaceInfo of( Place place,
+                                     List<Long> disabilityCategoryList){
         if(place.getCategory().equals("B02"))
             cat = "숙소";
         else if (place.getCategory().equals("A05"))
             cat = "음식점";
-        return PlaceInfo.builder()
+        return DailyPlaceInfo.builder()
                 .placeId(place.getId())
-                .placeName(place.getName())
-                .imageUrl(place.getFirstImg())
+                .name(place.getName())
                 .category(cat)
+                .disabilityCategoryList(disabilityCategoryList)
                 .build();
     }
 }

@@ -1,13 +1,11 @@
-package Journey.Together.domain.dairy.controller;
+package Journey.Together.domain.plan.controller;
 
-import Journey.Together.domain.dairy.dto.*;
-import Journey.Together.domain.dairy.service.PlanService;
-import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.plan.dto.*;
+import Journey.Together.domain.plan.service.PlanService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;

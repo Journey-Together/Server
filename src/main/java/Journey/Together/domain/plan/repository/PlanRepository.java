@@ -1,11 +1,10 @@
-package Journey.Together.domain.dairy.repository;
+package Journey.Together.domain.plan.repository;
 
-import Journey.Together.domain.dairy.entity.Plan;
+import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
 
 import java.time.LocalDate;
 import java.util.List;
