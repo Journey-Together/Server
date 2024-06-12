@@ -95,17 +95,29 @@ public class PlaceService {
     }
 
     public SearchPlaceRes searchPlaceList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange,
-                                          Pageable pageable, Double minX, Double maxX, Double minY, Double maxY){
+                                          Pageable pageable){
         List<PlaceRes> placeResList =new ArrayList<>();
 
-        SearchPlace searchPlace = placeRepository.search(category, query, disabilityType, detailFilter, areacode, sigungucode, arrange, pageable,
-                minX, maxX, minY, maxY);
+        SearchPlace searchPlace = placeRepository.searchList(category, query, disabilityType, detailFilter, areacode, sigungucode, arrange, pageable);
         searchPlace.places().forEach(
                 place -> placeResList.add(PlaceRes.of(place,disabilityPlaceCategoryRepository.findDisabilityCategoryIds(place.getId())))
         );
 
         return new SearchPlaceRes(placeResList, pageable.getPageNumber(), pageable.getPageSize(), searchPlace.size());
     }
+
+    public List<PlaceRes> searchPlaceMap(String category, List<Long> disabilityType, List<Long> detailFilter,String arrange,
+                                         Double minX, Double maxX, Double minY, Double maxY){
+        List<PlaceRes> placeResList =new ArrayList<>();
+
+        List<Place> places = placeRepository.searchMap(category, disabilityType, detailFilter, arrange, minX, maxX,minY, maxY);
+        places.forEach(
+                place -> placeResList.add(PlaceRes.of(place,disabilityPlaceCategoryRepository.findDisabilityCategoryIds(place.getId())))
+        );
+
+        return placeResList;
+    }
+
 
     //여행지 후기 생성
     @Transactional
