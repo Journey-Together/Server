@@ -49,17 +49,16 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
     }
 
     @Override
-    public SearchPlace search(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange,
-                              Pageable pageable, Double minX, Double maxX, Double minY, Double maxY) {
+    public SearchPlace searchList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange,
+                              Pageable pageable) {
         Long total = 0L;
 
         List<Place> places = queryFactory
                 .selectDistinct(place)
                 .from(place)
                 .join(place.placeDisabilityCategories, disabilityPlaceCategory)
-                .where(place.name.contains(query))
-                .where(categoryEq(category), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
-                        areacodeEq(areacode), sigungucodeEq(sigungucode),mapIn(minX,maxX,minY,maxY) )
+                .where(categoryEq(category),queryContains(query), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
+                        areacodeEq(areacode), sigungucodeEq(sigungucode) )
                 .orderBy(arg(arrange))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -69,12 +68,28 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
                 .select(place.countDistinct())
                 .from(place)
                 .join(place.placeDisabilityCategories, disabilityPlaceCategory)
-                .where(place.name.contains(query))
-                .where(categoryEq(category), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
-                        areacodeEq(areacode), sigungucodeEq(sigungucode),mapIn(minX,maxX,minY,maxY))
+                .where(categoryEq(category), queryContains(query), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
+                        areacodeEq(areacode), sigungucodeEq(sigungucode))
                 .fetchOne();
 
         return new SearchPlace(places,total);
+    }
+
+    @Override
+    public List<Place> searchMap(String category,List<Long> disabilityType, List<Long> detailFilter, String arrange,
+                                  Double minX, Double maxX, Double minY, Double maxY) {
+        Long total = 0L;
+
+        List<Place> places = queryFactory
+                .selectDistinct(place)
+                .from(place)
+                .join(place.placeDisabilityCategories, disabilityPlaceCategory)
+                .where(categoryEq(category), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
+                        mapIn(minX,maxX,minY,maxY) )
+                .orderBy(arg(arrange))
+                .fetch();
+
+        return places;
     }
 
     private BooleanExpression categoryEq(String category) {
@@ -170,6 +185,10 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
 
     private BooleanExpression sigungucodeEq(String sigungucode) {
         return sigungucode != null ? place.sigunguCode.eq(sigungucode) : null;
+    }
+
+    private BooleanExpression queryContains(String query) {
+        return query != null ? place.name.contains(query) : null;
     }
 
     private OrderSpecifier<?> arg(String arrange) {
