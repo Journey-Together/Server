@@ -386,11 +386,11 @@ public class PlanService {
             System.out.println(dayList);
             String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
             if(placeImageUrl.isEmpty()){
-                return null;
+                return "";
             }
             return dayList.get(0).getPlace().getFirstImg();
         }
-        return null;
+        return "";
     }
 
     public List<String> getReviewImageList(List<PlanReviewImage> planReviewImageList){
