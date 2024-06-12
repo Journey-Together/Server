@@ -1,6 +1,5 @@
-package Journey.Together.domain.dairy.dto;
+package Journey.Together.domain.plan.dto;
 
-import Journey.Together.domain.dairy.entity.PlanReview;
 import jakarta.validation.constraints.Null;
 import lombok.Builder;
 

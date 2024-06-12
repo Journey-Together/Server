@@ -1,7 +1,7 @@
-package Journey.Together.domain.dairy.repository;
+package Journey.Together.domain.plan.repository;
 
-import Journey.Together.domain.dairy.entity.Day;
-import Journey.Together.domain.dairy.entity.Plan;
+import Journey.Together.domain.plan.entity.Day;
+import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 

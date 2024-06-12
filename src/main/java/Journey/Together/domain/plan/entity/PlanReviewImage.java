@@ -1,7 +1,6 @@
-package Journey.Together.domain.dairy.entity;
+package Journey.Together.domain.plan.entity;
 
 import Journey.Together.global.common.BaseTimeEntity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

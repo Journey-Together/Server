@@ -1,4 +1,4 @@
-package Journey.Together.domain.dairy.dto;
+package Journey.Together.domain.plan.dto;
 
 import java.time.LocalDate;
 import java.util.List;

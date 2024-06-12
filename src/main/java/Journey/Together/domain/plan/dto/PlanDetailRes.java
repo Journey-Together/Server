@@ -1,13 +1,18 @@
-package Journey.Together.domain.dairy.dto;
+package Journey.Together.domain.plan.dto;
 
-import Journey.Together.domain.dairy.entity.Plan;
-import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.plan.entity.Plan;
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Builder
 public record PlanDetailRes(
+        String title,
+        LocalDate startDate,
+        LocalDate endDate,
+        String remainDate,
+        Boolean isPublic,
         List<String> imageUrls,
         List<DailyList> dailyList,
         Boolean isWriter,
@@ -15,8 +20,13 @@ public record PlanDetailRes(
         String writerNickname
 ) {
     public static PlanDetailRes of(List<String> imageUrls,
-                                   List<DailyList> dailyList, Boolean isWriter, Plan plan){
+                                   List<DailyList> dailyList, Boolean isWriter, Plan plan,String remainDate){
         return PlanDetailRes.builder()
+                .title(plan.getTitle())
+                .startDate(plan.getStartDate())
+                .endDate(plan.getEndDate())
+                .remainDate(remainDate)
+                .isPublic(plan.getIsPublic())
                 .imageUrls(imageUrls)
                 .dailyList(dailyList)
                 .isWriter(isWriter)

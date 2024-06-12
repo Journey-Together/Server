@@ -1,17 +1,16 @@
-package Journey.Together.domain.dairy.service;
+package Journey.Together.domain.plan.service;
 
-import Journey.Together.domain.dairy.dto.*;
-import Journey.Together.domain.dairy.entity.Day;
-import Journey.Together.domain.dairy.entity.Plan;
-import Journey.Together.domain.dairy.entity.PlanReview;
-import Journey.Together.domain.dairy.entity.PlanReviewImage;
-import Journey.Together.domain.dairy.repository.DayRepository;
-import Journey.Together.domain.dairy.repository.PlanRepository;
-import Journey.Together.domain.dairy.repository.PlanReviewImageRepository;
-import Journey.Together.domain.dairy.repository.PlanReviewRepository;
+import Journey.Together.domain.plan.dto.*;
+import Journey.Together.domain.plan.entity.Day;
+import Journey.Together.domain.plan.entity.Plan;
+import Journey.Together.domain.plan.entity.PlanReview;
+import Journey.Together.domain.plan.entity.PlanReviewImage;
+import Journey.Together.domain.plan.repository.DayRepository;
+import Journey.Together.domain.plan.repository.PlanRepository;
+import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
+import Journey.Together.domain.plan.repository.PlanReviewRepository;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.repository.MemberRepository;
-import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
@@ -23,17 +22,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,6 +55,7 @@ public class PlanService {
                 .title(planReq.title())
                 .startDate(planReq.startDate())
                 .endDate(planReq.endDate())
+                .isPublic(false)
                 .build();
         planRepository.save(plan);
         //날짜별 장소 정보 저장
@@ -129,7 +126,7 @@ public class PlanService {
         if(plan.getEndDate().isAfter(LocalDate.now())){
             //imageUrl : 장소 사진
             for(Day day : dayList){
-                if(day.getPlace().getFirstImg()!=null){
+                if(!day.getPlace().getFirstImg().isEmpty()){
                     imageUrls.add(day.getPlace().getFirstImg());
                 }
             }
@@ -139,7 +136,7 @@ public class PlanService {
             if(planReviewImageList == null){
                 //imageUrl : 장소사진
                 for(Day day : dayList){
-                    if(day.getPlace().getFirstImg()!=null){
+                    if(!day.getPlace().getFirstImg().isEmpty()){
                         imageUrls.add(day.getPlace().getFirstImg());
                     }
                 }
@@ -164,9 +161,18 @@ public class PlanService {
         }else {
             isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
         }
+
+        String remainDate = null;
+        if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
+            remainDate = "D-Day";
+        }else if (LocalDate.now().isBefore(plan.getStartDate())){
+            Period period = Period.between(LocalDate.now(),plan.getStartDate());
+            remainDate = "D-"+ period.getDays();
+        }
+
         //PlanDetailRes - List<String> imageUrls, List<DailyList> dailyList, Boolean isWriter
         //Response
-        return PlanDetailRes.of(imageUrls,dailyLists,isWriter,plan);
+        return PlanDetailRes.of(imageUrls,dailyLists,isWriter,plan,remainDate);
     }
 
     @Transactional
@@ -271,8 +277,12 @@ public class PlanService {
             return null;
         }
         //Business
+        List<Plan> top3list = list.stream()
+                .sorted(Comparator.comparingLong(plan -> Math.abs(ChronoUnit.DAYS.between(LocalDate.now(), plan.getStartDate()))))
+                .limit(3)
+                .toList();
         List<MyPlanRes> myPlanResList = new ArrayList<>();
-        for(Plan plan : list){
+        for(Plan plan : top3list){
             String image = getPlanImageUrl(member,plan);
             if (LocalDate.now().isAfter(plan.getEndDate())){
                 Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
@@ -372,11 +382,15 @@ public class PlanService {
 
     public String getPlaceFirstImage(Member member,Plan plan){
         List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
-        String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
-        if(placeImageUrl==null){
-            return null;
+        if(!dayList.isEmpty()){
+            System.out.println(dayList);
+            String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
+            if(!placeImageUrl.isEmpty()){
+                return null;
+            }
+            return dayList.get(0).getPlace().getFirstImg();
         }
-        return dayList.get(0).getPlace().getFirstImg();
+        return null;
     }
 
     public List<String> getReviewImageList(List<PlanReviewImage> planReviewImageList){

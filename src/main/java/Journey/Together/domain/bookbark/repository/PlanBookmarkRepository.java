@@ -1,11 +1,9 @@
 package Journey.Together.domain.bookbark.repository;
 
 
-import Journey.Together.domain.bookbark.entity.PlaceBookmark;
 import Journey.Together.domain.bookbark.entity.PlanBookmark;
-import Journey.Together.domain.dairy.entity.Plan;
+import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.member.entity.Member;
-import Journey.Together.domain.place.entity.Place;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
