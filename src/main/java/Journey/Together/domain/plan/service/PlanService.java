@@ -385,7 +385,7 @@ public class PlanService {
         if(!dayList.isEmpty()){
             System.out.println(dayList);
             String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
-            if(!placeImageUrl.isEmpty()){
+            if(placeImageUrl.isEmpty()){
                 return null;
             }
             return dayList.get(0).getPlace().getFirstImg();
