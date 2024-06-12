@@ -23,6 +23,8 @@ public class DisabilityPlaceCategory {
     @JoinColumn(name = "subCategory_id")
     private DisabilitySubCategory subCategory;
 
+
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Builder

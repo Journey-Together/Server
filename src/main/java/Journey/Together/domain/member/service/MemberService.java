@@ -8,6 +8,8 @@ import Journey.Together.domain.member.entity.Interest;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.repository.InterestRepository;
 import Journey.Together.domain.member.repository.MemberRepository;
+import Journey.Together.domain.place.repository.PlaceReviewRepository;
+import Journey.Together.domain.plan.repository.PlanReviewRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
@@ -27,11 +29,15 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final InterestRepository interestRepository;
     private final S3Client s3Client;
+    private final PlaceReviewRepository placeReviewRepository;
+    private final PlanReviewRepository planReviewRepository;
 
 
     public MyPageRes getMypage(Member member){
         Long date = Duration.between(member.getCreatedAt(), LocalDateTime.now()).toDays();
-        return new MyPageRes(member.getNickname(), 0, date, s3Client.getUrl()+member.getProfileUuid()+"/profile");
+        long cnt1 = placeReviewRepository.countPlaceReviewByMember(member);
+        long cnt2  = planReviewRepository.countPlanReviewByMember(member);
+        return new MyPageRes(member.getNickname(), (int) (cnt1+cnt2), date, s3Client.getUrl()+member.getProfileUuid()+"/profile");
     }
 
     @Transactional
