@@ -35,9 +35,6 @@ public class Place {
     private String sigunguCode;
 
 
-    private Boolean settingDisability;
-
-
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DisabilityPlaceCategory> placeDisabilityCategories = new HashSet<>();
 
@@ -50,9 +47,6 @@ public class Place {
         this.overview = overview;
     }
 
-    public void setting(){
-        this.settingDisability = true;
-    }
 
     @Builder
     public Place(Long id, String name, String address, String firstImg, String category, Double mapX, Double mapY, String createdAt, String areaCode, String sigunguCode){
