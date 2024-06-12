@@ -7,9 +7,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface PlaceReviewRepository extends JpaRepository<PlaceReview,Long> {
 
-    PlaceReview findPlaceReviewByPlace(Place place);
+    List<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place);
+    PlaceReview findPlaceReviewByMemberAndPlace(Member member, Place place);
 
     Page<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place, Pageable pageable);
 

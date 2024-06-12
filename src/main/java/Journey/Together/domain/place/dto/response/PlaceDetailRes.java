@@ -19,11 +19,11 @@ public record PlaceDetailRes(
         Integer bookmarkNum,
 
         List<Long> disability,
-        List<String> subDisability,
+        List<SubDisability> subDisability,
         List<PlaceReviewDto> reviewList
 ) {
     static String cat = "관광지";
-    public static PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<Long> disability, List<String> subDisability, List<PlaceReviewDto> reviewList){
+    public static PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<Long> disability, List<SubDisability> subDisability, List<PlaceReviewDto> reviewList){
         if(place.getCategory().equals("B02"))
             cat = "숙소";
         else if (place.getCategory().equals("A05"))
