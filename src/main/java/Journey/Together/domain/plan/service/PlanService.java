@@ -76,13 +76,36 @@ public class PlanService {
         }
     }
     @Transactional
-    public void updatePlan(Member member,Long planId){
+    public void updatePlan(Member member,Long planId,PlanReq planReq){
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member,planId);
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
-        //
+        //Business
+        //날짜별 장소 삭제
+        dayRepository.deleteAllByMemberAndPlan(member,plan);
+        //일정 update
+        plan.setTitle(planReq.title());
+        plan.setStartDate(planReq.startDate());
+        plan.setEndDate(planReq.endDate());
+        planRepository.save(plan);
+        //날짜별 장소 정보 저장
+        for(DailyPlace dailyPlace : planReq.dailyplace()){
+            for(Long placeId : dailyPlace.places()){
+                Place place = placeRepository.findPlaceById(placeId);
+                if(place == null){
+                    throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+                }
+                Day day = Day.builder()
+                        .member(member)
+                        .plan(plan)
+                        .place(place)
+                        .date(dailyPlace.date())
+                        .build();
+                dayRepository.save(day);
+            }
+        }
 
     }
     @Transactional

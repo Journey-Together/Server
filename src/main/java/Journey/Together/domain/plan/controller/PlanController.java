@@ -28,8 +28,8 @@ public class PlanController {
     }
 
     @PatchMapping("/{plan_id}")
-    public ApiResponse updatePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId){
-        planService.updatePlan(principalDetails.getMember(),planId);
+    public ApiResponse updatePlan(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id") Long planId, @RequestBody PlanReq planReq){
+        planService.updatePlan(principalDetails.getMember(),planId,planReq);
         return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS);
     }
 
