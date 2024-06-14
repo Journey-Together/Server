@@ -7,7 +7,6 @@ public record PlanReq(
         String title,
         LocalDate startDate,
         LocalDate endDate,
-        Boolean isPublic,
         List<DailyPlace> dailyplace
 ) {
 }
