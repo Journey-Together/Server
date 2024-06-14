@@ -271,6 +271,48 @@ public class PlanService {
     }
 
     @Transactional
+    public void updatePlanReview(Member member, Long reviewId, UpdatePlanReviewReq updatePlanReviewReq, List<MultipartFile> images){
+        // Validation
+        PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
+        if(planReview.getPlan().getMember().getMemberId()!=member.getMemberId()){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+        //Business
+        if(updatePlanReviewReq == null){
+            return;
+        }
+        if (updatePlanReviewReq.grade() != null) {
+            planReview.setGrade(updatePlanReviewReq.grade());
+        }
+        if (updatePlanReviewReq.content() != null) {
+            planReview.setContent(updatePlanReviewReq.content());
+        }
+        planReviewRepository.save(planReview);
+        if (images != null) {
+            List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
+            if(planReviewImageList != null){
+                for(PlanReviewImage planReviewImage : planReviewImageList){
+                    String filename = planReviewImage.getImageUrl().replace(s3Client.baseUrl(), "");
+                    s3Client.delete(filename);
+                    planReviewImageRepository.delete(planReviewImage);
+                }
+            }
+            List<PlanReviewImage> list = new ArrayList<>();
+            for(MultipartFile file : images){
+                String uuid = UUID.randomUUID().toString();
+                String url = s3Client.upload(file,member.getProfileUuid(),uuid);
+                PlanReviewImage planReviewImage = PlanReviewImage.builder()
+                        .planReview(planReview)
+                        .imageUrl(url)
+                        .build();
+                planReviewImageRepository.save(planReviewImage);
+                list.add(planReviewImage);
+            }
+            planReview.setPlanReviewImages(list);
+        }
+    }
+
+    @Transactional
     public void deletePlanReview(Member member,Long reviewId){
         //Vailda
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
@@ -281,7 +323,6 @@ public class PlanService {
         if(planReviewImageList!=null){
             for(PlanReviewImage planReviewImage : planReviewImageList){
                 String filename = planReviewImage.getImageUrl().replace(s3Client.baseUrl(), "");
-                System.out.println(filename);
                 s3Client.delete(filename);
                 planReviewImageRepository.deletePlanReviewImageByPlanReviewImageId(planReviewImage.getPlanReviewImageId());
             }

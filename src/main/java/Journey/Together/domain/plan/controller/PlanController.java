@@ -70,6 +70,12 @@ public class PlanController {
         return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanOfMyReview(principalDetails.getMember(),reviewId));
     }
 
+    @PatchMapping("/review/{review_id}")
+    public ApiResponse updatePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart(required = false) UpdatePlanReviewReq planReviewReq){
+        planService.updatePlanReview(principalDetails.getMember(),reviewId,planReviewReq,images);
+        return ApiResponse.success(Success.UPDATE_REVIEW_SUCCESS);
+    }
+
     @DeleteMapping("/review/{review_id}")
     public ApiResponse deletePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId){
         planService.deletePlanReview(principalDetails.getMember(),reviewId);

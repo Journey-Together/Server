@@ -25,7 +25,6 @@ public record MemberReq(
         @Null
         String part1_phone,
         @Null
-        @Null
         String part2_rel,
         @Null
         String part2_phone
