@@ -251,7 +251,28 @@ public class PlanService {
     }
 
     @Transactional
+    public MyReviewRes findPlanOfMyReview(Member member,Long reviewId){
+        // Validation
+        PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
+        if(planReview.getPlan().getMember().getMemberId()!=member.getMemberId()){
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+        //Buisness
+        List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
+        List<String> imageUrlList = new ArrayList<>();
+        if(planReviewImageList !=null){
+            for(PlanReviewImage planReviewImage : planReviewImageList){
+                imageUrlList.add(planReviewImage.getImageUrl());
+            }
+        }else {
+            imageUrlList = null;
+        }
+        return MyReviewRes.of(planReview,imageUrlList);
+    }
+
+    @Transactional
     public void deletePlanReview(Member member,Long reviewId){
+        //Vailda
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
         if(planReview.getPlan().getMember().getMemberId()!=member.getMemberId()){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
@@ -265,7 +286,6 @@ public class PlanService {
                 planReviewImageRepository.deletePlanReviewImageByPlanReviewImageId(planReviewImage.getPlanReviewImageId());
             }
         }
-        System.out.println("test4");
         planReviewRepository.deletePlanReviewByPlanReviewId(planReview.getPlanReviewId());
     }
 
