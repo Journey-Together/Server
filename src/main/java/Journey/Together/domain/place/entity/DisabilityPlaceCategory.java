@@ -23,6 +23,10 @@ public class DisabilityPlaceCategory {
     @JoinColumn(name = "subCategory_id")
     private DisabilitySubCategory subCategory;
 
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Builder
     public DisabilityPlaceCategory(Place place, DisabilitySubCategory subCategory){
         this.place=place;

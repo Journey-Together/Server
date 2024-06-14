@@ -1,18 +1,16 @@
-package Journey.Together.domain.dairy.repository;
+package Journey.Together.domain.plan.repository;
 
-import Journey.Together.domain.dairy.entity.Plan;
+import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface PlanRepository extends JpaRepository<Plan, Long> {
     Plan findPlanByPlanIdAndDeletedAtIsNull(Long planId);
-
     Plan findPlanByMemberAndPlanIdAndDeletedAtIsNull(Member member,Long planId);
     List<Plan> findAllByMemberAndDeletedAtIsNull(Member member);
     Plan findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(Member member, Long planId, LocalDate today);

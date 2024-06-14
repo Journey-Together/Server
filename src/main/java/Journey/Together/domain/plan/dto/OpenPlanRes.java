@@ -1,6 +1,6 @@
-package Journey.Together.domain.dairy.dto;
+package Journey.Together.domain.plan.dto;
 
-import Journey.Together.domain.dairy.entity.Plan;
+import Journey.Together.domain.plan.entity.Plan;
 import lombok.Builder;
 
 import java.time.Period;

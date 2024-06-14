@@ -44,6 +44,11 @@ public class PlaceController {
         return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getPlaceDetail(principalDetails.getMember(), placeId));
     }
 
+    @GetMapping("guest/{placeId}")
+    public ApiResponse<PlaceDetailGuestRes> getPlaceDetail(@PathVariable Long placeId){
+        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getGeustPlaceDetail(placeId));
+    }
+
     @PostMapping("/review/{placeId}")
     public ApiResponse<?> createReivew(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                        @RequestPart(required = false) List<MultipartFile> images,
@@ -92,18 +97,27 @@ public class PlaceController {
     @GetMapping("/search")
     public ApiResponse<SearchPlaceRes> searchPlaceList(
                                                        @RequestParam @NotNull String category,
-                                                       @RequestParam @NotNull String query,
-                                                       @RequestParam(required = false) Double minX,
-                                                       @RequestParam(required = false) Double maxX,
-                                                       @RequestParam(required = false) Double minY,
-                                                       @RequestParam(required = false) Double maxY,
-                                                       @RequestParam(required = false)List<Long> disabilityType, @RequestParam(required = false) List<Long> detailFilter,
+                                                       @RequestParam(required = false) String query,
+                                                       @RequestParam(required = false)List<Long> disabilityType,
+                                                       @RequestParam(required = false) List<Long> detailFilter,
                                                        @RequestParam(required = false) String areacode,
                                                        @RequestParam(required = false) String sigungucode,
                                                        @RequestParam(required = false) String arrange,
                                                        @PageableDefault(size = 10,page = 0) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceList(category,query,disabilityType,detailFilter,areacode,sigungucode,arrange,pageable,
-                minX,maxX,minY,maxY));
+        return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceList(category,query,disabilityType,detailFilter,areacode,sigungucode,arrange,pageable));
+    }
+
+    @GetMapping("/search/map")
+    public ApiResponse<List<PlaceRes>> searchPlaceList(
+            @RequestParam @NotNull String category,
+            @RequestParam @NotNull Double minX,
+            @RequestParam @NotNull Double maxX,
+            @RequestParam @NotNull Double minY,
+            @RequestParam @NotNull Double maxY,
+            @RequestParam(required = false)List<Long> disabilityType,
+            @RequestParam(required = false) List<Long> detailFilter,
+            @RequestParam(required = false) String arrange){
+        return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceMap(category,disabilityType,detailFilter,arrange,minX,maxX,minY,maxY));
     }
 
 }

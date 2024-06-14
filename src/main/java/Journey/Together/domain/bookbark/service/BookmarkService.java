@@ -6,15 +6,12 @@ import Journey.Together.domain.bookbark.entity.PlanBookmark;
 import Journey.Together.domain.bookbark.entity.PlanBookmarkRes;
 import Journey.Together.domain.bookbark.repository.PlaceBookmarkRepository;
 import Journey.Together.domain.bookbark.repository.PlanBookmarkRepository;
-import java.util.Optional;
-import Journey.Together.domain.dairy.entity.Day;
-import Journey.Together.domain.dairy.entity.Plan;
-import Journey.Together.domain.dairy.repository.DayRepository;
-import Journey.Together.domain.dairy.repository.PlanRepository;
-import Journey.Together.domain.dairy.service.PlanService;
+import Journey.Together.domain.plan.entity.Day;
+import Journey.Together.domain.plan.entity.Plan;
+import Journey.Together.domain.plan.repository.DayRepository;
+import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.dto.response.PlaceBookmarkDto;
-import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
@@ -115,7 +112,7 @@ public class BookmarkService {
 
         List<PlanBookmark> planBookmarkList = planBookmarkRepository.findAllByMemberOrderByCreatedAtDesc(member);
         planBookmarkList.forEach( planBookmark -> {
-            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),s3Client.getUrl()+planBookmark.getMember().getProfileUuid()+"/profile",getPlanImageUrl(member, planBookmark.getPlan())));
+            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),s3Client.getUrl()+planBookmark.getPlan().getMember().getProfileUuid()+"/profile",getPlanImageUrl(member, planBookmark.getPlan())));
         });
 
         return list;

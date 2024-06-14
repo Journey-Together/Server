@@ -64,7 +64,10 @@ public class SecurityConfig {
                         .requestMatchers("/v1/place/main").permitAll()
                         .requestMatchers("v1/place/review/{placeReviewId}").permitAll()
                         .requestMatchers("/v1/plan/guest/**").permitAll()
+                        .requestMatchers("/v1/plan/open").permitAll()
+                        .requestMatchers("/v1/plan/search").permitAll()
                         .requestMatchers("/v1/place/search").permitAll()
+                        .requestMatchers("/v1/place/guest/**").permitAll()
                         // 메인 페이지, 공고 페이지 등에 한해 인증 정보 없이 접근 가능 (추후 추가)
                         // 이외의 모든 요청은 인증 정보 필요
                         .anyRequest().authenticated());

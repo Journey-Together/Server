@@ -75,18 +75,59 @@ public class PlaceService {
                 .anyMatch(placeBookmark -> placeBookmark.getMember().equals(member));
 
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
-        List<String> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategoryNames(placeId);
+        List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
 
-        return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null);
+        List<PlaceReview> placeReviews = placeReviewRepository.findAllByPlaceOrderByCreatedAtDesc(place);
+        if(placeReviews.size()<0)
+            return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null);
+
+        List<PlaceReviewDto> reviewList = new ArrayList<>();
+
+        placeReviews.forEach(placeReview -> {
+            List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
+            if (placeReviewImgs.size() > 0) {
+                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.get(0).getImgUrl()));
+            } else
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", placeReview.getPlace().getFirstImg()));
+        });
+
+        return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, reviewList);
+
+    }
+
+    public PlaceDetailGuestRes getGeustPlaceDetail(Long placeId){
+        // PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<String> disability, List<String> subDisability, List< PlaceReviewDto > reviewList)
+
+        Place place = getPlace(placeId);
+
+        List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlace(place);
+        List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
+        List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
+
+        List<PlaceReview> placeReviews = placeReviewRepository.findAllByPlaceOrderByCreatedAtDesc(place);
+        if(placeReviews.size()<0)
+            return PlaceDetailGuestRes.of(place, placeBookmarkList.size(), disability, subDisability, null);
+
+        List<PlaceReviewDto> reviewList = new ArrayList<>();
+
+        placeReviews.forEach(placeReview -> {
+            List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
+            if (placeReviewImgs.size() > 0) {
+                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.get(0).getImgUrl()));
+            } else
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", placeReview.getPlace().getFirstImg()));
+        });
+
+
+        return PlaceDetailGuestRes.of(place, placeBookmarkList.size(), disability, subDisability, reviewList);
 
     }
 
     public SearchPlaceRes searchPlaceList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange,
-                                          Pageable pageable, Double minX, Double maxX, Double minY, Double maxY){
+                                          Pageable pageable){
         List<PlaceRes> placeResList =new ArrayList<>();
 
-        SearchPlace searchPlace = placeRepository.search(category, query, disabilityType, detailFilter, areacode, sigungucode, arrange, pageable,
-                minX, maxX, minY, maxY);
+        SearchPlace searchPlace = placeRepository.searchList(category, query, disabilityType, detailFilter, areacode, sigungucode, arrange, pageable);
         searchPlace.places().forEach(
                 place -> placeResList.add(PlaceRes.of(place,disabilityPlaceCategoryRepository.findDisabilityCategoryIds(place.getId())))
         );
@@ -94,12 +135,25 @@ public class PlaceService {
         return new SearchPlaceRes(placeResList, pageable.getPageNumber(), pageable.getPageSize(), searchPlace.size());
     }
 
+    public List<PlaceRes> searchPlaceMap(String category, List<Long> disabilityType, List<Long> detailFilter,String arrange,
+                                         Double minX, Double maxX, Double minY, Double maxY){
+        List<PlaceRes> placeResList =new ArrayList<>();
+
+        List<Place> places = placeRepository.searchMap(category, disabilityType, detailFilter, arrange, minX, maxX,minY, maxY);
+        places.forEach(
+                place -> placeResList.add(PlaceRes.of(place,disabilityPlaceCategoryRepository.findDisabilityCategoryIds(place.getId())))
+        );
+
+        return placeResList;
+    }
+
+
     //여행지 후기 생성
     @Transactional
     public void createReview(Member member, List<MultipartFile> images, PlaceReviewReq placeReviewReq, Long placeId){
         Place place = getPlace(placeId);
 
-        if(placeReviewRepository.findPlaceReviewByPlace(place) != null)
+        if(placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place) != null)
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
 
         PlaceReview placeReview = PlaceReview.builder()

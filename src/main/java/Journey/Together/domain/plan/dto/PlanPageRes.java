@@ -1,23 +1,24 @@
-package Journey.Together.domain.dairy.dto;
+package Journey.Together.domain.plan.dto;
 
 import lombok.Builder;
 
 import java.util.List;
+
 @Builder
-public record PlaceInfoPageRes(
-        List<PlaceInfo> placeInfoList,
+public record PlanPageRes(
+        List<PlanRes> planResList,
         int pageNo,
         int pageSize,
         int totalPages,
         boolean last
 ) {
-    public static PlaceInfoPageRes of(List<PlaceInfo> placeInfoList,
+    public static PlanPageRes of(List<PlanRes> planResList,
                                       int pageNo,
                                       int pageSize,
                                       int totalPages,
                                       boolean last){
-        return PlaceInfoPageRes.builder()
-                .placeInfoList(placeInfoList)
+        return PlanPageRes.builder()
+                .planResList(planResList)
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .totalPages(totalPages)
