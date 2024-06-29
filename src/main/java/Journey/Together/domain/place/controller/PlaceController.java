@@ -98,7 +98,7 @@ public class PlaceController {
     public ApiResponse<SearchPlaceRes> searchPlaceList(
                                                        @RequestParam @NotNull String category,
                                                        @RequestParam(required = false) String query,
-                                                       @RequestParam(required = false)List<Long> disabilityType,
+                                                       @RequestParam(required = false) List<Long> disabilityType,
                                                        @RequestParam(required = false) List<Long> detailFilter,
                                                        @RequestParam(required = false) String areacode,
                                                        @RequestParam(required = false) String sigungucode,

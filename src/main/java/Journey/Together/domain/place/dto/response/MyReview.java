@@ -8,12 +8,13 @@ import java.util.List;
 public record MyReview(
         Long reviewId,
         List<String> images,
+        String placeName,
         String address,
         Float grade,
         LocalDate date,
         String content
 ) {
     static public MyReview of(PlaceReview placeReview, List<String> images){
-        return new MyReview(placeReview.getId(), images, placeReview.getPlace().getAddress(), placeReview.getGrade(), placeReview.getDate(), placeReview.getContent());
+        return new MyReview(placeReview.getId(), images, placeReview.getPlace().getAddress(), placeReview.getPlace().getName(),placeReview.getGrade(), placeReview.getDate(), placeReview.getContent());
     }
 }
