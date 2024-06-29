@@ -13,10 +13,10 @@ import java.util.List;
 
 public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceRepositoryCustom {
 
-    @Query(value = "SELECT * FROM place p ORDER BY RAND() LIMIT :count", nativeQuery = true)
+    @Query(value = "SELECT * FROM place p WHERE p.first_img IS NOT NULL AND p.first_img <> '' ORDER BY RAND() LIMIT :count", nativeQuery = true)
     List<Place> findRandomProducts(@Param("count") int count);
 
-    @Query(value = "SELECT * FROM place p WHERE area_code = :areacode AND sigungu_code = :sigungucode " +
+    @Query(value = "SELECT * FROM place p WHERE p.first_img IS NOT NULL AND p.first_img <> '' AND area_code = :areacode AND sigungu_code = :sigungucode " +
             "ORDER BY RAND() LIMIT :count", nativeQuery = true)
     List<Place> findAroundProducts(@Param("areacode") String areacode, @Param("sigungucode") String sigungucode,
                                    @Param("count") int count);
