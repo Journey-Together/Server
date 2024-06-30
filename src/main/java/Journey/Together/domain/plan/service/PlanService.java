@@ -127,8 +127,12 @@ public class PlanService {
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
+        PlanReview planReview = planReviewRepository.findPlanReviewByPlanAndDeletedAtIsNull(plan);
         //Buisness
         dayRepository.deleteAllByMemberAndPlan(member,plan);
+        if(planReview!=null){
+            deletePlanReview(member,planReview.getPlanReviewId());
+        }
         planRepository.deletePlanByPlanId(planId);
 
     }
