@@ -239,17 +239,19 @@ public class PlanService {
         planReviewRepository.save(planReview);
 
         List<PlanReviewImage> list = new ArrayList<>();
-        for(MultipartFile file : images){
-            String uuid = UUID.randomUUID().toString();
-            String url = s3Client.upload(file,member.getProfileUuid(),uuid);
-            PlanReviewImage planReviewImage = PlanReviewImage.builder()
-                    .planReview(planReview)
-                    .imageUrl(url)
-                    .build();
-            planReviewImageRepository.save(planReviewImage);
-            list.add(planReviewImage);
+        if(images!=null){
+            for(MultipartFile file : images){
+                String uuid = UUID.randomUUID().toString();
+                String url = s3Client.upload(file,member.getProfileUuid(),uuid);
+                PlanReviewImage planReviewImage = PlanReviewImage.builder()
+                        .planReview(planReview)
+                        .imageUrl(url)
+                        .build();
+                planReviewImageRepository.save(planReviewImage);
+                list.add(planReviewImage);
+            }
+            planReview.setPlanReviewImages(list);
         }
-        planReview.setPlanReviewImages(list);
 
         plan.setIsPublic(planReviewReq.isPublic());
     }
