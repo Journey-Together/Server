@@ -459,7 +459,7 @@ public class PlanService {
             else {
                 //후기가 있지만 후기 사진이 없을 경우 -> 첫번째날 첫번째 장소 사진(1장)
                 List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-                if(planReviewImageList == null){
+                if(planReviewImageList == null || planReviewImageList.isEmpty()){
                     return getPlaceFirstImage(member,plan);
                 }
                 //다녀온 일정 (후기 사진 있을 경우) -> 후기 사진들 (여러장)
