@@ -93,7 +93,7 @@ public class PlaceService {
             if (placeReviewImgs.size() > 0) {
                 reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.get(0).getImgUrl()));
             } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", placeReview.getPlace().getFirstImg()));
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null));
         });
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, reviewList, isReview);
@@ -120,7 +120,7 @@ public class PlaceService {
             if (placeReviewImgs.size() > 0) {
                 reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.get(0).getImgUrl()));
             } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", placeReview.getPlace().getFirstImg()));
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null));
         });
 
 
