@@ -96,8 +96,8 @@ branch 이름: 관련브랜치 분류/#[Issue tracker]
 ### Commit
 | 커밋 구분 | 설명 |
 | --- | --- |
-| Feature | (Feature) 개선 또는 기능 추가 |
-| Bug | (Bug Fix) 버그 수정 |
+| Feat | (Feature) 개선 또는 기능 추가 |
+| Fix | (Bug Fix) 버그 수정 |
 | Doc | (Documentation) 문서 작업 |
 | Test | (Test) 테스트 추가/수정 |
 | Build | (Build) 빌드 프로세스 관련 수정(yml) |
@@ -105,5 +105,5 @@ branch 이름: 관련브랜치 분류/#[Issue tracker]
 | Refactor | (Cleanup) 코드 정리/리팩토링 |
 
 - 이슈번호와 함께 커밋 내용을 적는다.
-- 예시 : [#1] feataure : ~
+- 예시 : [#1] Feat : ~
 
