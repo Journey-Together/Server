@@ -68,6 +68,7 @@ public class PlaceService {
     public PlaceDetailRes getPlaceDetail(Member member, Long placeId){
        // PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<String> disability, List<String> subDisability, List< PlaceReviewDto > reviewList)
 
+        Boolean isReview = false;
         Place place = getPlace(placeId);
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlace(place);
@@ -78,8 +79,12 @@ public class PlaceService {
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
 
         List<PlaceReview> placeReviews = placeReviewRepository.findAllByPlaceOrderByCreatedAtDesc(place);
+
+        if(placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place) != null)
+            isReview = true;
+
         if(placeReviews.size()<0)
-            return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null);
+            return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null, isReview);
 
         List<PlaceReviewDto> reviewList = new ArrayList<>();
 
@@ -88,10 +93,10 @@ public class PlaceService {
             if (placeReviewImgs.size() > 0) {
                 reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.get(0).getImgUrl()));
             } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", placeReview.getPlace().getFirstImg()));
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null));
         });
 
-        return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, reviewList);
+        return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, reviewList, isReview);
 
     }
 
@@ -115,7 +120,7 @@ public class PlaceService {
             if (placeReviewImgs.size() > 0) {
                 reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.get(0).getImgUrl()));
             } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", placeReview.getPlace().getFirstImg()));
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null));
         });
 
 

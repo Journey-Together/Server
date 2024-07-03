@@ -17,13 +17,14 @@ public record PlaceDetailRes(
         Boolean isMark,
 
         Integer bookmarkNum,
+        Boolean isReview,
 
         List<Long> disability,
         List<SubDisability> subDisability,
         List<PlaceReviewDto> reviewList
 ) {
     static String cat = "관광지";
-    public static PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<Long> disability, List<SubDisability> subDisability, List<PlaceReviewDto> reviewList){
+    public static PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<Long> disability, List<SubDisability> subDisability, List<PlaceReviewDto> reviewList, Boolean isReview){
         if(place.getCategory().equals("B02"))
             cat = "숙소";
         else if (place.getCategory().equals("A05"))
@@ -34,6 +35,6 @@ public record PlaceDetailRes(
 
 
         return new PlaceDetailRes(place.getId(), place.getName(), place.getFirstImg(), place.getAddress(), cat, place.getOverview(), place.getMapX().toString(), place.getMapY().toString(), isMark,
-                bookmarkNum, disability, subDisability, reviewList);
+                bookmarkNum, isReview, disability, subDisability, reviewList);
     }
 }
