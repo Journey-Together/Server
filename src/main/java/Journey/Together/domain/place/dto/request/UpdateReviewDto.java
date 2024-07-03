@@ -9,9 +9,9 @@ import java.util.List;
 
 public record UpdateReviewDto(
         @Nullable
-        @JsonFormat(pattern = "yyyy-MM-dd")
         Float grade,
         @Nullable
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate date,
         @Nullable
         String content,

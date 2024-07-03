@@ -204,9 +204,12 @@ public class PlaceService {
     public MyPlaceReviewRes getMyReviews(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByMemberOrderByCreatedAtDesc(member, pageable);
-        return new MyPlaceReviewRes(placeReviewPage.getContent().stream()
+
+        Long reviewNum = placeReviewRepository.countPlaceReviewByMember(member);
+
+        return new MyPlaceReviewRes(reviewNum,placeReviewPage.getContent().stream()
                 .map(this::getMyPlaceReview)
-                .toList(),placeReviewPage.getNumber(),placeReviewPage.getSize(),placeReviewPage.getTotalPages());
+                .toList(), placeReviewPage.getNumber(),placeReviewPage.getSize(),placeReviewPage.getTotalPages());
     }
 
     //나의 여행지 후기 삭제
@@ -282,8 +285,12 @@ public class PlaceService {
     }
 
     private MyPlaceReviewDto getMyPlaceReview(PlaceReview placeReview ){
-        List<PlaceReviewImg> imgList = placeReviewImgRepository.findAllByPlaceReview(placeReview);
-        return MyPlaceReviewDto.of(placeReview, imgList.get(0).getImgUrl());
+        List<String> list = placeReviewImgRepository.findAllByPlaceReview(placeReview)
+                .stream()
+                .map(PlaceReviewImg::getImgUrl)
+                .toList();
+
+        return MyPlaceReviewDto.of(placeReview, list);
 
     }
 
