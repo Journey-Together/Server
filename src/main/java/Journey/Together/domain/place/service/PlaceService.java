@@ -278,9 +278,9 @@ public class PlaceService {
            List<String> imgUrls = imgList.stream()
                    .map(PlaceReviewImg::getImgUrl)
                    .collect(Collectors.toList());
-           return PlaceReivewListDto.of(placeReview, imgUrls);
+           return PlaceReivewListDto.of(placeReview, imgUrls, s3Client.getUrl());
        }
-       return PlaceReivewListDto.of(placeReview, new ArrayList<>());
+       return PlaceReivewListDto.of(placeReview, new ArrayList<>(),s3Client.getUrl());
 
     }
 

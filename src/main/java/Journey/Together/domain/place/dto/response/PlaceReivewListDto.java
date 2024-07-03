@@ -14,8 +14,8 @@ public record PlaceReivewListDto(
         Float grade,
         LocalDate date
 ) {
-    public static PlaceReivewListDto of(PlaceReview placeReview, List<String> imageList){
-        return new PlaceReivewListDto(placeReview.getId(),placeReview.getMember().getNickname(), placeReview.getMember().getProfileUuid(),
+    public static PlaceReivewListDto of(PlaceReview placeReview, List<String> imageList, String s3Url){
+        return new PlaceReivewListDto(placeReview.getId(),placeReview.getMember().getNickname(), s3Url+placeReview.getMember().getProfileUuid()+"/profile",
                 placeReview.getContent(), imageList, placeReview.getGrade(), placeReview.getDate());
     }
 }
