@@ -13,6 +13,7 @@ import java.util.List;
 
 public interface PlaceReviewRepository extends JpaRepository<PlaceReview,Long> {
 
+
     List<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place);
     PlaceReview findPlaceReviewByMemberAndPlace(Member member, Place place);
     @Query("SELECT COUNT(pr) FROM PlaceReview pr WHERE pr.member = :member")
