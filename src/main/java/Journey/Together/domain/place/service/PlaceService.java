@@ -78,7 +78,7 @@ public class PlaceService {
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
 
-        List<PlaceReview> placeReviews = placeReviewRepository.findAllByPlaceOrderByCreatedAtDesc(place);
+        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceOrderByCreatedAtDesc(place);
 
         if(placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place) != null)
             isReview = true;

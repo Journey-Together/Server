@@ -15,6 +15,7 @@ public interface PlaceReviewRepository extends JpaRepository<PlaceReview,Long> {
 
 
     List<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place);
+    List<PlaceReview> findTop2ByPlaceOrderByCreatedAtDesc(Place place);
     PlaceReview findPlaceReviewByMemberAndPlace(Member member, Place place);
     @Query("SELECT COUNT(pr) FROM PlaceReview pr WHERE pr.member = :member")
     Long countPlaceReviewByMember(@Param("member") Member member);
