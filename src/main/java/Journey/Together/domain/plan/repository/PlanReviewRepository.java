@@ -12,7 +12,7 @@ public interface PlanReviewRepository extends JpaRepository<PlanReview,Long> {
     boolean existsAllByPlan(Plan plan);
     PlanReview findPlanReviewByPlan(Plan plan);
     PlanReview findPlanReviewByPlanAndDeletedAtIsNull(Plan plan);
-    @Query("SELECT COUNT(pr) FROM PlaceReview pr WHERE pr.member = :member")
+    @Query("SELECT COUNT(pr) FROM PlanReview pr WHERE pr.member = :member")
     Long countPlanReviewByMember(@Param("member") Member member);
     PlanReview findPlanReviewByPlanReviewIdAndDeletedAtIsNull(Long reviewId);
     void deletePlanReviewByPlanReviewId(Long planReviewId);

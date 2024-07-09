@@ -37,6 +37,8 @@ public class MemberService {
         Long date = Duration.between(member.getCreatedAt(), LocalDateTime.now()).toDays();
         long cnt1 = placeReviewRepository.countPlaceReviewByMember(member);
         long cnt2  = planReviewRepository.countPlanReviewByMember(member);
+        System.out.println(cnt1);
+        System.out.println(cnt2);
         return new MyPageRes(member.getNickname(), (int) (cnt1+cnt2), date, s3Client.getUrl()+member.getProfileUuid()+"/profile");
     }
 

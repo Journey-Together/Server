@@ -232,6 +232,7 @@ public class PlanService {
         }
         //Business
         PlanReview planReview = PlanReview.builder()
+                .member(member)
                 .grade(planReviewReq.grade())
                 .content(planReviewReq.content())
                 .plan(plan)
