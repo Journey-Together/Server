@@ -34,6 +34,11 @@ public class Place {
 
     private String sigunguCode;
 
+    private String tel;
+
+    @Column(columnDefinition = "TEXT")
+    private String homepage;
+
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DisabilityPlaceCategory> placeDisabilityCategories = new HashSet<>();
