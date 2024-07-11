@@ -19,6 +19,9 @@ public record PlaceDetailRes(
         Integer bookmarkNum,
         Boolean isReview,
 
+        String tel,
+        String homepage,
+
         List<Long> disability,
         List<SubDisability> subDisability,
         List<PlaceReviewDto> reviewList
@@ -35,6 +38,6 @@ public record PlaceDetailRes(
 
 
         return new PlaceDetailRes(place.getId(), place.getName(), place.getFirstImg(), place.getAddress(), cat, place.getOverview(), place.getMapX().toString(), place.getMapY().toString(), isMark,
-                bookmarkNum, isReview, disability, subDisability, reviewList);
+                bookmarkNum, isReview, place.getTel(), place.getHomepage(),disability, subDisability, reviewList);
     }
 }

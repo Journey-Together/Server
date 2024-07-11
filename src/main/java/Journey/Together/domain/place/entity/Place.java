@@ -34,19 +34,14 @@ public class Place {
 
     private String sigunguCode;
 
+    private String tel;
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(columnDefinition = "TEXT")
+    private String homepage;
+
+
+    @OneToMany(mappedBy = "place",fetch = FetchType.LAZY)
     private Set<DisabilityPlaceCategory> placeDisabilityCategories = new HashSet<>();
-
-    public void setArea(String areaCode, String sigunguCode) {
-        this.areaCode = areaCode;
-        this.sigunguCode = sigunguCode;
-    }
-
-    public void setOverview(String overview){
-        this.overview = overview;
-    }
-
 
     @Builder
     public Place(Long id, String name, String address, String firstImg, String category, Double mapX, Double mapY, String createdAt, String areaCode, String sigunguCode){

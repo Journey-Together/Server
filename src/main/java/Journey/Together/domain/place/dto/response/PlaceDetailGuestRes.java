@@ -13,7 +13,8 @@ public record PlaceDetailGuestRes(
         String overview,
         String mapX,
         String mapY,
-
+        String tel,
+        String homepage,
         Integer bookmarkNum,
 
         List<Long> disability,
@@ -32,6 +33,6 @@ public record PlaceDetailGuestRes(
 
 
         return new PlaceDetailGuestRes(place.getId(), place.getName(), place.getFirstImg(), place.getAddress(), cat, place.getOverview(), place.getMapX().toString(), place.getMapY().toString(),
-                bookmarkNum, disability, subDisability, reviewList);
+                place.getTel(), place.getHomepage(),bookmarkNum, disability, subDisability, reviewList);
     }
 }
