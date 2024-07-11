@@ -7,6 +7,6 @@ public record SearchPlaceRes(
 
         Integer pageNo,
         Integer pageSize,
-        Long totalPages
+        Long totalSize
 ) {
 }
