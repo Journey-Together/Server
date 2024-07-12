@@ -36,8 +36,17 @@ public record PlaceDetailRes(
         else
             cat = "관광지";
 
+        String place_tel=null;
+        String place_homepage=null;
+
+        if(!place.getTel().isBlank())
+            place_tel = place.getTel();
+
+        if(!place.getHomepage().isBlank())
+            place_homepage = place.getHomepage();
+
 
         return new PlaceDetailRes(place.getId(), place.getName(), place.getFirstImg(), place.getAddress(), cat, place.getOverview(), place.getMapX().toString(), place.getMapY().toString(), isMark,
-                bookmarkNum, isReview, place.getTel(), place.getHomepage(),disability, subDisability, reviewList);
+                bookmarkNum, isReview, place_tel,place_homepage,disability, subDisability, reviewList);
     }
 }
