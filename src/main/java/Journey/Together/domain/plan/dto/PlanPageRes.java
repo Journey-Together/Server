@@ -10,21 +10,19 @@ public record PlanPageRes(
         int pageNo,
         int pageSize,
         int totalPages,
-        boolean last,
-        long totalElements
+        boolean last
 ) {
     public static PlanPageRes of(List<PlanRes> planResList,
                                       int pageNo,
                                       int pageSize,
                                       int totalPages,
-                                      boolean last,long totalElements){
+                                      boolean last){
         return PlanPageRes.builder()
                 .planResList(planResList)
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .totalPages(totalPages)
                 .last(last)
-                .totalElements(totalElements)
                 .build();
     }
 }
