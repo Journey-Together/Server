@@ -400,7 +400,7 @@ public class PlanService {
         List<PlaceInfo> placeInfoList = placePage.getContent().stream()
                 .map(PlaceInfo::of)
                 .collect(Collectors.toList());
-        return PlaceInfoPageRes.of(placeInfoList, placePage.getNumber(), placePage.getSize(), placePage.getTotalPages(), placePage.isLast());
+        return PlaceInfoPageRes.of(placeInfoList, placePage.getNumber(), placePage.getSize(), placePage.getTotalPages(), placePage.isLast(), placePage.getTotalElements());
     }
 
     @Transactional
