@@ -28,10 +28,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static Journey.Together.domain.bookbark.entity.QPlaceBookmark.placeBookmark;
 import static Journey.Together.domain.place.entity.QDisabilityCategory.disabilityCategory;
@@ -41,6 +40,10 @@ import static Journey.Together.domain.place.entity.QPlace.place;
 
 
 public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
+    private static List<Long> default_disability1 = Arrays.asList(2L, 3L, 4L, 5L, 10L, 11L, 12L);
+    private static List<Long> default_disability2 = Arrays.asList(17L, 18L, 19L, 5L, 20L);
+    private static List<Long> default_disability3 = Arrays.asList(22L, 24L);
+    private static List<Long> default_disability4 = Arrays.asList(28L);
 
     private final JPAQueryFactory queryFactory;
 
@@ -51,26 +54,30 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
     @Override
     public SearchPlace searchList(String category, String query, List<Long> disabilityType, List<Long> detailFilter, String areacode, String sigungucode, String arrange,
                               Pageable pageable) {
-        Long total = 0L;
 
+        // 상세필터적용
         List<Place> places = queryFactory
                 .selectDistinct(place)
                 .from(place)
                 .join(place.placeDisabilityCategories, disabilityPlaceCategory)
-                .where(categoryEq(category),queryContains(query), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
-                        areacodeEq(areacode), sigungucodeEq(sigungucode) )
+                .where(categoryEq(category), queryContains(query), disabilityTypeHas(disabilityType),
+                        detailFilterHas(detailFilter).or(defaultDisabilityTypes(disabilityType)),
+                        areacodeEq(areacode), sigungucodeEq(sigungucode))
                 .orderBy(arg(arrange))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        total = queryFactory
+
+        long total = queryFactory
                 .select(place.countDistinct())
                 .from(place)
                 .join(place.placeDisabilityCategories, disabilityPlaceCategory)
-                .where(categoryEq(category), queryContains(query), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
+                .where(categoryEq(category), queryContains(query), disabilityTypeHas(disabilityType),
+                        detailFilterHas(detailFilter).or(defaultDisabilityTypes(disabilityType)),
                         areacodeEq(areacode), sigungucodeEq(sigungucode))
                 .fetchOne();
+
 
         return new SearchPlace(places,total);
     }
@@ -178,6 +185,32 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
             ).and(checkSubDisabilityTypes(detailFilter, index + 1));
         }
     }
+
+    private BooleanExpression defaultDisabilityTypes(List<Long> disabilityType) {
+        List<Long> default_id = new ArrayList<>();
+
+        if(disabilityType.contains(1L))
+            default_id.addAll(default_disability1);
+
+        if(disabilityType.contains(2L))
+            default_id.addAll(default_disability2);
+
+        if(disabilityType.contains(3L))
+            default_id.addAll(default_disability3);
+
+        if(disabilityType.contains(4L))
+            default_id.addAll(default_disability4);
+
+
+        return disabilityPlaceCategory.place.in(
+                JPAExpressions.select(disabilityPlaceCategory.place)
+                        .from(disabilityPlaceCategory)
+                        .innerJoin(disabilityPlaceCategory.subCategory, disabilitySubCategory)
+                        .groupBy(disabilityPlaceCategory.place)
+                        .where(disabilityPlaceCategory.subCategory.id.in(default_id)
+                        ));
+    }
+
 
     private BooleanExpression areacodeEq(String areacode) {
         return areacode != null ? place.areaCode.eq(areacode) : null;
