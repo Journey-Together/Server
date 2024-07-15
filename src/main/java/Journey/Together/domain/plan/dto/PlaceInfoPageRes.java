@@ -9,19 +9,22 @@ public record PlaceInfoPageRes(
         int pageNo,
         int pageSize,
         int totalPages,
-        boolean last
+        boolean last,
+        long totalElements
 ) {
     public static PlaceInfoPageRes of(List<PlaceInfo> placeInfoList,
                                       int pageNo,
                                       int pageSize,
                                       int totalPages,
-                                      boolean last){
+                                      boolean last,
+                                      long totalElements){
         return PlaceInfoPageRes.builder()
                 .placeInfoList(placeInfoList)
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .totalPages(totalPages)
                 .last(last)
+                .totalElements(totalElements)
                 .build();
     }
 }
