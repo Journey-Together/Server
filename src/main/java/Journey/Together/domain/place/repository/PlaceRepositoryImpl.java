@@ -187,6 +187,9 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
     }
 
     private BooleanExpression defaultDisabilityTypes(List<Long> disabilityType) {
+        if(disabilityType == null || disabilityType.isEmpty())
+            return null;
+
         List<Long> default_id = new ArrayList<>();
 
         if(disabilityType.contains(1L))
