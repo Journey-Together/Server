@@ -148,8 +148,7 @@ public class PlanService {
         boolean isWriter;
         List<String> imageUrls = new ArrayList<>();
         List<DailyList> dailyLists = new ArrayList<>();
-        List<DailyPlaceInfo> dailyPlaceInfoList = new ArrayList<>();
-        List<Day> dayList = dayRepository.findAllByMemberAndPlanOrderByCreatedAtDesc(plan.getMember(),plan);
+        List<Day> dayList = dayRepository.findAllByMemberAndPlanOrderByDateAsc(plan.getMember(),plan);
         if(plan.getEndDate().isAfter(LocalDate.now())){
             //imageUrl : 장소 사진
             for(Day day : dayList){
@@ -173,16 +172,47 @@ public class PlanService {
             }
         }
         //DailyPlaceInfo - place, List<Long> disabilityCategoryList(장소 세부 카테고리)
-        for(Day day : dayList){
-            List<Long> disabilityCategoryList = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(day.getPlace().getId());
-            DailyPlaceInfo dailyPlaceInfo = DailyPlaceInfo.of(day.getPlace(),disabilityCategoryList);
-            dailyPlaceInfoList.add(dailyPlaceInfo);
-        }
-        //DailyList - date, List<DailyPlaceInfo> dailyPlaceInfoList(장소 세부 정보)
-        for (Day day : dayList){
-            DailyList dailyList = DailyList.of(day.getDate(),dailyPlaceInfoList);
-            dailyLists.add(dailyList);
-        }
+//        for(Day day : dayList){
+//            List<Long> disabilityCategoryList = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(day.getPlace().getId());
+//            DailyPlaceInfo dailyPlaceInfo = DailyPlaceInfo.of(day.getPlace(),disabilityCategoryList);
+//            dailyPlaceInfoList.add(dailyPlaceInfo);
+//        }
+//        //DailyList - date, List<DailyPlaceInfo> dailyPlaceInfoList(장소 세부 정보)
+//        for (Day day : dayList){
+//            DailyList dailyList = DailyList.of(day.getDate(),dailyPlaceInfoList);
+//            dailyLists.add(dailyList);
+//        }
+        Map<LocalDate, List<Day>> groupedByDate = dayList.stream()
+                .collect(Collectors.groupingBy(Day::getDate));
+        groupedByDate.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey()) // 날짜 순으로 정렬
+                .forEach(entry -> {
+                    LocalDate date = entry.getKey();
+                    List<Day> days = entry.getValue();
+
+                    List<DailyPlaceInfo> dailyPlaceInfoList = new ArrayList<>();
+                    for (Day day : days) {
+                        List<Long> disabilityCategoryList = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(day.getPlace().getId());
+                        DailyPlaceInfo dailyPlaceInfo = DailyPlaceInfo.of(day.getPlace(), disabilityCategoryList);
+                        dailyPlaceInfoList.add(dailyPlaceInfo);
+                    }
+                    DailyList dailyList = DailyList.of(date, dailyPlaceInfoList);
+                    dailyLists.add(dailyList);
+                });
+
+//        for (Map.Entry<LocalDate, List<Day>> entry : groupedByDate.entrySet()) {
+//            LocalDate date = entry.getKey();
+//            List<Day> days = entry.getValue();
+//
+//            List<DailyPlaceInfo> dailyPlaceInfoList = new ArrayList<>();
+//            for (Day day : days) {
+//                List<Long> disabilityCategoryList = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(day.getPlace().getId());
+//                DailyPlaceInfo dailyPlaceInfo = DailyPlaceInfo.of(day.getPlace(), disabilityCategoryList);
+//                dailyPlaceInfoList.add(dailyPlaceInfo);
+//            }
+//            DailyList dailyList = DailyList.of(date, dailyPlaceInfoList);
+//            dailyLists.add(dailyList);
+//        }
         if (member ==null){
             isWriter = false;
         }else {
