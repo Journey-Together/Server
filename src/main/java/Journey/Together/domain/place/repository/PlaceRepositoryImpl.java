@@ -160,7 +160,7 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
 
     private BooleanExpression detailFilterHas(List<Long> detailFilter) {
         if (detailFilter == null || detailFilter.isEmpty()) {
-            return Expressions.FALSE; // 기본 표현식을 반환합니다.
+            return Expressions.TRUE;
         }
 
         return checkSubDisabilityTypes(detailFilter, 0);
