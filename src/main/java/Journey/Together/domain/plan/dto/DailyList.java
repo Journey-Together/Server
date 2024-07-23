@@ -1,6 +1,7 @@
 package Journey.Together.domain.plan.dto;
 
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,6 +11,9 @@ public record DailyList(
         LocalDate date,
         List<DailyPlaceInfo> dailyPlaceInfoList
 ) {
+    public LocalDate getDate(){
+        return date;
+    }
     public static DailyList of(LocalDate date,
                                List<DailyPlaceInfo> dailyPlaceInfoList){
         return DailyList.builder()
