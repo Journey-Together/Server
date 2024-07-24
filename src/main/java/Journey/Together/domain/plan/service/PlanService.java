@@ -283,10 +283,11 @@ public class PlanService {
             isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
         }
         List<String> imageList = getReviewImageList(plan);
+        String profileUrl = s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile";
         if(planReview==null){
-            return PlanReviewRes.of(null,null,null,isWriter,false,imageList);
+            return PlanReviewRes.of(null,null,null,isWriter,false,imageList,profileUrl);
         }else {
-            return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true,imageList);
+            return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true,imageList,profileUrl);
         }
 
     }

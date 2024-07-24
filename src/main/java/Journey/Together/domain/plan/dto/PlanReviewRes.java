@@ -18,11 +18,12 @@ public record PlanReviewRes(
         @Null
         boolean hasReview,
         @Null
-        List<String> imageList
+        List<String> imageList,
+        String profileUrl
 ) {
     public static PlanReviewRes of(Long reviewId,
                                    String content,
-                                   Float grade,boolean isWriter,boolean hasReview,List<String> imageList){
+                                   Float grade,boolean isWriter,boolean hasReview,List<String> imageList,String profileUrl){
         return PlanReviewRes.builder()
                 .reviewId(reviewId)
                 .content(content)
@@ -30,6 +31,7 @@ public record PlanReviewRes(
                 .isWriter(isWriter)
                 .hasReview(hasReview)
                 .imageList(imageList)
+                .profileUrl(profileUrl)
                 .build();
     }
 }
