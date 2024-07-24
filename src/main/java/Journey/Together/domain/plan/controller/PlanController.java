@@ -65,11 +65,6 @@ public class PlanController {
         return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(principalDetails.getMember(),planId));
     }
 
-    @GetMapping("/my/review/{reviewId}")
-    public ApiResponse<MyReviewRes> findPlanOfMyReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("reviewId")Long reviewId){
-        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanOfMyReview(principalDetails.getMember(),reviewId));
-    }
-
     @PatchMapping("/review/{review_id}")
     public ApiResponse updatePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart(required = false) UpdatePlanReviewReq planReviewReq){
         planService.updatePlanReview(principalDetails.getMember(),reviewId,planReviewReq,images);

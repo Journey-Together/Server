@@ -119,7 +119,7 @@ public class BookmarkService {
     }
 
     private String getPlanImageUrl(Member member, Plan plan){
-        List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
+        List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
         if (dayList.isEmpty() || dayList == null) {
             return null;
         }

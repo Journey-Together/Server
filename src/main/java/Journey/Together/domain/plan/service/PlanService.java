@@ -116,7 +116,7 @@ public class PlanService {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
         //Buisness
-        String image = getPlanImageUrl(member,plan);
+        String image = getPlaceFirstImage(plan);
         //Response
         return PlanRes.of(plan,image,null,null);
     }
@@ -146,31 +146,9 @@ public class PlanService {
         }
         //Buisness
         boolean isWriter;
-        List<String> imageUrls = new ArrayList<>();
         List<DailyList> dailyLists = new ArrayList<>();
         List<Day> dayList = dayRepository.findAllByMemberAndPlanOrderByDateAsc(plan.getMember(),plan);
-        if(plan.getEndDate().isAfter(LocalDate.now())){
-            //imageUrl : 장소 사진
-            for(Day day : dayList){
-                if(!day.getPlace().getFirstImg().isEmpty()){
-                    imageUrls.add(day.getPlace().getFirstImg());
-                }
-            }
-        }else {
-            PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
-            List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-            if(planReviewImageList == null){
-                //imageUrl : 장소사진
-                for(Day day : dayList){
-                    if(!day.getPlace().getFirstImg().isEmpty()){
-                        imageUrls.add(day.getPlace().getFirstImg());
-                    }
-                }
-            }else {
-                //imageUrl : 리뷰 사진들
-                imageUrls = getReviewImageList(planReviewImageList);
-            }
-        }
+        List<String> imageUrls = getPlaceImageList(plan);
 
         Map<LocalDate, List<Day>> groupedByDate = dayList.stream()
                 .collect(Collectors.groupingBy(Day::getDate));
@@ -304,32 +282,13 @@ public class PlanService {
         }else {
             isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
         }
+        List<String> imageList = getReviewImageList(plan);
         if(planReview==null){
-            return PlanReviewRes.of(null,null,null,isWriter,false);
+            return PlanReviewRes.of(null,null,null,isWriter,false,imageList);
         }else {
-            return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true);
+            return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true,imageList);
         }
 
-    }
-
-    @Transactional
-    public MyReviewRes findPlanOfMyReview(Member member,Long reviewId){
-        // Validation
-        PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if(planReview.getPlan().getMember().getMemberId()!=member.getMemberId()){
-            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
-        }
-        //Buisness
-        List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-        List<String> imageUrlList = new ArrayList<>();
-        if(planReviewImageList !=null){
-            for(PlanReviewImage planReviewImage : planReviewImageList){
-                imageUrlList.add(planReviewImage.getImageUrl());
-            }
-        }else {
-            imageUrlList = null;
-        }
-        return MyReviewRes.of(planReview,imageUrlList);
     }
 
     @Transactional
@@ -406,7 +365,7 @@ public class PlanService {
                 .toList();
         List<MyPlanRes> myPlanResList = new ArrayList<>();
         for(Plan plan : top3list){
-            String image = getPlanImageUrl(member,plan);
+            String image = getPlaceFirstImage(plan);
             if (LocalDate.now().isAfter(plan.getEndDate())){
                 Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
                 MyPlanRes myPlanRes = MyPlanRes.of(plan,image,null,hasReview);
@@ -440,7 +399,7 @@ public class PlanService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<Plan> planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member,LocalDate.now(),pageable);
         List<PlanRes> planResList = planPage.getContent().stream()
-                .map(plan -> PlanRes.of(plan,getPlanImageUrl(member,plan),isBetween(plan.getStartDate(),plan.getEndDate()),null))
+                .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),isBetween(plan.getStartDate(),plan.getEndDate()),null))
                 .collect(Collectors.toList());
         return PlanPageRes.of(planResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
     }
@@ -450,7 +409,7 @@ public class PlanService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<Plan> planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member,LocalDate.now(),pageable);
         List<PlanRes> planResList = planPage.getContent().stream()
-                .map(plan -> PlanRes.of(plan,getPlanImageUrl(member,plan),null,planReviewRepository.existsAllByPlan(plan)))
+                .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlan(plan)))
                 .collect(Collectors.toList());
         return PlanPageRes.of(planResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
     }
@@ -460,7 +419,7 @@ public class PlanService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<Plan> planPage = planRepository.findAllByEndDateBeforeAndIsPublicIsTrueAndDeletedAtIsNull(LocalDate.now(),pageable);
         List<OpenPlanRes> openPlanResList = planPage.getContent().stream()
-                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile",getPlanImageUrl(plan.getMember(),plan)))
+                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile",getPlaceFirstImage(plan)))
                 .collect(Collectors.toList());
         return OpenPlanPageRes.of(openPlanResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
     }
@@ -475,49 +434,60 @@ public class PlanService {
        return null;
     }
 
-    public String getPlanImageUrl(Member member,Plan plan){
-        //Buisness
-        //다가오는 일정-> 첫번째날 첫번째 장소 사진(1장) (없을경우 null로 처리)
-        if(plan.getEndDate().isAfter(LocalDate.now())){
-            return getPlaceFirstImage(member,plan);
-        }
-        //다녀온 일정
-        else {
-            PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
-            //후기가 없을 경우 -> 첫번째날 첫번째 장소 사진(1장)
-            if(planReview==null){
-                return getPlaceFirstImage(member,plan);
-            }
-            //후기가 있을 경우
-            else {
-                //후기가 있지만 후기 사진이 없을 경우 -> 첫번째날 첫번째 장소 사진(1장)
-                List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-                if(planReviewImageList == null || planReviewImageList.isEmpty()){
-                    return getPlaceFirstImage(member,plan);
-                }
-                //다녀온 일정 (후기 사진 있을 경우) -> 후기 사진들 (여러장)
-                else {
-                    return planReviewImageList.get(0).getImageUrl();
-                }
-            }
-        }
-    }
+//    public String getPlanImageUrl(Member member,Plan plan){
+//        //Buisness
+//        //다가오는 일정-> 첫번째날 첫번째 장소 사진(1장) (없을경우 null로 처리)
+//        if(plan.getEndDate().isAfter(LocalDate.now())){
+//            return getPlaceFirstImage(member,plan);
+//        }
+//        //다녀온 일정
+//        else {
+//            PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
+//            //후기가 없을 경우 -> 첫번째날 첫번째 장소 사진(1장)
+//            if(planReview==null){
+//                return getPlaceFirstImage(member,plan);
+//            }
+//            //후기가 있을 경우
+//            else {
+//                //후기가 있지만 후기 사진이 없을 경우 -> 첫번째날 첫번째 장소 사진(1장)
+//                List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
+//                if(planReviewImageList == null || planReviewImageList.isEmpty()){
+//                    return getPlaceFirstImage(member,plan);
+//                }
+//                //다녀온 일정 (후기 사진 있을 경우) -> 후기 사진들 (여러장)
+//                else {
+//                    return planReviewImageList.get(0).getImageUrl();
+//                }
+//            }
+//        }
+//    }
 
-    public String getPlaceFirstImage(Member member,Plan plan){
-        List<Day> dayList = dayRepository.findByMemberAndDateAndPlanOrderByCreatedAtDesc(member,plan.getStartDate(),plan);
+    public String getPlaceFirstImage(Plan plan){
+        List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
         if(!dayList.isEmpty()){
-            System.out.println(dayList);
             String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
             if(placeImageUrl.isEmpty()){
-                return "";
+                return null;
             }
             return dayList.get(0).getPlace().getFirstImg();
         }
-        return "";
+        return null;
     }
 
-    public List<String> getReviewImageList(List<PlanReviewImage> planReviewImageList){
+    public List<String> getPlaceImageList(Plan plan){
+        List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
         List<String> list = new ArrayList<>();
+        if(!dayList.isEmpty()){
+           dayList.forEach(day ->{list.add(day.getPlace().getFirstImg());});
+           return list;
+        }
+        return null;
+    }
+
+    public List<String> getReviewImageList(Plan plan){
+        List<String> list = new ArrayList<>();
+        PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
+        List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
         for(PlanReviewImage planReviewImage : planReviewImageList){
             list.add(planReviewImage.getImageUrl());
         }
