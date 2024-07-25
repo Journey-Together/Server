@@ -162,12 +162,15 @@ public class AuthService {
         System.out.println(token);
         // Validation - RefreshToken 유효성 검증
         String refreshToken = token.substring(7);
+        System.out.println(refreshToken);
         tokenProvider.validateToken(refreshToken);
         String memberRefreshToken = member.getRefreshToken();
         if(refreshToken.isBlank() || memberRefreshToken.isEmpty() || !memberRefreshToken.equals(refreshToken)) {
             throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
         }
         // Business Logic & Response - Access Token 새로 발급 + Refresh Token의 유효 기간이 Access Token의 유효 기간보다 짧아졌을 경우 Refresh Token도 재발급
+        TokenDto tokenDto = tokenProvider.reissue(member, refreshToken);
+        member.setRefreshToken(tokenDto.refreshToken());
         return tokenProvider.reissue(member, refreshToken);
     }
 
