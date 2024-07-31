@@ -10,6 +10,7 @@ public record DailyPlaceInfo(
         Long placeId,
         String name,
         String category,
+        String imageUrl,
         List<Long> disabilityCategoryList
 ) {
     static String cat = "관광지";
@@ -23,6 +24,7 @@ public record DailyPlaceInfo(
                 .placeId(place.getId())
                 .name(place.getName())
                 .category(cat)
+                .imageUrl(place.getFirstImg())
                 .disabilityCategoryList(disabilityCategoryList)
                 .build();
     }
