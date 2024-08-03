@@ -9,4 +9,5 @@ import java.util.List;
 public interface PlanReviewImageRepository extends JpaRepository<PlanReviewImage,Long> {
     List<PlanReviewImage> findAllByPlanReviewAndDeletedAtIsNull(PlanReview planReview);
     void deletePlanReviewImageByPlanReviewImageId(Long planReviewImageId);
+    void deletePlanReviewImageByImageUrl(String imageUrl);
 }
