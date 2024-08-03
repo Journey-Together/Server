@@ -251,7 +251,6 @@ public class PlanService {
                 .build();
         planReviewRepository.save(planReview);
 
-        List<PlanReviewImage> list = new ArrayList<>();
         if(images!=null){
             for(MultipartFile file : images){
                 String uuid = UUID.randomUUID().toString();
@@ -261,9 +260,7 @@ public class PlanService {
                         .imageUrl(url)
                         .build();
                 planReviewImageRepository.save(planReviewImage);
-                list.add(planReviewImage);
             }
-            planReview.setPlanReviewImages(list);
         }
 
         plan.setIsPublic(planReviewReq.isPublic());
@@ -304,7 +301,6 @@ public class PlanService {
         //Business
         if (images != null) {
             try {
-                List<PlanReviewImage> list = new ArrayList<>();
                 for(MultipartFile file : images) {
                     String uuid = UUID.randomUUID().toString();
                     String url = s3Client.upload(file,member.getProfileUuid(),uuid);
@@ -313,10 +309,7 @@ public class PlanService {
                             .imageUrl(url)
                             .build();
                     planReviewImageRepository.save(planReviewImage);
-                    planReview.addPlanReviewImage(planReviewImage);
-                    list.add(planReviewImage);
                 }
-                planReview.setPlanReviewImages(list);
             } catch (RuntimeException e) {
                 throw new RuntimeException(e.getMessage());
             }

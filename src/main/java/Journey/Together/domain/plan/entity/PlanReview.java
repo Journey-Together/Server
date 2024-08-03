@@ -34,15 +34,12 @@ public class PlanReview extends BaseTimeEntity {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    @OneToMany(mappedBy = "planReview", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PlanReviewImage> planReviewImages = new ArrayList<>();
 
     @Builder
-    public PlanReview(Member member,float grade, String content,Plan plan,List<PlanReviewImage> planReviewImages){
+    public PlanReview(Member member,float grade, String content,Plan plan){
         this.member=member;
         this.grade = grade;
         this.content=content;
         this.plan=plan;
-        this.planReviewImages=planReviewImages;
     }
 }
