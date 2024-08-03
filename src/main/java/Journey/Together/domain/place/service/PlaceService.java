@@ -50,8 +50,8 @@ public class PlaceService {
     private final S3Client s3Client;
 
     private static final String POST_IMAGE_FOLDER_NAME = "reviews/";
-    private final Integer recommnedPlaceNum = 4;
-    private final Integer aroundPlaceNum = 2;
+    private final Integer recommnedPlaceNum = 3;
+    private final Integer aroundPlaceNum = 6;
     private final String partToFind = "com/";
 
     // 메인페이지 가져오기
