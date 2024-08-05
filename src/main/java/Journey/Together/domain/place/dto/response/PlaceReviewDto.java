@@ -4,18 +4,19 @@ import Journey.Together.domain.place.entity.PlaceReview;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PlaceReviewDto(
         Long reviewId,
         String nickname,
         String profileImg,
         String content,
-        String reviewImg,
+        List<String> reviewImgs,
         Float grade,
         LocalDate date) {
 
-    public static PlaceReviewDto of(PlaceReview placeReview, String profileImg, String img){
+    public static PlaceReviewDto of(PlaceReview placeReview, String profileImg, List<String> reviewImgs){
         return new PlaceReviewDto(placeReview.getId(), placeReview.getMember().getNickname(), profileImg,
-                placeReview.getContent(), img, placeReview.getGrade(), placeReview.getDate());
+                placeReview.getContent(), reviewImgs, placeReview.getGrade(), placeReview.getDate());
     }
 }
