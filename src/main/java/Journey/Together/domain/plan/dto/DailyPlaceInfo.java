@@ -13,9 +13,10 @@ public record DailyPlaceInfo(
         String imageUrl,
         List<Long> disabilityCategoryList
 ) {
-    static String cat = "관광지";
+
     public static DailyPlaceInfo of( Place place,
                                      List<Long> disabilityCategoryList){
+        String cat = "관광지";
         if(place.getCategory().equals("B02"))
             cat = "숙소";
         else if (place.getCategory().equals("A05"))

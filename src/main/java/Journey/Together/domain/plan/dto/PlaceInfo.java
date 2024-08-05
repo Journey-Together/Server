@@ -11,8 +11,8 @@ public record PlaceInfo(
         String imageUrl
 
 ) {
-    static String cat = "관광지";
     public static PlaceInfo of(Place place){
+        String cat;
         if(place.getCategory().equals("B02"))
             cat = "숙소";
         else if (place.getCategory().equals("A05"))
