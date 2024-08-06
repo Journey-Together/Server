@@ -69,13 +69,12 @@ public class PlaceService {
        // PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<String> disability, List<String> subDisability, List< PlaceReviewDto > reviewList)
 
         Boolean isReview = false;
+        Boolean isMark = false;
         Place place = getPlace(placeId);
 
-        List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlace(place);
-
-        Boolean isMark = placeBookmarkList.stream()
-                .anyMatch(placeBookmark ->placeBookmark.getMember().getMemberId().equals(member.getMemberId()));
-
+        List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlaceAndMember(place,member);
+        if(placeBookmarkList.size()>0)
+            isMark =true;
 
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();

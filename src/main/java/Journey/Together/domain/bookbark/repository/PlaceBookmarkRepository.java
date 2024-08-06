@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface PlaceBookmarkRepository extends JpaRepository<PlaceBookmark, Long> {
 
+    List<PlaceBookmark> findAllByPlaceAndMember(Place place, Member member);
+
     List<PlaceBookmark> findAllByPlace(Place place);
     List<PlaceBookmark> findAllByMemberOrderByCreatedAtDesc(Member member);
 
