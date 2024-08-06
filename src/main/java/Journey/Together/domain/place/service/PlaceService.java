@@ -72,8 +72,10 @@ public class PlaceService {
         Place place = getPlace(placeId);
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlace(place);
+
         Boolean isMark = placeBookmarkList.stream()
-                .anyMatch(placeBookmark -> placeBookmark.getMember().equals(member));
+                .anyMatch(placeBookmark ->placeBookmark.getMember().getMemberId().equals(member.getMemberId()));
+
 
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
