@@ -33,6 +33,7 @@ public enum ErrorCode {
     //4000: Apply Error
     NOT_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4000,"지원 기간 지났습니다"),
     NOT_FOUND_PLACE_EXCEPTION(HttpStatus.NOT_FOUND,4001,"존재하지 않는 여행지입니다."),
+    NOT_FOUND_PLAN_EXCEPTION(HttpStatus.NOT_FOUND,4001,"존재하지 않는 일정입니다."),
     NOT_FOUND_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4002,"존재하지 않는 지원서입니다."),
     ALREADY_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4003,"이미 지원했습니다."),
     ALREADY_DECISION_EXCEPION(HttpStatus.BAD_REQUEST,4004,"이미 지원 결정했습니다."),
