@@ -7,6 +7,7 @@ import java.util.List;
 public record PlaceReviewRes(
         String placeName,
         String placeAddress,
+        String placeImg,
         Integer pageNo,
         Integer pageSize,
         Integer totalPages,
@@ -15,6 +16,6 @@ public record PlaceReviewRes(
     static public PlaceReviewRes of(Place place, List<PlaceReivewListDto> myplaceReviewList, Integer pageNo,
                                     Integer pageSize,
                                     Integer totalPages){
-        return new PlaceReviewRes(place.getName(),  place.getAddress(),pageNo,pageSize, totalPages ,myplaceReviewList);
+        return new PlaceReviewRes(place.getName(),  place.getAddress(),place.getFirstImg(),pageNo,pageSize, totalPages ,myplaceReviewList);
     }
 }
