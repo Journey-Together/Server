@@ -33,6 +33,12 @@ public class KakaoClient {
     @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
     private String kakaoUserInfoUri;
 
+    @Value("${spring.security.oauth2.client.admin-key}")
+    private String adminKey;
+
+    @Value("${spring.security.oauth2.client.withdrawal.unlink-url}")
+    private String unlinkUri;
+
     public KakaoProfile getMemberInfo(String accesToken) {
         // 요청 기본 객체 생성
         WebClient webClient = WebClient.create(kakaoUserInfoUri);
@@ -56,4 +62,30 @@ public class KakaoClient {
 
         return kakaoProfile;
     }
+
+    //카카오와 연결 끊기
+    public String unlinkUser(Long userId){
+        // 요청 기본 객체 생성
+        WebClient webClient = WebClient.create(unlinkUri);
+        // 요청 보내서 응답 받기
+        String response = webClient.post()
+                .uri(unlinkUri)
+                .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
+                .header("Authorization", "KakaoAK " + adminKey)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        // 수신된 응답 Mapping
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        return response;
+    }
+//    public String unlinkUser(Long userId) {
+//
+//        URI uri = URI.create(KAKAO_UNLINK_URL + "?target_id_type=user_id&target_id=" + userId);
+//
+//        RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.POST, uri);
+//        ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+//
+//    }
 }
