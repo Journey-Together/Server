@@ -19,6 +19,12 @@ import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;
 
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.data.domain.Pageable;
 import Journey.Together.global.exception.Success;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +41,7 @@ import Journey.Together.global.util.S3Client;
 import org.springframework.web.bind.annotation.RequestParam;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,11 +54,13 @@ public class PlaceService {
     private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
     private final PlaceBookmarkRepository placeBookmarkRepository;
 
+    private final RestHighLevelClient client;
     private final S3Client s3Client;
 
     private static final String POST_IMAGE_FOLDER_NAME = "reviews/";
     private final Integer recommnedPlaceNum = 3;
     private final Integer aroundPlaceNum = 6;
+    private final Integer autocompleteNum = 10;
     private final String partToFind = "com/";
 
     // 메인페이지 가져오기
@@ -295,7 +304,7 @@ public class PlaceService {
 
     }
 
-@Transactional
+    @Transactional
     public void updateMyPlaceReview(Member member, UpdateReviewDto updateReviewDto, List<MultipartFile> addImages, Long reviewId) {
         PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
                 () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
@@ -338,4 +347,22 @@ public class PlaceService {
         placeReviewRepository.save(placeReview);
 
     }
+
+    public List<String> searchPlaceComplete(String query) throws IOException {
+        SearchRequest searchRequest = new SearchRequest("places");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+        searchSourceBuilder.query(QueryBuilders.matchQuery("name", query));
+        searchSourceBuilder.size(autocompleteNum); // 상위 10개의 결과만 반환
+
+        searchRequest.source(searchSourceBuilder);
+
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        return Arrays.stream(searchResponse.getHits().getHits())
+                .map(hit -> hit.getSourceAsMap().get("name").toString())
+                .collect(Collectors.toList());
+    }
+
+
 }
