@@ -181,7 +181,7 @@ public class PlaceService {
                     placeReviewImgRepository.save(placeReviewImg);
                 }
             } catch (RuntimeException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new ApplicationException(ErrorCode.NOT_ADD_IMAGE_EXCEPTION);
             }
         }
 
