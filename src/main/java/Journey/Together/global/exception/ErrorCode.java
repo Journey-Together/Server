@@ -48,7 +48,8 @@ public enum ErrorCode {
     POST_VALUE_EXCEPTION(HttpStatus.BAD_REQUEST,5001,"올바르지 않은 요청 값입니다."),
     NOT_FOUNT_SCRAP_EXCEPTION(HttpStatus.NOT_FOUND,5002,"스크랩 정보가 존재하지 않습니다."),
     ALREADY_FINISH_EXCEPTION(HttpStatus.BAD_REQUEST, 5003, "이미 모집 기간이 마감된 공고입니다."),
-    ILLEGAL_POST_EXCEPTION(HttpStatus.BAD_REQUEST, 5004, "파트별 인원수가 전체 인원수와 일치하지 않습니다.");
+    ILLEGAL_POST_EXCEPTION(HttpStatus.BAD_REQUEST, 5004, "파트별 인원수가 전체 인원수와 일치하지 않습니다."),
+    NOT_ADD_IMAGE_EXCEPTION(HttpStatus.BAD_REQUEST,5005,"예상치 못한 에러가 발생하여 여행지 후기 이미지 추가가 되지않습니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;
