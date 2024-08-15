@@ -20,6 +20,7 @@ import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.monitor.os.OsStats;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -61,12 +62,12 @@ public class PlanService {
                 .build();
         planRepository.save(plan);
         //날짜별 장소 정보 저장
-        for(DailyPlace dailyPlace : planReq.dailyplace()){
+        savePlaceByDay(planReq.dailyplace(),member,plan);
+    }
+    public void savePlaceByDay(List<DailyPlace> places, Member member,Plan plan){
+        for(DailyPlace dailyPlace : places){
             for(Long placeId : dailyPlace.places()){
-                Place place = placeRepository.findPlaceById(placeId);
-                if(place == null){
-                    throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-                }
+                Place place = placeRepository.findById(placeId).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
                 Day day = Day.builder()
                         .member(member)
                         .plan(plan)
@@ -87,27 +88,13 @@ public class PlanService {
         //Business
         //날짜별 장소 삭제
         dayRepository.deleteAllByMemberAndPlan(member,plan);
+
         //일정 update
-        plan.setTitle(planReq.title());
-        plan.setStartDate(planReq.startDate());
-        plan.setEndDate(planReq.endDate());
+        plan.updatePlan(plan);
         planRepository.save(plan);
+
         //날짜별 장소 정보 저장
-        for(DailyPlace dailyPlace : planReq.dailyplace()){
-            for(Long placeId : dailyPlace.places()){
-                Place place = placeRepository.findPlaceById(placeId);
-                if(place == null){
-                    throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-                }
-                Day day = Day.builder()
-                        .member(member)
-                        .plan(plan)
-                        .place(place)
-                        .date(dailyPlace.date())
-                        .build();
-                dayRepository.save(day);
-            }
-        }
+        savePlaceByDay(planReq.dailyplace(),member,plan);
 
     }
     @Transactional
@@ -122,6 +109,7 @@ public class PlanService {
         //Response
         return PlanRes.of(plan,image,null,null);
     }
+
     @Transactional
     public void deletePlan(Member member,Long planId){
         // Validation
@@ -178,23 +166,6 @@ public class PlanService {
 // 날짜 순으로 정렬
         dailyLists.sort(Comparator.comparing(DailyList::getDate));
 
-//        Map<LocalDate, List<Day>> groupedByDate = dayList.stream()
-//                .collect(Collectors.groupingBy(Day::getDate));
-//        groupedByDate.entrySet().stream()
-//                .sorted(Map.Entry.comparingByKey()) // 날짜 순으로 정렬
-//                .forEach(entry -> {
-//                    LocalDate date = entry.getKey();
-//                    List<Day> days = entry.getValue();
-//
-//                    List<DailyPlaceInfo> dailyPlaceInfoList = new ArrayList<>();
-//                    for (Day day : days) {
-//                        List<Long> disabilityCategoryList = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(day.getPlace().getId());
-//                        DailyPlaceInfo dailyPlaceInfo = DailyPlaceInfo.of(day.getPlace(), disabilityCategoryList);
-//                        dailyPlaceInfoList.add(dailyPlaceInfo);
-//                    }
-//                    DailyList dailyList = DailyList.of(date, dailyPlaceInfoList);
-//                    dailyLists.add(dailyList);
-//                });
         if (member ==null){
             isWriter = false;
         }else {
@@ -366,18 +337,17 @@ public class PlanService {
         List<MyPlanRes> myPlanResList = new ArrayList<>();
         for(Plan plan : top3list){
             String image = getPlaceFirstImage(plan);
+            MyPlanRes myPlanRes = null;
             if (LocalDate.now().isAfter(plan.getEndDate())){
                 Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
-                MyPlanRes myPlanRes = MyPlanRes.of(plan,image,null,hasReview);
-                myPlanResList.add(myPlanRes);
+                myPlanRes = MyPlanRes.of(plan,image,null,hasReview);
             }else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
-                MyPlanRes myPlanRes = MyPlanRes.of(plan,image,"D-DAY",null);
-                myPlanResList.add(myPlanRes);
+                myPlanRes = MyPlanRes.of(plan,image,"D-DAY",null);
             }else if (LocalDate.now().isBefore(plan.getStartDate())){
                 Period period = Period.between(LocalDate.now(),plan.getStartDate());
-                MyPlanRes myPlanRes = MyPlanRes.of(plan,image,"D-"+ period.getDays(),null);
-                myPlanResList.add(myPlanRes);
+                myPlanRes = MyPlanRes.of(plan,image,"D-"+ period.getDays(),null);
             }
+            myPlanResList.add(myPlanRes);
         }
 
         //Response
@@ -395,22 +365,20 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanPageRes findNotComplete(Member member,Pageable page){
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<Plan> planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member,LocalDate.now(),pageable);
-        List<PlanRes> planResList = planPage.getContent().stream()
-                .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),isBetween(plan.getStartDate(),plan.getEndDate()),null))
-                .collect(Collectors.toList());
-        return PlanPageRes.of(planResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
-    }
-
-    @Transactional
-    public PlanPageRes findComplete(Member member, Pageable page){
+    public PlanPageRes findIsCompelete(Member member, Pageable page, Boolean compelete){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<Plan> planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member,LocalDate.now(),pageable);
-        List<PlanRes> planResList = planPage.getContent().stream()
-                .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlan(plan)))
-                .collect(Collectors.toList());
+        List<PlanRes> planResList;
+        if(compelete){
+            planResList = planPage.getContent().stream()
+                    .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlan(plan)))
+                    .collect(Collectors.toList());
+        }else {
+            planResList = planPage.getContent().stream()
+                    .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),isBetween(plan.getStartDate(),plan.getEndDate()),null))
+                    .collect(Collectors.toList());
+        }
+
         return PlanPageRes.of(planResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
     }
 
@@ -433,34 +401,6 @@ public class PlanService {
        }
        return null;
     }
-
-//    public String getPlanImageUrl(Member member,Plan plan){
-//        //Buisness
-//        //다가오는 일정-> 첫번째날 첫번째 장소 사진(1장) (없을경우 null로 처리)
-//        if(plan.getEndDate().isAfter(LocalDate.now())){
-//            return getPlaceFirstImage(member,plan);
-//        }
-//        //다녀온 일정
-//        else {
-//            PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
-//            //후기가 없을 경우 -> 첫번째날 첫번째 장소 사진(1장)
-//            if(planReview==null){
-//                return getPlaceFirstImage(member,plan);
-//            }
-//            //후기가 있을 경우
-//            else {
-//                //후기가 있지만 후기 사진이 없을 경우 -> 첫번째날 첫번째 장소 사진(1장)
-//                List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-//                if(planReviewImageList == null || planReviewImageList.isEmpty()){
-//                    return getPlaceFirstImage(member,plan);
-//                }
-//                //다녀온 일정 (후기 사진 있을 경우) -> 후기 사진들 (여러장)
-//                else {
-//                    return planReviewImageList.get(0).getImageUrl();
-//                }
-//            }
-//        }
-//    }
 
     public String getPlaceFirstImage(Plan plan){
         List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
