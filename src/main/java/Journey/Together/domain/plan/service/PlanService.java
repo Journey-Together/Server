@@ -86,14 +86,11 @@ public class PlanService {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
         //Business
-        //날짜별 장소 삭제
         dayRepository.deleteAllByMemberAndPlan(member,plan);
 
-        //일정 update
         plan.updatePlan(plan);
         planRepository.save(plan);
 
-        //날짜별 장소 정보 저장
         savePlaceByDay(planReq.dailyplace(),member,plan);
 
     }
@@ -124,7 +121,6 @@ public class PlanService {
             deletePlanReview(member,planReview.getPlanReviewId());
         }
         planRepository.deletePlanByPlanId(planId);
-
     }
 
     @Transactional
@@ -266,7 +262,7 @@ public class PlanService {
     public void updatePlanReview(Member member, Long reviewId, UpdatePlanReviewReq updatePlanReviewReq, List<MultipartFile> images) {
         // Validation
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if (planReview.getPlan().getMember().getMemberId() != member.getMemberId()) {
+        if(!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //Business
@@ -308,7 +304,7 @@ public class PlanService {
     public void deletePlanReview(Member member,Long reviewId){
         //Vailda
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if(planReview.getPlan().getMember().getMemberId()!=member.getMemberId()){
+        if(!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
