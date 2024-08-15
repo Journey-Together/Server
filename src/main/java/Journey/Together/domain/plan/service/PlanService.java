@@ -130,6 +130,7 @@ public class PlanService {
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
+
         //Buisness
         boolean isWriter;
         List<DailyList> dailyLists = new ArrayList<>();
@@ -142,11 +143,10 @@ public class PlanService {
         LocalDate startDate = plan.getStartDate();
         LocalDate endDate = plan.getEndDate();
 
-// startDate부터 endDate까지의 날짜들을 순회
+        // startDate부터 endDate까지의 날짜들을 순회
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             List<Day> days = groupedByDate.get(date);
             List<DailyPlaceInfo> dailyPlaceInfoList = new ArrayList<>();
-
             if (days != null) {
                 for (Day day : days) {
                     List<Long> disabilityCategoryList = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(day.getPlace().getId());
@@ -154,12 +154,11 @@ public class PlanService {
                     dailyPlaceInfoList.add(dailyPlaceInfo);
                 }
             }
-
             DailyList dailyList = DailyList.of(date, dailyPlaceInfoList);
             dailyLists.add(dailyList);
         }
 
-// 날짜 순으로 정렬
+        // 날짜 순으로 정렬
         dailyLists.sort(Comparator.comparing(DailyList::getDate));
 
         if (member ==null){
@@ -167,16 +166,8 @@ public class PlanService {
         }else {
             isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
         }
+        String remainDate = isBetween(plan.getStartDate(),plan.getEndDate());
 
-        String remainDate = null;
-        if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
-            remainDate = "D-Day";
-        }else if (LocalDate.now().isBefore(plan.getStartDate())){
-            Period period = Period.between(LocalDate.now(),plan.getStartDate());
-            remainDate = "D-"+ period.getDays();
-        }
-
-        //PlanDetailRes - List<String> imageUrls, List<DailyList> dailyList, Boolean isWriter
         //Response
         return PlanDetailRes.of(imageUrls,dailyLists,isWriter,plan,remainDate);
     }
@@ -322,9 +313,6 @@ public class PlanService {
     public List<MyPlanRes> findMyPlans(Member member) {
         //Vaildation
         List<Plan> list = planRepository.findAllByMemberAndDeletedAtIsNull(member);
-        if(list == null){
-            return null;
-        }
         //Business
         List<Plan> top3list = list.stream()
                 .sorted(Comparator.comparingLong(plan -> Math.abs(ChronoUnit.DAYS.between(LocalDate.now(), plan.getStartDate()))))
@@ -333,16 +321,17 @@ public class PlanService {
         List<MyPlanRes> myPlanResList = new ArrayList<>();
         for(Plan plan : top3list){
             String image = getPlaceFirstImage(plan);
-            MyPlanRes myPlanRes = null;
+            String remainDate = null;
+            Boolean hasReview = null;
             if (LocalDate.now().isAfter(plan.getEndDate())){
-                Boolean hasReview = planReviewRepository.existsAllByPlan(plan);
-                myPlanRes = MyPlanRes.of(plan,image,null,hasReview);
+                hasReview = planReviewRepository.existsAllByPlan(plan);
             }else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
-                myPlanRes = MyPlanRes.of(plan,image,"D-DAY",null);
+                remainDate="D-DAY";
             }else if (LocalDate.now().isBefore(plan.getStartDate())){
                 Period period = Period.between(LocalDate.now(),plan.getStartDate());
-                myPlanRes = MyPlanRes.of(plan,image,"D-"+ period.getDays(),null);
+                remainDate="D-"+period.getDays();
             }
+            MyPlanRes myPlanRes = MyPlanRes.of(plan,image,remainDate,hasReview);
             myPlanResList.add(myPlanRes);
         }
 
