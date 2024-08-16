@@ -64,20 +64,7 @@ public class PlanService {
         //날짜별 장소 정보 저장
         savePlaceByDay(planReq.dailyplace(),member,plan);
     }
-    public void savePlaceByDay(List<DailyPlace> places, Member member,Plan plan){
-        for(DailyPlace dailyPlace : places){
-            for(Long placeId : dailyPlace.places()){
-                Place place = placeRepository.findById(placeId).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
-                Day day = Day.builder()
-                        .member(member)
-                        .plan(plan)
-                        .place(place)
-                        .date(dailyPlace.date())
-                        .build();
-                dayRepository.save(day);
-            }
-        }
-    }
+
     @Transactional
     public void updatePlan(Member member,Long planId,PlanReq planReq){
         // Validation
@@ -375,6 +362,21 @@ public class PlanService {
                 .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile",getPlaceFirstImage(plan)))
                 .collect(Collectors.toList());
         return OpenPlanPageRes.of(openPlanResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
+    }
+
+    public void savePlaceByDay(List<DailyPlace> places, Member member,Plan plan){
+        for(DailyPlace dailyPlace : places){
+            for(Long placeId : dailyPlace.places()){
+                Place place = placeRepository.findById(placeId).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+                Day day = Day.builder()
+                        .member(member)
+                        .plan(plan)
+                        .place(place)
+                        .date(dailyPlace.date())
+                        .build();
+                dayRepository.save(day);
+            }
+        }
     }
 
     public String isBetween(LocalDate startDate,LocalDate endDate){
