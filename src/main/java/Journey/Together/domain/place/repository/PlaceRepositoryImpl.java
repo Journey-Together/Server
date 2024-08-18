@@ -100,6 +100,9 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
     }
 
     private BooleanExpression categoryEq(String category) {
+        if(category == null || category.isEmpty())
+            return null;
+
         List<String> categoryList = new ArrayList<>(Arrays.asList("A01", "A02", "A03", "A04", "B01", "C01"));
 
         if(category.equals("ROOM"))
