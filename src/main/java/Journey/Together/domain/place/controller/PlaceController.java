@@ -100,7 +100,7 @@ public class PlaceController {
     }
     @GetMapping("/search")
     public ApiResponse<SearchPlaceRes> searchPlaceList(
-                                                       @RequestParam @NotNull String category,
+                                                       @RequestParam(required = false) String category,
                                                        @RequestParam(required = false) String query,
                                                        @RequestParam(required = false) List<Long> disabilityType,
                                                        @RequestParam(required = false) List<Long> detailFilter,
@@ -113,7 +113,7 @@ public class PlaceController {
 
     @GetMapping("/search/map")
     public ApiResponse<List<PlaceRes>> searchPlaceList(
-            @RequestParam @NotNull String category,
+            @RequestParam(required = false) String category,
             @RequestParam @NotNull Double minX,
             @RequestParam @NotNull Double maxX,
             @RequestParam @NotNull Double minY,
