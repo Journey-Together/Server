@@ -227,7 +227,7 @@ public class PlanService {
             isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
         }
         List<String> imageList = getReviewImageList(plan);
-        String profileUrl = s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile";
+        String profileUrl = s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile_"+plan.getMember().getProfileUuid();
         if(planReview==null){
             return PlanReviewRes.of(null,null,null,isWriter,false,imageList,profileUrl);
         }else {
@@ -359,7 +359,7 @@ public class PlanService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<Plan> planPage = planRepository.findAllByEndDateBeforeAndIsPublicIsTrueAndDeletedAtIsNull(LocalDate.now(),pageable);
         List<OpenPlanRes> openPlanResList = planPage.getContent().stream()
-                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile",getPlaceFirstImage(plan)))
+                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile_"+plan.getMember().getProfileUuid(),getPlaceFirstImage(plan)))
                 .collect(Collectors.toList());
         return OpenPlanPageRes.of(openPlanResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
     }
