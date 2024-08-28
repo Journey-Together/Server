@@ -101,9 +101,9 @@ public class PlaceService {
         placeReviews.forEach(placeReview -> {
             List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
             if (placeReviewImgs.size() > 0) {
-                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList()));
+                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList()));
             } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null));
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(), null));
         });
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, reviewList, isReview);
@@ -128,9 +128,9 @@ public class PlaceService {
         placeReviews.forEach(placeReview -> {
             List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
             if (placeReviewImgs.size() > 0) {
-                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList()));
+                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList()));
             } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null));
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(), null));
         });
 
 
