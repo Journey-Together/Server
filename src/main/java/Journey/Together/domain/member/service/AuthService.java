@@ -169,9 +169,16 @@ public class AuthService {
             throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
         }
 
-        // 토큰 재발급 로직 개선
-        return tokenProvider.reissue(member, refreshToken);
+        // 토큰 재발급
+        TokenDto tokenDto = tokenProvider.reissue(member, refreshToken);
+
+        // 새로운 리프레시 토큰을 DB에 저장
+        member.setRefreshToken(tokenDto.getRefreshToken());
+        memberRepository.save(member);
+
+        return tokenDto;
     }
+
 
     //url->multipartFile로 변환
     private MultipartFile convertUrlToMultipartFile(String imageUrl) throws IOException {
