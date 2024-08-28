@@ -173,7 +173,7 @@ public class AuthService {
         TokenDto tokenDto = tokenProvider.reissue(member, refreshToken);
 
         // 새로운 리프레시 토큰을 DB에 저장
-        member.setRefreshToken(tokenDto.getRefreshToken());
+        member.setRefreshToken(tokenDto.refreshToken());
         memberRepository.save(member);
 
         return tokenDto;
