@@ -108,7 +108,7 @@ public class PlaceService {
 
         placeReviews.forEach(placeReview -> {
             List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
-            if(placeReview.getId() == myPlaceReviewId)
+            if(Objects.equals(placeReview.getId(), myPlaceReviewId) && myPlaceReviewId != null)
                 myReview = true;
             if (placeReviewImgs.size() > 0) {
                 reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),myReview));
