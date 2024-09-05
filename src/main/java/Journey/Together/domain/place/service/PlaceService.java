@@ -62,7 +62,6 @@ public class PlaceService {
     private final Integer aroundPlaceNum = 6;
     private final Integer autocompleteNum = 10;
     private final String partToFind = "com/";
-    private Boolean myReview = false;
 
 
     // 메인페이지 가져오기
@@ -81,6 +80,7 @@ public class PlaceService {
 
         Boolean isReview = false;
         Boolean isMark = false;
+
         Place place = getPlace(placeId);
         Long myPlaceReviewId;
 
@@ -108,12 +108,17 @@ public class PlaceService {
 
         placeReviews.forEach(placeReview -> {
             List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
-            if(Objects.equals(placeReview.getId(), myPlaceReviewId) && myPlaceReviewId != null)
-                myReview = true;
             if (placeReviewImgs.size() > 0) {
-                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),myReview));
-            } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null, myReview));
+                if(Objects.equals(placeReview.getId(), myPlaceReviewId) && myPlaceReviewId != null)
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),true));
+                else
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),false));
+            } else{
+                if(Objects.equals(placeReview.getId(), myPlaceReviewId) && myPlaceReviewId != null)
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",null,true));
+                else
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",null,false));
+            }
         });
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, reviewList, isReview);
@@ -124,6 +129,7 @@ public class PlaceService {
         // PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<String> disability, List<String> subDisability, List< PlaceReviewDto > reviewList)
 
         Place place = getPlace(placeId);
+        Boolean myReview = false;
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlace(place);
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
