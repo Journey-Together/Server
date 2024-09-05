@@ -23,6 +23,8 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceReposi
 
     Place findPlaceById(Long id);
 
+    Place findPlaceByName(String name);
+
     /*
     검색어 기반 목록 조회 최신순
    */

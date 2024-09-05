@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.graalvm.collections.Pair;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/place")
@@ -64,9 +68,15 @@ public class PlaceController {
     }
 
     @GetMapping("/review/{placeId}")
+    public ApiResponse<PlaceReviewRes> getPlaceReview(@AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable Long placeId, @PageableDefault(size = 5,page = 0) Pageable pageable) {
+        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(principalDetails.getMember(), placeId, pageable));
+    }
+
+    @GetMapping("/review/guest/{placeId}")
     public ApiResponse<PlaceReviewRes> getPlaceReview(
             @PathVariable Long placeId, @PageableDefault(size = 5,page = 0) Pageable pageable) {
-        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(placeId, pageable));
+        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviewsGeust(placeId, pageable));
     }
 
     @GetMapping("/review/my")
@@ -125,7 +135,7 @@ public class PlaceController {
     }
 
     @GetMapping("/search/autocomplete")
-    public ApiResponse<List<String>> searchPlaceComplete(
+    public ApiResponse<List<Map<String,Object>>> searchPlaceComplete(
             @RequestParam String query
     ) throws IOException {
         return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS, placeService.searchPlaceComplete(query));

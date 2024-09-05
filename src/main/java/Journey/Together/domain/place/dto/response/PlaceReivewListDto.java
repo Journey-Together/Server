@@ -12,10 +12,11 @@ public record PlaceReivewListDto(
         String content,
         List<String> imageList,
         Float grade,
-        LocalDate date
+        LocalDate date,
+        Boolean myReview
 ) {
-    public static PlaceReivewListDto of(PlaceReview placeReview, List<String> imageList, String s3Url){
+    public static PlaceReivewListDto of(PlaceReview placeReview, List<String> imageList, String s3Url, Boolean myReview){
         return new PlaceReivewListDto(placeReview.getId(),placeReview.getMember().getNickname(), s3Url+placeReview.getMember().getProfileUuid()+"/profile",
-                placeReview.getContent(), imageList, placeReview.getGrade(), placeReview.getDate());
+                placeReview.getContent(), imageList, placeReview.getGrade(), placeReview.getDate(), myReview);
     }
 }
