@@ -339,13 +339,15 @@ public class PlanService {
     @Transactional
     public PlanPageRes findIsCompelete(Member member, Pageable page, Boolean compelete){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<Plan> planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member,LocalDate.now(),pageable);
+        Page<Plan> planPage;
         List<PlanRes> planResList;
         if(compelete){
+            planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member,LocalDate.now(),pageable);
             planResList = planPage.getContent().stream()
                     .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlan(plan)))
                     .collect(Collectors.toList());
         }else {
+            planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member,LocalDate.now(),pageable);
             planResList = planPage.getContent().stream()
                     .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),isBetween(plan.getStartDate(),plan.getEndDate()),null))
                     .collect(Collectors.toList());
