@@ -25,7 +25,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.graalvm.collections.Pair;
 import org.springframework.data.domain.Pageable;
 import Journey.Together.global.exception.Success;
 import jakarta.validation.constraints.NotNull;
