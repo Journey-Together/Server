@@ -61,7 +61,7 @@ public class AuthService {
             if(member == null) {
                 MultipartFile imageFile = convertUrlToMultipartFile(kakaoProfile.kakao_account().profile().profile_image_url());
                 String uuid = s3Client.createFolder();
-                s3Client.upload(imageFile,uuid,"profile");
+                s3Client.upload(imageFile,uuid,"profile_"+uuid);
                 Member newMember = Member.builder()
                         .email(kakaoProfile.kakao_account().email())
                         .name(kakaoProfile.kakao_account().name())
@@ -95,7 +95,7 @@ public class AuthService {
             if (member == null) {
                 MultipartFile imageFile = convertUrlToMultipartFile(naverProfile.getProfile_image() != null ? naverProfile.getProfile_image() : null);
                 String uuid = s3Client.createFolder();
-                s3Client.upload(imageFile,uuid,"profile");
+                s3Client.upload(imageFile,uuid,"profile_"+uuid);
 
                 Member newMember = Member.builder()
                         .email(naverProfile.getEmail() != null ? naverProfile.getEmail() : "Unknown")
@@ -159,20 +159,26 @@ public class AuthService {
     }
     @Transactional
     public TokenDto reissue(String token, Member member) {
-        System.out.println(token);
-        // Validation - RefreshToken 유효성 검증
         String refreshToken = token.substring(7);
-        System.out.println(refreshToken);
+
+        // Token 유효성 검사
         tokenProvider.validateToken(refreshToken);
+
         String memberRefreshToken = member.getRefreshToken();
-        if(refreshToken.isBlank() || memberRefreshToken.isEmpty() || !memberRefreshToken.equals(refreshToken)) {
+        if (refreshToken.isBlank() || memberRefreshToken.isEmpty() || !memberRefreshToken.equals(refreshToken)) {
             throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
         }
-        // Business Logic & Response - Access Token 새로 발급 + Refresh Token의 유효 기간이 Access Token의 유효 기간보다 짧아졌을 경우 Refresh Token도 재발급
+
+        // 토큰 재발급
         TokenDto tokenDto = tokenProvider.reissue(member, refreshToken);
+
+        // 새로운 리프레시 토큰을 DB에 저장
         member.setRefreshToken(tokenDto.refreshToken());
-        return tokenProvider.reissue(member, refreshToken);
+        memberRepository.save(member);
+
+        return tokenDto;
     }
+
 
     //url->multipartFile로 변환
     private MultipartFile convertUrlToMultipartFile(String imageUrl) throws IOException {

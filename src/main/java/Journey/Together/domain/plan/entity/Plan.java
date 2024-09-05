@@ -35,6 +35,12 @@ public class Plan extends BaseTimeEntity {
     @Column(name = "is_public")
     private Boolean isPublic;
 
+    public void updatePlan(Plan plan){
+        this.title = (plan.getTitle()!=null)? plan.getTitle() : this.title;
+        this.startDate = (plan.getStartDate()!=null)? plan.getStartDate() : this.startDate;
+        this.endDate = (plan.getEndDate()!=null)? plan.getEndDate() : this.endDate;
+    }
+
     @Builder
     public Plan( Member member, String title, LocalDate startDate, LocalDate endDate, Boolean isPublic){
         this.member = member;

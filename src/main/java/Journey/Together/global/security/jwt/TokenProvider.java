@@ -7,10 +7,7 @@ import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.security.jwt.dto.TokenDto;
 import Journey.Together.global.security.PrincipalDetails;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -105,8 +102,11 @@ public class TokenProvider {
         try {
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return claims.getBody().getExpiration().after(new Date());
+        } catch (ExpiredJwtException e) {
+            // 토큰이 만료된 경우 별도로 처리
+            return false; // 혹은 만료되었음을 나타내는 다른 방식 사용
         } catch (Exception e) {
-            throw new ApplicationException(ErrorCode.WRONG_TOKEN);
+            throw new ApplicationException(ErrorCode.WRONG_TOKEN_EXCEPTION);
         }
     }
 
@@ -121,7 +121,10 @@ public class TokenProvider {
         String accessToken = createAccessToken(member);
 
         // 리프레쉬 토큰 재발급 조건 및 로직
-        if(getExpiration(refreshToken) <= getExpiration(accessToken)) {
+        long refreshTokenExpiration = getExpiration(refreshToken);
+        long accessTokenExpiration = getExpiration(accessToken);
+
+        if (refreshTokenExpiration - System.currentTimeMillis() <= accessTokenExpiration - System.currentTimeMillis()) {
             refreshToken = createRefreshToken(member);
         }
 

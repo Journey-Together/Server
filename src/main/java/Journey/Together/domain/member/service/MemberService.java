@@ -39,7 +39,7 @@ public class MemberService {
         long cnt2  = planReviewRepository.countPlanReviewByMember(member);
         System.out.println(cnt1);
         System.out.println(cnt2);
-        return new MyPageRes(member.getNickname(), (int) (cnt1+cnt2), date, s3Client.getUrl()+member.getProfileUuid()+"/profile");
+        return new MyPageRes(member.getNickname(), (int) (cnt1+cnt2), date, s3Client.getUrl()+member.getProfileUuid()+"/profile_"+member.getProfileUuid());
     }
 
     @Transactional
@@ -48,7 +48,7 @@ public class MemberService {
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
         if (profileImage != null) {
-            s3Client.update(member.getProfileUuid()+"/profile",profileImage);
+            s3Client.update(member.getProfileUuid()+"/profile_"+member.getProfileUuid(),profileImage);
             memberRepository.save(member);
         }
         if(memberReq == null){
@@ -94,7 +94,7 @@ public class MemberService {
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Business
-        MemberRes memberRes = MemberRes.of(member, s3Client.getUrl()+member.getProfileUuid()+"/profile");
+        MemberRes memberRes = MemberRes.of(member, s3Client.getUrl()+member.getProfileUuid()+"/profile_"+member.getProfileUuid());
         //Response
         return memberRes;
     }
