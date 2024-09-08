@@ -1,5 +1,6 @@
 package Journey.Together.domain.report.controller;
 
+import Journey.Together.domain.report.dto.ApprovalDto;
 import Journey.Together.domain.report.dto.ReportReq;
 import Journey.Together.domain.report.dto.ReportRes;
 import Journey.Together.domain.report.enumerate.ReviewType;
@@ -38,6 +39,13 @@ public class ReportController {
                                      ){
         return ApiResponse.success(Success.CREATE_RERORT_SUCCESS,
                 reportService.getReports(principalDetails.getMember(), approval, reason, reviewType, pageable));
+    }
+
+    @PatchMapping()
+    public ApiResponse<?> setAprrovalStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                            @RequestBody ApprovalDto approvalDto){
+            reportService.setApprovalStatus(principalDetails.getMember(), approvalDto);
+        return ApiResponse.success(Success.UPDATE_APPROVAL_SUCCESS);
     }
 
 }

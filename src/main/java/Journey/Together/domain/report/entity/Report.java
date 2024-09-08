@@ -38,4 +38,8 @@ public class Report extends BaseTimeEntity {
         this.reviewType=reviewType;
     }
 
+    public void setApproval(Boolean approval){
+        this.approval = approval;
+    }
+
 }

@@ -61,6 +61,7 @@ public enum Success {
 	UPDATE_PLAN_SUCCESS(HttpStatus.CREATED, "일정 수정이 완료 되었습니다."),
 
 	UPDATE_ISR성AD_SUCCESS(HttpStatus.OK, "열람여부 수정 완료"),
+	UPDATE_APPROVAL_SUCCESS(HttpStatus.OK, "승인 상태 수정 완료"),
 	UPDATE_CATEGORY_TITLE_SUCCESS(HttpStatus.OK, "카테고리 수정 완료"),
 	UPDATE_REVIEW_SUCCESS(HttpStatus.OK, "리뷰 수정 완료"),
 	CHANGE_BOOKMARK_SUCCESS(HttpStatus.OK, "북마크 상태 수정 완료"),

@@ -45,14 +45,12 @@ public class ReportService {
             PlanReview planReview = planReviewRepository.findById(reportReq.review_id()).orElseThrow(
                     () -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION)
             );
-            planReview.setReport(true);
             reportRepository.save(reportBuilder(reportReq,ReviewType.PlanReview));
 
         }else if(reviewType.equals("PlaceReview")){
             PlaceReview placeReview = placeReviewRepository.findById(reportReq.review_id()).orElseThrow(
                     () -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION)
             );
-            placeReview.setReport(true);
             reportRepository.save(reportBuilder(reportReq,ReviewType.PlaceReview));
         }else {
             throw new ApplicationException(ErrorCode.REVIEW_TYPE_EXCEPTION);
@@ -100,6 +98,34 @@ public class ReportService {
         }
         else{
             throw new ApplicationException(ErrorCode.INTERNAL_SERVER_EXCEPTION);
+        }
+    }
+
+    @Transactional
+    public void setApprovalStatus(Member member, ApprovalDto approvalDto) {
+        if(!member.getMemberType().equals(MemberType.ADMIN)){
+            throw new ApplicationException(ErrorCode.WRONG_ACCESS_EXCEPTION);
+        }
+
+        Report report = reportRepository.findById(approvalDto.reportId()).orElseThrow(
+                () -> new ApplicationException(ErrorCode.NOT_FOUND_REPORT_EXCEPTION)
+        );
+
+        report.setApproval(approvalDto.approval());
+
+        if(report.getReviewType() == ReviewType.PlanReview){
+            PlanReview planReview = planReviewRepository.findById(report.getReview_id()).orElseThrow(
+                    () -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION)
+            );
+            planReview.setReport(approvalDto.approval());
+
+        }else if(report.getReviewType() == ReviewType.PlaceReview){
+            PlaceReview placeReview = placeReviewRepository.findById(report.getReview_id()).orElseThrow(
+                    () -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION)
+            );
+            placeReview.setReport(approvalDto.approval());
+        }else {
+            throw new ApplicationException(ErrorCode.REVIEW_TYPE_EXCEPTION);
         }
     }
 }
