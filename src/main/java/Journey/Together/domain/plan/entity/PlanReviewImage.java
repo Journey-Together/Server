@@ -28,4 +28,5 @@ public class PlanReviewImage extends BaseTimeEntity {
         this.imageUrl=imageUrl;
         this.planReview= planReview;
     }
+
 }

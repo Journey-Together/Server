@@ -36,6 +36,7 @@ public enum Success {
 	GET_PLAN_SUCCESS(HttpStatus.OK, "내 일정 조회 성공"),
 	GET_SITES_SUCCESS(HttpStatus.OK, "추천 사이트 조회 성공"),
 	GET_REVIEW_SUCCESS(HttpStatus.OK, "리뷰 조회 성공"),
+	GET_REPORT_LIST_SUCCESS(HttpStatus.OK, "신고목록 조회 성공"),
 
 	GET_CATEORIES_SUCCESS(HttpStatus.OK, "전체 카테고리 조회 성공"),
 	GET_CATEORY_SUCCESS(HttpStatus.OK, "세부 카테고리 조회 성공"),

@@ -29,8 +29,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final InterestRepository interestRepository;
     private final S3Client s3Client;
-    private final PlaceReviewRepository placeReviewRepository;
     private final PlanReviewRepository planReviewRepository;
+    private final PlaceReviewRepository placeReviewRepository;
 
 
     public MyPageRes getMypage(Member member){

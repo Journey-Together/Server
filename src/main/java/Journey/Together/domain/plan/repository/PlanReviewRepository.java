@@ -11,6 +11,9 @@ import org.springframework.data.repository.query.Param;
 public interface PlanReviewRepository extends JpaRepository<PlanReview,Long> {
     boolean existsAllByPlan(Plan plan);
     PlanReview findPlanReviewByPlan(Plan plan);
+
+
+    PlanReview findPlanReviewByPlanReviewId(Long id);
     PlanReview findPlanReviewByPlanAndDeletedAtIsNull(Plan plan);
     @Query("SELECT COUNT(pr) FROM PlanReview pr WHERE pr.member = :member")
     Long countPlanReviewByMember(@Param("member") Member member);

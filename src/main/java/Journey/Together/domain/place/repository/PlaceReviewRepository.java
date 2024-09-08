@@ -13,6 +13,7 @@ import java.util.List;
 
 public interface PlaceReviewRepository extends JpaRepository<PlaceReview,Long> {
 
+    PlaceReview findPlaceReviewById(Long id);
 
     List<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place);
     List<PlaceReview> findTop2ByPlaceOrderByCreatedAtDesc(Place place);

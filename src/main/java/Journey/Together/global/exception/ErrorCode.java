@@ -28,6 +28,7 @@ public enum ErrorCode {
     WRONG_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3002, "유효하지 않은 토큰입니다."),
     LOGOUT_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3003, "로그아웃된 토큰입니다"),
     WRONG_TOKEN(HttpStatus.UNAUTHORIZED, 3004, "유효하지 않은 토큰입니다."),
+    WRONG_ACCESS_EXCEPTION(HttpStatus.BAD_REQUEST, 3005, "관리자만 접근 가능합니다."),
 
 
     //4000: Apply Error

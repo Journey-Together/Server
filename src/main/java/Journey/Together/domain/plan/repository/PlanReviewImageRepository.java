@@ -10,4 +10,6 @@ public interface PlanReviewImageRepository extends JpaRepository<PlanReviewImage
     List<PlanReviewImage> findAllByPlanReviewAndDeletedAtIsNull(PlanReview planReview);
     void deletePlanReviewImageByPlanReviewImageId(Long planReviewImageId);
     void deletePlanReviewImageByImageUrl(String imageUrl);
+
+    List<PlanReviewImage> findPlanReviewImageByPlanReview(PlanReview planReview);
 }
