@@ -28,6 +28,7 @@ public enum ErrorCode {
     WRONG_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3002, "유효하지 않은 토큰입니다."),
     LOGOUT_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3003, "로그아웃된 토큰입니다"),
     WRONG_TOKEN(HttpStatus.UNAUTHORIZED, 3004, "유효하지 않은 토큰입니다."),
+    WRONG_ACCESS_EXCEPTION(HttpStatus.BAD_REQUEST, 3005, "관리자만 접근 가능합니다."),
 
 
     //4000: Apply Error
@@ -42,6 +43,7 @@ public enum ErrorCode {
     OVER_APPLY_EXCEPTION(HttpStatus.NOT_FOUND,4007,"지원 파트 정원이 찼습니다."),
     INVALID_MAP_EXCEPTION(HttpStatus.NOT_FOUND,4008,"모든 좌표값이 요청되지 않았습니다."),
     NOT_FOUND_PLACE_REVIEW_EXCEPTION(HttpStatus.NOT_FOUND,4009,"존재하지 않는 여행지리뷰입니다."),
+    NOT_FOUND_REPORT_EXCEPTION(HttpStatus.NOT_FOUND,4010,"존재하지 않는 신고입니다."),
 
     //5000: Post Error
     NOT_POST_EXCEPTION(HttpStatus.BAD_REQUEST,5000,"공고를 더 이상 생성할 수 없습니다"),
@@ -49,7 +51,9 @@ public enum ErrorCode {
     NOT_FOUNT_SCRAP_EXCEPTION(HttpStatus.NOT_FOUND,5002,"스크랩 정보가 존재하지 않습니다."),
     ALREADY_FINISH_EXCEPTION(HttpStatus.BAD_REQUEST, 5003, "이미 모집 기간이 마감된 공고입니다."),
     ILLEGAL_POST_EXCEPTION(HttpStatus.BAD_REQUEST, 5004, "파트별 인원수가 전체 인원수와 일치하지 않습니다."),
-    NOT_ADD_IMAGE_EXCEPTION(HttpStatus.BAD_REQUEST,5005,"예상치 못한 에러가 발생하여 이미지 추가가 되지 않습니다.");
+    NOT_ADD_IMAGE_EXCEPTION(HttpStatus.BAD_REQUEST,5005,"예상치 못한 에러가 발생하여 이미지 추가가 되지 않습니다."),
+    REVIEW_TYPE_EXCEPTION(HttpStatus.BAD_REQUEST,5006,"올바르지 않은 리뷰 타입입니다."),
+    NOT_FOUND_DESCRIPTION_EXCEPTION(HttpStatus.BAD_REQUEST,5007,"기타 사유 선택 시, 상세한 신고 사유는 필수입니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;

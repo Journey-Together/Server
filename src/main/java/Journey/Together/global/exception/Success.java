@@ -15,6 +15,7 @@ public enum Success {
 	CREATE_CATEGORY_SUCCESS(HttpStatus.CREATED, "새 카테고리 추가 성공"),
 	CREATE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 생성 성공"),
 	CREATE_PLACE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 작성 성공"),
+	CREATE_RERORT_SUCCESS(HttpStatus.CREATED, "신고 성공"),
 
 	/**
 	 * 200 OK
@@ -35,6 +36,7 @@ public enum Success {
 	GET_PLAN_SUCCESS(HttpStatus.OK, "내 일정 조회 성공"),
 	GET_SITES_SUCCESS(HttpStatus.OK, "추천 사이트 조회 성공"),
 	GET_REVIEW_SUCCESS(HttpStatus.OK, "리뷰 조회 성공"),
+	GET_REPORT_LIST_SUCCESS(HttpStatus.OK, "신고목록 조회 성공"),
 
 	GET_CATEORIES_SUCCESS(HttpStatus.OK, "전체 카테고리 조회 성공"),
 	GET_CATEORY_SUCCESS(HttpStatus.OK, "세부 카테고리 조회 성공"),
@@ -59,6 +61,7 @@ public enum Success {
 	UPDATE_PLAN_SUCCESS(HttpStatus.CREATED, "일정 수정이 완료 되었습니다."),
 
 	UPDATE_ISR성AD_SUCCESS(HttpStatus.OK, "열람여부 수정 완료"),
+	UPDATE_APPROVAL_SUCCESS(HttpStatus.OK, "승인 상태 수정 완료"),
 	UPDATE_CATEGORY_TITLE_SUCCESS(HttpStatus.OK, "카테고리 수정 완료"),
 	UPDATE_REVIEW_SUCCESS(HttpStatus.OK, "리뷰 수정 완료"),
 	CHANGE_BOOKMARK_SUCCESS(HttpStatus.OK, "북마크 상태 수정 완료"),
