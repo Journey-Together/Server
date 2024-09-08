@@ -5,6 +5,7 @@ import Journey.Together.domain.report.enumerate.ReviewType;
 import Journey.Together.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,5 +29,13 @@ public class Report extends BaseTimeEntity {
     private ReviewType reviewType;
 
     private Boolean approval;
+
+    @Builder
+    public Report(Long review_id, String reason, String description, ReviewType reviewType){
+        this.review_id=review_id;
+        this.reason=reason;
+        this.description=description;
+        this.reviewType=reviewType;
+    }
 
 }

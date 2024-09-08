@@ -37,7 +37,7 @@ public class PlaceReview extends BaseTimeEntity {
 
     private LocalDate date;
 
-    private Boolean report;
+    private Boolean report = false;
 
 
     @Builder
