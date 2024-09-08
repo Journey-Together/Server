@@ -75,7 +75,7 @@ public class PlanService {
         //Business
         dayRepository.deleteAllByMemberAndPlan(member,plan);
 
-        plan.updatePlan(plan);
+        plan.updatePlan(planReq.title(),planReq.startDate(),planReq.endDate());
         planRepository.save(plan);
 
         savePlaceByDay(planReq.dailyplace(),member,plan);
