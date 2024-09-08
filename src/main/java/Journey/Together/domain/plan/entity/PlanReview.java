@@ -34,6 +34,8 @@ public class PlanReview extends BaseTimeEntity {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
+    private Boolean report;
+
 
     @Builder
     public PlanReview(Member member,float grade, String content,Plan plan){
