@@ -15,13 +15,12 @@ public interface PlaceReviewRepository extends JpaRepository<PlaceReview,Long> {
 
     PlaceReview findPlaceReviewById(Long id);
 
-    List<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place);
-    List<PlaceReview> findTop2ByPlaceOrderByCreatedAtDesc(Place place);
+    List<PlaceReview> findTop2ByPlaceAndReportIsTrueOrderByCreatedAtDesc(Place place);
     PlaceReview findPlaceReviewByMemberAndPlace(Member member, Place place);
     @Query("SELECT COUNT(pr) FROM PlaceReview pr WHERE pr.member = :member")
     Long countPlaceReviewByMember(@Param("member") Member member);
 
-    Page<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place, Pageable pageable);
+    Page<PlaceReview> findAllByPlaceAndReportIsTrueOrderByCreatedAtDesc(Place place, Pageable pageable);
 
     Page<PlaceReview> findAllByMemberOrderByCreatedAtDesc(Member member, Pageable pageable);
 

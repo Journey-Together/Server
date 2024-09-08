@@ -12,9 +12,10 @@ public record MyReview(
         String address,
         Float grade,
         LocalDate date,
-        String content
+        String content,
+        Boolean isReport
 ) {
     static public MyReview of(PlaceReview placeReview, List<String> images){
-        return new MyReview(placeReview.getId(), images, placeReview.getPlace().getAddress(), placeReview.getPlace().getName(),placeReview.getGrade(), placeReview.getDate(), placeReview.getContent());
+        return new MyReview(placeReview.getId(), images, placeReview.getPlace().getAddress(), placeReview.getPlace().getName(),placeReview.getGrade(), placeReview.getDate(), placeReview.getContent(), placeReview.getReport());
     }
 }
