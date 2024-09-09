@@ -219,6 +219,7 @@ public class PlaceService {
         List<PlaceReivewListDto> placeReviewList =new ArrayList<>();
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place, pageable);
+        Long reviewNum = placeReviewRepository.countPlaceReviewByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place);
         placeReviewPage.getContent().forEach(
                 placeReview -> {
                     if(Objects.equals(placeReview.getMember().getMemberId(), member.getMemberId()))
@@ -228,7 +229,7 @@ public class PlaceService {
                 }
         );
 
-        return PlaceReviewRes.of(place, placeReviewList, placeReviewPage.getNumber(), placeReviewPage.getSize(), placeReviewPage.getTotalPages());
+        return PlaceReviewRes.of(place, placeReviewList, reviewNum, placeReviewPage.getNumber(), placeReviewPage.getSize(), placeReviewPage.getTotalPages());
 
     }
 
@@ -236,6 +237,7 @@ public class PlaceService {
         Place place = getPlace(placeId);
         List<PlaceReivewListDto> placeReviewList =new ArrayList<>();
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Long reviewNum = placeReviewRepository.countPlaceReviewByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place);
         Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place, pageable);
         placeReviewPage.getContent().forEach(
                 placeReview -> {
@@ -243,7 +245,7 @@ public class PlaceService {
                 }
         );
 
-        return PlaceReviewRes.of(place, placeReviewList, placeReviewPage.getNumber(), placeReviewPage.getSize(), placeReviewPage.getTotalPages());
+        return PlaceReviewRes.of(place, placeReviewList, reviewNum, placeReviewPage.getNumber(), placeReviewPage.getSize(), placeReviewPage.getTotalPages());
 
     }
     //나의 여행지 후기
