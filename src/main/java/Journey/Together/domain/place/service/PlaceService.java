@@ -110,14 +110,14 @@ public class PlaceService {
             List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
             if (placeReviewImgs.size() > 0) {
                 if(Objects.equals(placeReview.getId(), myPlaceReviewId) && myPlaceReviewId != null)
-                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),true));
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+member.getProfileUuid()+"/profile_"+member.getProfileUuid(),placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),true));
                 else
-                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),false));
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+member.getProfileUuid()+"/profile_"+member.getProfileUuid(),placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),false));
             } else{
                 if(Objects.equals(placeReview.getId(), myPlaceReviewId) && myPlaceReviewId != null)
-                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",null,true));
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+member.getProfileUuid()+"/profile_"+member.getProfileUuid(),null,true));
                 else
-                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",null,false));
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+member.getProfileUuid()+"/profile_"+member.getProfileUuid(),null,false));
             }
         });
 
@@ -144,9 +144,9 @@ public class PlaceService {
         placeReviews.forEach(placeReview -> {
             List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
             if (placeReviewImgs.size() > 0) {
-                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(), myReview));
+                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(), myReview));
             } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null, myReview));
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(), null, myReview));
         });
 
 

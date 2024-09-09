@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/v1/member/**").authenticated()
                         .requestMatchers("/v1/place/main").permitAll()
-                        .requestMatchers("v1/place/review/guest/**").permitAll()
+                        .requestMatchers("/v1/place/review/guest/**").permitAll()
                         .requestMatchers("/v1/plan/guest/**").permitAll()
                         .requestMatchers("/v1/plan/open").permitAll()
                         .requestMatchers("/v1/plan/search").permitAll()

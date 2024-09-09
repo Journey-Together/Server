@@ -16,7 +16,7 @@ public record PlaceReivewListDto(
         Boolean myReview
 ) {
     public static PlaceReivewListDto of(PlaceReview placeReview, List<String> imageList, String s3Url, Boolean myReview){
-        return new PlaceReivewListDto(placeReview.getId(),placeReview.getMember().getNickname(), s3Url+placeReview.getMember().getProfileUuid()+"/profile",
+        return new PlaceReivewListDto(placeReview.getId(),placeReview.getMember().getNickname(), s3Url+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),
                 placeReview.getContent(), imageList, placeReview.getGrade(), placeReview.getDate(), myReview);
     }
 }
