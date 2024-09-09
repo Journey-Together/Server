@@ -91,7 +91,7 @@ public class PlaceService {
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
 
-        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceOrderByCreatedAtDesc(place);
+        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place);
 
         if(placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place) != null) {
             isReview = true;
@@ -135,7 +135,7 @@ public class PlaceService {
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
 
-        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceOrderByCreatedAtDesc(place);
+        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place);
         if(placeReviews.size()<0)
             return PlaceDetailGuestRes.of(place, placeBookmarkList.size(), disability, subDisability, null);
 
@@ -218,7 +218,7 @@ public class PlaceService {
         Place place = getPlace(placeId);
         List<PlaceReivewListDto> placeReviewList =new ArrayList<>();
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceOrderByCreatedAtDesc(place, pageable);
+        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place, pageable);
         placeReviewPage.getContent().forEach(
                 placeReview -> {
                     if(Objects.equals(placeReview.getMember().getMemberId(), member.getMemberId()))
@@ -236,7 +236,7 @@ public class PlaceService {
         Place place = getPlace(placeId);
         List<PlaceReivewListDto> placeReviewList =new ArrayList<>();
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceOrderByCreatedAtDesc(place, pageable);
+        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place, pageable);
         placeReviewPage.getContent().forEach(
                 placeReview -> {
                     placeReviewList.add(PlaceReivewListDto.of(placeReview,getImgUrls(placeReview),s3Client.getUrl(),false));
