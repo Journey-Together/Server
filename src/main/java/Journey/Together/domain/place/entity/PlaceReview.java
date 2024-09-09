@@ -21,21 +21,23 @@ public class PlaceReview extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "place_review_id")
-    Long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    Member member;
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
-    Place place;
+    private Place place;
 
-    Float grade;
+    private Float grade;
 
-    String content;
+    private String content;
 
-    LocalDate date;
+    private LocalDate date;
+
+    private Boolean report = false;
 
 
     @Builder

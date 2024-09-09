@@ -34,6 +34,8 @@ public class PlanReview extends BaseTimeEntity {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
+    private Boolean report = false;
+
 
     @Builder
     public PlanReview(Member member,float grade, String content,Plan plan){
@@ -41,5 +43,9 @@ public class PlanReview extends BaseTimeEntity {
         this.grade = grade;
         this.content=content;
         this.plan=plan;
+    }
+
+    public void setReport(Boolean report) {
+        this.report = report;
     }
 }

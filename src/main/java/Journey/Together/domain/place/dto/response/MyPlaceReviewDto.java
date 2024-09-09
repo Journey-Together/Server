@@ -12,9 +12,10 @@ public record MyPlaceReviewDto(
         Float grade,
         LocalDate date,
         String content,
-        List<String> images
+        List<String> images,
+        Boolean isReport
 ) {
     public static MyPlaceReviewDto of(PlaceReview placeReview, List<String> images){
-        return new MyPlaceReviewDto(placeReview.getId(),placeReview.getPlace().getId(), placeReview.getPlace().getName(), placeReview.getGrade(), placeReview.getDate(), placeReview.getContent(), images);
+        return new MyPlaceReviewDto(placeReview.getId(),placeReview.getPlace().getId(), placeReview.getPlace().getName(), placeReview.getGrade(), placeReview.getDate(), placeReview.getContent(), images, placeReview.getReport());
     }
 }
