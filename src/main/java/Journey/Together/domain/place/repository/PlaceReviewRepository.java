@@ -22,7 +22,10 @@ public interface PlaceReviewRepository extends JpaRepository<PlaceReview,Long> {
     @Query("SELECT COUNT(pr) FROM PlaceReview pr WHERE pr.member = :member")
     Long countPlaceReviewByMember(@Param("member") Member member);
 
-    Long countPlaceReviewByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(Place place);
+    @Query("SELECT COUNT(pr)  FROM PlaceReview pr WHERE pr.place = :place AND (pr.report IS NULL OR pr.report = false) ORDER BY pr.createdAt DESC")
+    Long countPlaceReviewByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(@Param("place") Place place);
+
+    @Query("SELECT pr FROM PlaceReview pr WHERE pr.place = :place AND (pr.report IS NULL OR pr.report = false) ORDER BY pr.createdAt DESC")
     Page<PlaceReview> findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(Place place, Pageable pageable);
 
     Page<PlaceReview> findAllByMemberOrderByCreatedAtDesc(Member member, Pageable pageable);
