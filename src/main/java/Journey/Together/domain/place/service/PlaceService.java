@@ -82,6 +82,7 @@ public class PlaceService {
         Boolean isMark = false;
 
         Place place = getPlace(placeId);
+        System.out.println(place.getId());
         Long myPlaceReviewId;
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlaceAndMember(place,member);
@@ -90,8 +91,8 @@ public class PlaceService {
 
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
-
-        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place);
+        Pageable pageable = PageRequest.of(0, 2);
+        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place,pageable);
 
         if(placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place) != null) {
             isReview = true;
@@ -135,7 +136,9 @@ public class PlaceService {
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
 
-        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place);
+        Pageable pageable = PageRequest.of(0, 2);
+        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place,pageable);
+
         if(placeReviews.size()<0)
             return PlaceDetailGuestRes.of(place, placeBookmarkList.size(), disability, subDisability, null);
 
