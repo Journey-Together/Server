@@ -2,6 +2,7 @@ package Journey.Together.domain.plan.dto;
 
 import jakarta.validation.constraints.Null;
 import lombok.Builder;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.util.List;
 
@@ -19,11 +20,12 @@ public record PlanReviewRes(
         boolean hasReview,
         @Null
         List<String> imageList,
-        String profileUrl
+        String profileUrl,
+        Boolean isReport
 ) {
     public static PlanReviewRes of(Long reviewId,
                                    String content,
-                                   Float grade,boolean isWriter,boolean hasReview,List<String> imageList,String profileUrl){
+                                   Float grade,boolean isWriter,boolean hasReview,List<String> imageList,String profileUrl,Boolean isReport){
         return PlanReviewRes.builder()
                 .reviewId(reviewId)
                 .content(content)
@@ -32,6 +34,7 @@ public record PlanReviewRes(
                 .hasReview(hasReview)
                 .imageList(imageList)
                 .profileUrl(profileUrl)
+                .isReport(isReport)
                 .build();
     }
 }

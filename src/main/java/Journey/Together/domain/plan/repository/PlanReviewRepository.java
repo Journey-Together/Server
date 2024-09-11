@@ -10,8 +10,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface PlanReviewRepository extends JpaRepository<PlanReview,Long> {
     boolean existsAllByPlan(Plan plan);
+    @Query("SELECT COUNT(pr) > 0 " + "FROM PlanReview pr " + "WHERE (pr.report IS NULL OR pr.report = false)")
+    boolean existsAllByPlanAndReportFillter(Plan plan);
     PlanReview findPlanReviewByPlan(Plan plan);
-
+    @Query("SELECT pr  FROM PlanReview pr WHERE pr.plan = :plan AND (pr.report IS NULL OR pr.report = false)")
+    PlanReview findPlanReviewByReportFillter(Plan plan);
 
     PlanReview findPlanReviewByPlanReviewId(Long id);
     PlanReview findPlanReviewByPlanAndDeletedAtIsNull(Plan plan);
