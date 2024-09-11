@@ -17,7 +17,7 @@ public record OpenPlanRes(
 ) {
     public static OpenPlanRes of(Plan plan,String memberImageUrl,String imageUrl){
         Period period = Period.between(plan.getStartDate(),plan.getEndDate());
-        String date = period.getDays()+"일일정";
+        String date = (period.getDays()+1)+"일일정";
 
         return OpenPlanRes.builder()
                 .planId(plan.getPlanId())
