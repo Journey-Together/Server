@@ -218,7 +218,7 @@ public class PlanService {
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
-        PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
+        PlanReview planReview = planReviewRepository.findPlanReviewByReportFillter(plan);
         //Buisness
         boolean isWriter;
         if (member ==null){
@@ -229,9 +229,9 @@ public class PlanService {
         List<String> imageList = getReviewImageList(plan);
         String profileUrl = s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile_"+plan.getMember().getProfileUuid();
         if(planReview==null){
-            return PlanReviewRes.of(null,null,null,isWriter,false,imageList,profileUrl);
+            return PlanReviewRes.of(null,null,null,isWriter,false,imageList,profileUrl,planReview.getReport());
         }else {
-            return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true,imageList,profileUrl);
+            return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true,imageList,profileUrl,planReview.getReport());
         }
 
     }
@@ -311,7 +311,7 @@ public class PlanService {
             String remainDate = null;
             Boolean hasReview = null;
             if (LocalDate.now().isAfter(plan.getEndDate())){
-                hasReview = planReviewRepository.existsAllByPlan(plan);
+                hasReview = planReviewRepository.existsAllByPlanAndReportFillter(plan);
             }else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
                 remainDate="D-DAY";
             }else if (LocalDate.now().isBefore(plan.getStartDate())){
@@ -344,7 +344,7 @@ public class PlanService {
         if(compelete){
             planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member,LocalDate.now(),pageable);
             planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlan(plan)))
+                    .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlanAndReportFillter(plan)))
                     .collect(Collectors.toList());
         }else {
             planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member,LocalDate.now(),pageable);
@@ -415,7 +415,7 @@ public class PlanService {
 
     public List<String> getReviewImageList(Plan plan){
         List<String> list = new ArrayList<>();
-        PlanReview planReview = planReviewRepository.findPlanReviewByPlan(plan);
+        PlanReview planReview = planReviewRepository.findPlanReviewByReportFillter(plan);
         List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
         for(PlanReviewImage planReviewImage : planReviewImageList){
             list.add(planReviewImage.getImageUrl());
