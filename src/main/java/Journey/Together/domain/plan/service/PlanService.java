@@ -229,7 +229,7 @@ public class PlanService {
         List<String> imageList = getReviewImageList(plan);
         String profileUrl = s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile_"+plan.getMember().getProfileUuid();
         if(planReview==null){
-            return PlanReviewRes.of(null,null,null,isWriter,false,imageList,profileUrl,planReview.getReport());
+            return PlanReviewRes.of(null,null,null,isWriter,false,imageList,profileUrl,null);
         }else {
             return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true,imageList,profileUrl,planReview.getReport());
         }
