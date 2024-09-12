@@ -311,7 +311,7 @@ public class PlanService {
             String remainDate = null;
             Boolean hasReview = null;
             if (LocalDate.now().isAfter(plan.getEndDate())){
-                hasReview = planReviewRepository.existsAllByPlanAndReportFillter(plan);
+                hasReview = planReviewRepository.existsAllByPlanAndReportFilter(plan);
             }else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
                 remainDate="D-DAY";
             }else if (LocalDate.now().isBefore(plan.getStartDate())){
@@ -344,7 +344,7 @@ public class PlanService {
         if(compelete){
             planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member,LocalDate.now(),pageable);
             planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlanAndReportFillter(plan)))
+                    .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlanAndReportFilter(plan)))
                     .collect(Collectors.toList());
         }else {
             planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member,LocalDate.now(),pageable);
