@@ -15,8 +15,8 @@ public interface PlanReviewRepository extends JpaRepository<PlanReview,Long> {
             "WHERE pr.plan = :plan AND (pr.report IS NULL OR pr.report = false))")
     boolean existsAllByPlanAndReportFilter(@Param("plan") Plan plan);
 
-    @Query("SELECT pr  FROM PlanReview pr WHERE pr.plan = :plan AND (pr.report IS NULL OR pr.report = false) AND pr.deletedAt is null ")
-    PlanReview findPlanReviewByReportFillter(Plan plan);
+    @Query("SELECT pr FROM PlanReview pr WHERE pr.plan = :plan")
+    PlanReview findPlanReview(Plan plan);
 
     PlanReview findPlanReviewByPlanReviewId(Long id);
     PlanReview findPlanReviewByPlanAndDeletedAtIsNull(Plan plan);
