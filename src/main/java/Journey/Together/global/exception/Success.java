@@ -15,6 +15,7 @@ public enum Success {
 	CREATE_CATEGORY_SUCCESS(HttpStatus.CREATED, "새 카테고리 추가 성공"),
 	CREATE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 생성 성공"),
 	CREATE_PLACE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 작성 성공"),
+	CREATE_RERORT_SUCCESS(HttpStatus.CREATED, "신고 성공"),
 
 	/**
 	 * 200 OK
@@ -25,6 +26,7 @@ public enum Success {
 	GET_MY_PLACE_REVIEW_SUCCESS(HttpStatus.OK, "나의 여행지 후기 조회 성공"),
 	GET_BOOKMARK_PLACES_SUCCESS(HttpStatus.OK, "여행지 북마크 조회 성공"),
 	GET_BOOKMARK_PLAN_SUCCESS(HttpStatus.OK, "일정 북마크 조회 성공"),
+	GET_BOOKMARK_PLAN_STATE_SUCCESS(HttpStatus.OK, "일정 북마크 상태 조회 성공"),
 	GET_BOOKMARK_PLACE_NAMES_SUCCESS(HttpStatus.OK, "북마크한 여행지 조회 성공"),
 	GET_USER_INTEREST_SUCCESS(HttpStatus.OK, "사용자 관심 유형 정보 조회 성공"),
 	GET_MAIN_SUCCESS(HttpStatus.OK, "메인 페이지 정보 조회 성공"),
@@ -34,6 +36,7 @@ public enum Success {
 	GET_PLAN_SUCCESS(HttpStatus.OK, "내 일정 조회 성공"),
 	GET_SITES_SUCCESS(HttpStatus.OK, "추천 사이트 조회 성공"),
 	GET_REVIEW_SUCCESS(HttpStatus.OK, "리뷰 조회 성공"),
+	GET_REPORT_LIST_SUCCESS(HttpStatus.OK, "신고목록 조회 성공"),
 
 	GET_CATEORIES_SUCCESS(HttpStatus.OK, "전체 카테고리 조회 성공"),
 	GET_CATEORY_SUCCESS(HttpStatus.OK, "세부 카테고리 조회 성공"),
@@ -51,12 +54,14 @@ public enum Success {
 	DELETE_PLAN_REVIEW_SUCCESS(HttpStatus.OK, "나의 일정 후기 삭제 성공"),
 	UPDATE_MY_PLACE_REVIEW_SUCCESS(HttpStatus.OK, "나의 여행지 후기 수정 성공"),
 	SEARCH_SUCCESS(HttpStatus.OK, "검색 성공"),
+	SEARCH_COMPLETE_SUCCESS(HttpStatus.OK, "검색어 자동완성 성공"),
 	SEARCH_PLACE_LIST_SUCCESS(HttpStatus.OK, "여행지 검색 성공"),
 	PARSING_OG_SUCCESS(HttpStatus.OK, "og 데이터 파싱 결과입니다. 크롤링을 막은 페이지는 기본이미지가 나옵니다."),
 	UPDATE_PUSH_ALLOWED_SUCCESS(HttpStatus.OK, "푸시알림 수정 성공"),
 	UPDATE_PLAN_SUCCESS(HttpStatus.CREATED, "일정 수정이 완료 되었습니다."),
 
-	UPDATE_ISREAD_SUCCESS(HttpStatus.OK, "열람여부 수정 완료"),
+	UPDATE_ISR성AD_SUCCESS(HttpStatus.OK, "열람여부 수정 완료"),
+	UPDATE_APPROVAL_SUCCESS(HttpStatus.OK, "승인 상태 수정 완료"),
 	UPDATE_CATEGORY_TITLE_SUCCESS(HttpStatus.OK, "카테고리 수정 완료"),
 	UPDATE_REVIEW_SUCCESS(HttpStatus.OK, "리뷰 수정 완료"),
 	CHANGE_BOOKMARK_SUCCESS(HttpStatus.OK, "북마크 상태 수정 완료"),

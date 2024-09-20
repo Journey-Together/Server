@@ -13,14 +13,20 @@ import java.util.List;
 
 public interface PlaceReviewRepository extends JpaRepository<PlaceReview,Long> {
 
+    PlaceReview findPlaceReviewById(Long id);
 
-    List<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place);
-    List<PlaceReview> findTop2ByPlaceOrderByCreatedAtDesc(Place place);
+    @Query("SELECT pr FROM PlaceReview pr WHERE pr.place = :place AND (pr.report IS NULL OR pr.report = false) ORDER BY pr.createdAt DESC")
+    List<PlaceReview> findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(@Param("place") Place place, Pageable pageable);
+
     PlaceReview findPlaceReviewByMemberAndPlace(Member member, Place place);
     @Query("SELECT COUNT(pr) FROM PlaceReview pr WHERE pr.member = :member")
     Long countPlaceReviewByMember(@Param("member") Member member);
 
-    Page<PlaceReview> findAllByPlaceOrderByCreatedAtDesc(Place place, Pageable pageable);
+    @Query("SELECT COUNT(pr)  FROM PlaceReview pr WHERE pr.place = :place AND (pr.report IS NULL OR pr.report = false) ORDER BY pr.createdAt DESC")
+    Long countPlaceReviewByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(@Param("place") Place place);
+
+    @Query("SELECT pr FROM PlaceReview pr WHERE pr.place = :place AND (pr.report IS NULL OR pr.report = false) ORDER BY pr.createdAt DESC")
+    Page<PlaceReview> findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(Place place, Pageable pageable);
 
     Page<PlaceReview> findAllByMemberOrderByCreatedAtDesc(Member member, Pageable pageable);
 

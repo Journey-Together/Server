@@ -8,12 +8,14 @@ import Journey.Together.domain.place.dto.response.MainRes;
 import Journey.Together.domain.place.dto.response.PlaceDetailRes;
 import Journey.Together.domain.place.dto.response.PlaceRes;
 import Journey.Together.domain.place.dto.response.SearchPlaceRes;
+import Journey.Together.domain.place.service.DataMigrationService;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,8 +24,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/place")
@@ -31,6 +37,7 @@ import java.util.List;
 public class PlaceController {
 
     private final PlaceService placeService;
+    private final DataMigrationService dataMigrationService;
 
     @GetMapping("/main")
     public ApiResponse<MainRes> getMain(
@@ -60,9 +67,15 @@ public class PlaceController {
     }
 
     @GetMapping("/review/{placeId}")
+    public ApiResponse<PlaceReviewRes> getPlaceReview(@AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable Long placeId, @PageableDefault(size = 5,page = 0) Pageable pageable) {
+        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(principalDetails.getMember(), placeId, pageable));
+    }
+
+    @GetMapping("/review/guest/{placeId}")
     public ApiResponse<PlaceReviewRes> getPlaceReview(
             @PathVariable Long placeId, @PageableDefault(size = 5,page = 0) Pageable pageable) {
-        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(placeId, pageable));
+        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviewsGeust(placeId, pageable));
     }
 
     @GetMapping("/review/my")
@@ -96,7 +109,7 @@ public class PlaceController {
     }
     @GetMapping("/search")
     public ApiResponse<SearchPlaceRes> searchPlaceList(
-                                                       @RequestParam @NotNull String category,
+                                                       @RequestParam(required = false) String category,
                                                        @RequestParam(required = false) String query,
                                                        @RequestParam(required = false) List<Long> disabilityType,
                                                        @RequestParam(required = false) List<Long> detailFilter,
@@ -109,7 +122,7 @@ public class PlaceController {
 
     @GetMapping("/search/map")
     public ApiResponse<List<PlaceRes>> searchPlaceList(
-            @RequestParam @NotNull String category,
+            @RequestParam(required = false) String category,
             @RequestParam @NotNull Double minX,
             @RequestParam @NotNull Double maxX,
             @RequestParam @NotNull Double minY,
@@ -118,6 +131,20 @@ public class PlaceController {
             @RequestParam(required = false) List<Long> detailFilter,
             @RequestParam(required = false) String arrange){
         return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceMap(category,disabilityType,detailFilter,arrange,minX,maxX,minY,maxY));
+    }
+
+    @GetMapping("/search/autocomplete")
+    public ApiResponse<List<Map<String,Object>>> searchPlaceComplete(
+            @RequestParam String query
+    ) throws IOException {
+        return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS, placeService.searchPlaceComplete(query));
+    }
+
+    @GetMapping("/search/autocomplete/migration")
+    public ApiResponse<?> migrationData(
+    ) throws IOException {
+        dataMigrationService.migrateData();
+        return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS);
     }
 
 }

@@ -1,6 +1,7 @@
 package Journey.Together.domain.bookbark.service;
 
 import Journey.Together.domain.bookbark.dto.PlaceBookmarkRes;
+import Journey.Together.domain.bookbark.dto.PlanBookMarkStateRes;
 import Journey.Together.domain.bookbark.entity.PlaceBookmark;
 import Journey.Together.domain.bookbark.entity.PlanBookmark;
 import Journey.Together.domain.bookbark.entity.PlanBookmarkRes;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -88,6 +90,20 @@ public class BookmarkService {
         }
     }
 
+    @Transactional
+    // 북마크 상태변경
+    public PlanBookMarkStateRes findPlanBookmark(Member member, Long planId){
+        Plan plan = planRepository.findById(planId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_PLAN_EXCEPTION));
+        PlanBookmark planBookmark = planBookmarkRepository.findPlanBookmarkByPlanAndMember(plan, member);
+
+        Boolean isMark = true;
+        if (planBookmark == null) {
+            isMark=false;
+        }
+        return new PlanBookMarkStateRes(isMark);
+    }
+
     private Place getPlace(Long placeId){
         return placeRepository.findById(placeId).orElseThrow(
                 ()->new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
@@ -112,7 +128,7 @@ public class BookmarkService {
 
         List<PlanBookmark> planBookmarkList = planBookmarkRepository.findAllByMemberOrderByCreatedAtDesc(member);
         planBookmarkList.forEach( planBookmark -> {
-            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),s3Client.getUrl()+planBookmark.getPlan().getMember().getProfileUuid()+"/profile",getPlanImageUrl(member, planBookmark.getPlan())));
+            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),s3Client.getUrl()+planBookmark.getPlan().getMember().getProfileUuid()+"/profile_"+planBookmark.getPlan().getMember().getProfileUuid(),getPlanImageUrl(member, planBookmark.getPlan())));
         });
 
         return list;

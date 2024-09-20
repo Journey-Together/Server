@@ -19,6 +19,12 @@ import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;
 
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.data.domain.Pageable;
 import Journey.Together.global.exception.Success;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +41,7 @@ import Journey.Together.global.util.S3Client;
 import org.springframework.web.bind.annotation.RequestParam;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,12 +54,15 @@ public class PlaceService {
     private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
     private final PlaceBookmarkRepository placeBookmarkRepository;
 
+    private final RestHighLevelClient client;
     private final S3Client s3Client;
 
     private static final String POST_IMAGE_FOLDER_NAME = "reviews/";
     private final Integer recommnedPlaceNum = 3;
     private final Integer aroundPlaceNum = 6;
+    private final Integer autocompleteNum = 10;
     private final String partToFind = "com/";
+
 
     // 메인페이지 가져오기
     public MainRes getMainPage(String areacode, String sigungucode){
@@ -70,7 +80,10 @@ public class PlaceService {
 
         Boolean isReview = false;
         Boolean isMark = false;
+
         Place place = getPlace(placeId);
+        System.out.println(place.getId());
+        Long myPlaceReviewId;
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlaceAndMember(place,member);
         if(placeBookmarkList.size()>0)
@@ -78,11 +91,16 @@ public class PlaceService {
 
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
+        Pageable pageable = PageRequest.of(0, 2);
+        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place,pageable);
 
-        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceOrderByCreatedAtDesc(place);
-
-        if(placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place) != null)
+        if(placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place) != null) {
             isReview = true;
+            PlaceReview myPlaceReview = placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place);
+            myPlaceReviewId = myPlaceReview.getId();
+        } else {
+            myPlaceReviewId = null;
+        }
 
         if(placeReviews.size()<0)
             return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, null, isReview);
@@ -92,9 +110,16 @@ public class PlaceService {
         placeReviews.forEach(placeReview -> {
             List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
             if (placeReviewImgs.size() > 0) {
-                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList()));
-            } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null));
+                if(Objects.equals(placeReview.getId(), myPlaceReviewId) && myPlaceReviewId != null)
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),true));
+                else
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(),false));
+            } else{
+                if(Objects.equals(placeReview.getId(), myPlaceReviewId) && myPlaceReviewId != null)
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),null,true));
+                else
+                    reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),null,false));
+            }
         });
 
         return PlaceDetailRes.of(place, isMark, placeBookmarkList.size(), disability, subDisability, reviewList, isReview);
@@ -105,12 +130,15 @@ public class PlaceService {
         // PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<String> disability, List<String> subDisability, List< PlaceReviewDto > reviewList)
 
         Place place = getPlace(placeId);
+        Boolean myReview = false;
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlace(place);
         List<Long> disability = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(placeId);
         List<SubDisability> subDisability = disabilityPlaceCategoryRepository.findDisabilitySubCategory(placeId).stream().map(SubDisability::of).toList();
 
-        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceOrderByCreatedAtDesc(place);
+        Pageable pageable = PageRequest.of(0, 2);
+        List<PlaceReview> placeReviews = placeReviewRepository.findTop2ByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place,pageable);
+
         if(placeReviews.size()<0)
             return PlaceDetailGuestRes.of(place, placeBookmarkList.size(), disability, subDisability, null);
 
@@ -119,9 +147,9 @@ public class PlaceService {
         placeReviews.forEach(placeReview -> {
             List<PlaceReviewImg> placeReviewImgs = placeReviewImgRepository.findAllByPlaceReview(placeReview);
             if (placeReviewImgs.size() > 0) {
-                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile",placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList()));
+                reviewList.add(PlaceReviewDto.of(placeReview, s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(),placeReviewImgs.stream().map(PlaceReviewImg::getImgUrl).toList(), myReview));
             } else
-                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile", null));
+                reviewList.add(PlaceReviewDto.of(placeReview,s3Client.getUrl()+placeReview.getMember().getProfileUuid()+"/profile_"+placeReview.getMember().getProfileUuid(), null, myReview));
         });
 
 
@@ -181,7 +209,7 @@ public class PlaceService {
                     placeReviewImgRepository.save(placeReviewImg);
                 }
             } catch (RuntimeException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new ApplicationException(ErrorCode.NOT_ADD_IMAGE_EXCEPTION);
             }
         }
 
@@ -189,18 +217,40 @@ public class PlaceService {
     }
 
     //관광지 후기 가져오기
-    public PlaceReviewRes getReviews(Long placeId, Pageable page){
+    public PlaceReviewRes getReviews(Member member,Long placeId, Pageable page){
         Place place = getPlace(placeId);
+        List<PlaceReivewListDto> placeReviewList =new ArrayList<>();
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceOrderByCreatedAtDesc(place, pageable);
-        List<PlaceReivewListDto> placeReviewListDto = placeReviewPage.getContent().stream()
-                .map(this::getPlaceReviewDto)
-                .toList();
+        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place, pageable);
+        Long reviewNum = placeReviewRepository.countPlaceReviewByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place);
+        placeReviewPage.getContent().forEach(
+                placeReview -> {
+                    if(Objects.equals(placeReview.getMember().getMemberId(), member.getMemberId()))
+                        placeReviewList.add(PlaceReivewListDto.of(placeReview,getImgUrls(placeReview),s3Client.getUrl(),true));
+                    else
+                        placeReviewList.add(PlaceReivewListDto.of(placeReview,getImgUrls(placeReview),s3Client.getUrl(),false));
+                }
+        );
 
-        return PlaceReviewRes.of(place, placeReviewListDto, placeReviewPage.getNumber(), placeReviewPage.getSize(), placeReviewPage.getTotalPages());
+        return PlaceReviewRes.of(place, placeReviewList, reviewNum, placeReviewPage.getNumber(), placeReviewPage.getSize(), placeReviewPage.getTotalPages());
 
     }
 
+    public PlaceReviewRes getReviewsGeust(Long placeId, Pageable page){
+        Place place = getPlace(placeId);
+        List<PlaceReivewListDto> placeReviewList =new ArrayList<>();
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Long reviewNum = placeReviewRepository.countPlaceReviewByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place);
+        Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place, pageable);
+        placeReviewPage.getContent().forEach(
+                placeReview -> {
+                    placeReviewList.add(PlaceReivewListDto.of(placeReview,getImgUrls(placeReview),s3Client.getUrl(),false));
+                }
+        );
+
+        return PlaceReviewRes.of(place, placeReviewList, reviewNum, placeReviewPage.getNumber(), placeReviewPage.getSize(), placeReviewPage.getTotalPages());
+
+    }
     //나의 여행지 후기
     public MyPlaceReviewRes getMyReviews(Member member, Pageable page){
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
@@ -273,15 +323,15 @@ public class PlaceService {
                 ()->new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
     }
 
-    private PlaceReivewListDto getPlaceReviewDto(PlaceReview placeReview){
+    private List<String> getImgUrls(PlaceReview placeReview){
        List<PlaceReviewImg> imgList = placeReviewImgRepository.findAllByPlaceReview(placeReview);
        if(imgList.size()>0){
            List<String> imgUrls = imgList.stream()
                    .map(PlaceReviewImg::getImgUrl)
                    .collect(Collectors.toList());
-           return PlaceReivewListDto.of(placeReview, imgUrls, s3Client.getUrl());
+           return imgUrls;
        }
-       return PlaceReivewListDto.of(placeReview, new ArrayList<>(),s3Client.getUrl());
+       return new ArrayList<>();
 
     }
 
@@ -295,7 +345,7 @@ public class PlaceService {
 
     }
 
-@Transactional
+    @Transactional
     public void updateMyPlaceReview(Member member, UpdateReviewDto updateReviewDto, List<MultipartFile> addImages, Long reviewId) {
         PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
                 () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
@@ -313,7 +363,7 @@ public class PlaceService {
                     placeReviewImgRepository.save(placeReviewImg);
                 }
             } catch (RuntimeException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new ApplicationException(ErrorCode.NOT_ADD_IMAGE_EXCEPTION);
             }
         }
 
@@ -338,4 +388,40 @@ public class PlaceService {
         placeReviewRepository.save(placeReview);
 
     }
+
+    public List<Map<String, Object>> searchPlaceComplete(String query) throws IOException {
+        List<Map<String, Object>> list = new ArrayList<>();
+        SearchRequest searchRequest = new SearchRequest("places");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+        searchSourceBuilder.query(QueryBuilders.matchQuery("name", query));
+        searchSourceBuilder.size(autocompleteNum); // 상위 10개의 결과만 반환
+
+        searchRequest.source(searchSourceBuilder);
+
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        List<String> results = Arrays.stream(searchResponse.getHits().getHits())
+                .map(hit -> hit.getSourceAsMap().get("name").toString())
+                .toList();
+
+        results.forEach(keyword -> {
+            Place place = placeRepository.findPlaceByName(keyword);
+            Long placeId = null;
+            if (place != null) {
+                placeId = place.getId();
+            }
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("keyword", keyword);
+            map.put("placeId", placeId);
+
+            list.add(map);
+        });
+
+        return list;
+    }
+
+
+
 }

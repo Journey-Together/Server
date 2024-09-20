@@ -11,11 +11,12 @@ public record PlaceReviewRes(
         Integer pageNo,
         Integer pageSize,
         Integer totalPages,
+        Long reviewNum,
         List<PlaceReivewListDto> myplaceReviewList
 ) {
-    static public PlaceReviewRes of(Place place, List<PlaceReivewListDto> myplaceReviewList, Integer pageNo,
+    static public PlaceReviewRes of(Place place, List<PlaceReivewListDto> myplaceReviewList, Long reviewNum, Integer pageNo,
                                     Integer pageSize,
                                     Integer totalPages){
-        return new PlaceReviewRes(place.getName(),  place.getAddress(),place.getFirstImg(),pageNo,pageSize, totalPages ,myplaceReviewList);
+        return new PlaceReviewRes(place.getName(),  place.getAddress(),place.getFirstImg(),pageNo,pageSize, totalPages ,reviewNum,myplaceReviewList);
     }
 }

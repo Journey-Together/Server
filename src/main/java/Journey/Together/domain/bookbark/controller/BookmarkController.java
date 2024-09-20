@@ -1,6 +1,7 @@
 package Journey.Together.domain.bookbark.controller;
 
 import Journey.Together.domain.bookbark.dto.PlaceBookmarkRes;
+import Journey.Together.domain.bookbark.dto.PlanBookMarkStateRes;
 import Journey.Together.domain.bookbark.entity.PlanBookmarkRes;
 import Journey.Together.domain.bookbark.service.BookmarkService;
 import Journey.Together.domain.place.dto.response.PlaceBookmarkDto;
@@ -52,6 +53,12 @@ public class BookmarkController {
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long planId){
         bookmarkService.planBookmark(principalDetails.getMember(), planId);
         return ApiResponse.success(Success.CHANGE_BOOKMARK_SUCCESS);
+    }
+
+    @GetMapping("/plan/{planId}")
+    public ApiResponse<PlanBookMarkStateRes> findPlanBookmark(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long planId){
+        return ApiResponse.success(Success.GET_BOOKMARK_PLAN_STATE_SUCCESS,bookmarkService.findPlanBookmark(principalDetails.getMember(), planId));
     }
 
 }
