@@ -1,5 +1,6 @@
 package Journey.Together.domain.member.service;
 
+import Journey.Together.domain.member.dto.LoginReq;
 import Journey.Together.domain.member.dto.LoginRes;
 import Journey.Together.domain.member.entity.Interest;
 import Journey.Together.domain.member.entity.Member;
@@ -52,7 +53,7 @@ public class AuthService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
-    public LoginRes signIn(String token, String type) throws IOException {
+    public LoginRes signIn(String token, String type, LoginReq loginReq) throws IOException {
         Member member = null;
         TokenDto tokenDto = null;
 
@@ -124,7 +125,7 @@ public class AuthService {
             }
 
             tokenDto = tokenProvider.createToken(member);
-//            member.setRefreshToken(tokenDto.refreshToken());
+            member.setRefreshToken(loginReq.refreshToken());
         }
         return LoginRes.of(member, tokenDto);
     }
