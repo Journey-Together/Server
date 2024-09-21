@@ -10,24 +10,28 @@ import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.common.CustomMultipartFile;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
+import Journey.Together.global.exception.ErrorResponse;
 import Journey.Together.global.security.kakao.KakaoClient;
 import Journey.Together.global.security.kakao.dto.KakaoProfile;
 import Journey.Together.global.security.jwt.TokenProvider;
 import Journey.Together.global.security.jwt.dto.TokenDto;
+import Journey.Together.global.security.naver.dto.NaverDeleteResponse;
+import Journey.Together.global.security.naver.dto.NaverProperties;
+import Journey.Together.global.security.naver.dto.NaverTokenResponse;
 import Journey.Together.global.security.naver.dto.NaverUserResponse;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,6 +46,7 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final InterestRepository interestRepository;
+    private final NaverProperties naverProperties;
     private final S3Client s3Client;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -95,7 +100,7 @@ public class AuthService {
             if (member == null) {
                 MultipartFile imageFile = convertUrlToMultipartFile(naverProfile.getProfile_image() != null ? naverProfile.getProfile_image() : null);
                 String uuid = s3Client.createFolder();
-                s3Client.upload(imageFile,uuid,"profile_"+uuid);
+                s3Client.upload(imageFile, uuid, "profile_" + uuid);
 
                 Member newMember = Member.builder()
                         .email(naverProfile.getEmail() != null ? naverProfile.getEmail() : "Unknown")
@@ -119,22 +124,10 @@ public class AuthService {
             }
 
             tokenDto = tokenProvider.createToken(member);
-            member.setRefreshToken(tokenDto.refreshToken());
-
+//            member.setRefreshToken(tokenDto.refreshToken());
         }
         return LoginRes.of(member, tokenDto);
     }
-    private NaverUserResponse.NaverUserDetail toRequestProfile(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
-
-        ResponseEntity<NaverUserResponse> response =
-                restTemplate.exchange("https://openapi.naver.com/v1/nid/me", HttpMethod.GET, request, NaverUserResponse.class);
-
-        return response.getBody().getNaverUserDetail();
-    }
-
     @Transactional
     public void signOut(String token, Member member) {
         // Validation
@@ -153,9 +146,21 @@ public class AuthService {
         // Validation
 
         // Business Logic - 회원 논리적 삭제 진행
+        if(member.getLoginType().equals(LoginType.NAVER)) {
+            NaverTokenResponse tokenResponse = toRequestToken(member.getRefreshToken());
+            if(tokenResponse.getError() != null){
+                throw new ApplicationException(ErrorCode.NAVER_REFRESH_ERROR);
+            }
+            NaverDeleteResponse naverDeleteResponse = toRequestDelete(tokenResponse.getAccessToken());
+            if(naverDeleteResponse.getError() != null){
+                throw new ApplicationException(ErrorCode.NAVER_DELETE_ERROR);
+            }
+        }
+
         memberRepository.delete(member);
 
         // Response
+
     }
     @Transactional
     public TokenDto reissue(String token, Member member) {
@@ -178,6 +183,54 @@ public class AuthService {
 
         return tokenDto;
     }
+
+    private NaverUserResponse.NaverUserDetail toRequestProfile(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
+
+        ResponseEntity<NaverUserResponse> response =
+                restTemplate.exchange("https://openapi.naver.com/v1/nid/me", HttpMethod.GET, request, NaverUserResponse.class);
+
+        return response.getBody().getNaverUserDetail();
+    }
+
+    public NaverTokenResponse toRequestToken(String refreshToken) {
+        // URI 생성 (쿼리 파라미터 포함)
+        String tokenRequestUri = naverProperties.refreshTokenUri(refreshToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        // POST 요청 보내기
+        ResponseEntity<NaverTokenResponse> response = restTemplate.postForEntity(
+                tokenRequestUri,
+                request,
+                NaverTokenResponse.class
+        );
+
+        return response.getBody();
+    }
+
+    public NaverDeleteResponse toRequestDelete(String accessToken) {
+        // URI 생성 (쿼리 파라미터 포함)
+        String tokenRequestUri = naverProperties.delete(accessToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        // POST 요청 보내기
+        ResponseEntity<NaverDeleteResponse> response = restTemplate.postForEntity(
+                tokenRequestUri,
+                request,
+                NaverDeleteResponse.class
+        );
+
+        return response.getBody();
+    }
+
 
 
     //url->multipartFile로 변환
