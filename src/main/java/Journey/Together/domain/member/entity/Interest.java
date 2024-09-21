@@ -4,6 +4,8 @@ import Journey.Together.domain.member.dto.InterestDto;
 import Journey.Together.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Setter
 @Getter
@@ -17,7 +19,8 @@ public class Interest extends BaseTimeEntity {
     @Column(name = "interest_id", columnDefinition = "bigint")
     private Long interestId;
 
-    @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "member_id")
     private Member member;
 

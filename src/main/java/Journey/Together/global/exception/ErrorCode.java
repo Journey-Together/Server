@@ -53,7 +53,9 @@ public enum ErrorCode {
     ILLEGAL_POST_EXCEPTION(HttpStatus.BAD_REQUEST, 5004, "파트별 인원수가 전체 인원수와 일치하지 않습니다."),
     NOT_ADD_IMAGE_EXCEPTION(HttpStatus.BAD_REQUEST,5005,"예상치 못한 에러가 발생하여 이미지 추가가 되지 않습니다."),
     REVIEW_TYPE_EXCEPTION(HttpStatus.BAD_REQUEST,5006,"올바르지 않은 리뷰 타입입니다."),
-    NOT_FOUND_DESCRIPTION_EXCEPTION(HttpStatus.BAD_REQUEST,5007,"기타 사유 선택 시, 상세한 신고 사유는 필수입니다.");
+    NOT_FOUND_DESCRIPTION_EXCEPTION(HttpStatus.BAD_REQUEST,5007,"기타 사유 선택 시, 상세한 신고 사유는 필수입니다."),
+    NAVER_REFRESH_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,5008,"네이버 토큰 재발급 에러."),
+    NAVER_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,5009,"네이버 탈퇴 에러");
 
     private final HttpStatus httpStatus;
     private final Integer code;
