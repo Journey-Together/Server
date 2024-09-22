@@ -1,5 +1,6 @@
 package Journey.Together.domain.member.controller;
 
+import Journey.Together.domain.member.dto.LoginReq;
 import Journey.Together.domain.member.dto.LoginRes;
 import Journey.Together.domain.member.service.AuthService;
 import Journey.Together.global.common.ApiResponse;
@@ -30,8 +31,9 @@ public class AuthController {
     @Operation(summary = "로그인 API")
     @PostMapping("/sign-in")
     public ApiResponse<LoginRes> signIn(@RequestHeader("Authorization") String token,
-                                        @RequestParam String type) throws IOException {
-        return ApiResponse.success(Success.LOGIN_SUCCESS,authService.signIn(token,type));
+                                        @RequestParam String type,
+                                        @RequestBody LoginReq loginReq) throws IOException {
+        return ApiResponse.success(Success.LOGIN_SUCCESS,authService.signIn(token,type,loginReq));
     }
 
     @Operation(summary = "로그아웃 API", description = "로그아웃된 JWT 블랙리스트 등록")
