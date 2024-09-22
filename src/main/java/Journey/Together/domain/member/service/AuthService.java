@@ -16,6 +16,7 @@ import Journey.Together.global.security.kakao.KakaoClient;
 import Journey.Together.global.security.kakao.dto.KakaoProfile;
 import Journey.Together.global.security.jwt.TokenProvider;
 import Journey.Together.global.security.jwt.dto.TokenDto;
+import Journey.Together.global.security.kakao.dto.KakaoToken;
 import Journey.Together.global.security.naver.dto.NaverDeleteResponse;
 import Journey.Together.global.security.naver.dto.NaverProperties;
 import Journey.Together.global.security.naver.dto.NaverTokenResponse;
@@ -89,7 +90,7 @@ public class AuthService {
                 interestRepository.save(interest);
             }
             tokenDto = tokenProvider.createToken(member);
-            member.setRefreshToken(tokenDto.refreshToken());
+            member.setRefreshToken(loginReq.refreshToken());
 
             // Response
             return LoginRes.of(member, tokenDto);
@@ -155,6 +156,16 @@ public class AuthService {
             NaverDeleteResponse naverDeleteResponse = toRequestDelete(tokenResponse.getAccessToken());
             if(naverDeleteResponse.getError() != null){
                 throw new ApplicationException(ErrorCode.NAVER_DELETE_ERROR);
+            }
+        }else if(member.getLoginType().equals(LoginType.KAKAO)) {
+            //accessToken 요청
+            KakaoToken kakaoToken = kakaoClient.getKakaoAccessToken(member.getRefreshToken());
+            //연결 삭제
+            Long id = kakaoClient.unlinkUser(kakaoToken.access_token());
+            if(id==null){
+                throw new ApplicationException(ErrorCode.KAKAO_REFRESH_TOKEN_ERROR);
+            }else if(!id.equals(member.getMemberId())){
+                throw new ApplicationException(ErrorCode.KAKAO_DELETE_ERROR);
             }
         }
 
