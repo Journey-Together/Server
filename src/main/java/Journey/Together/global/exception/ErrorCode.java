@@ -29,7 +29,8 @@ public enum ErrorCode {
     LOGOUT_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, 3003, "로그아웃된 토큰입니다"),
     WRONG_TOKEN(HttpStatus.UNAUTHORIZED, 3004, "유효하지 않은 토큰입니다."),
     WRONG_ACCESS_EXCEPTION(HttpStatus.BAD_REQUEST, 3005, "관리자만 접근 가능합니다."),
-
+    KAKAO_REFRESH_TOKEN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 3006, "카카오 토큰에 오류가 있습니다"),
+    KAKAO_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 3007, "카카오 연결 끊기에 실패하였습니다"),
 
     //4000: Apply Error
     NOT_APPLY_EXCEPTION(HttpStatus.BAD_REQUEST,4000,"지원 기간 지났습니다"),
