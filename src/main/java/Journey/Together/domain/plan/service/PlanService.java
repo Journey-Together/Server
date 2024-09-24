@@ -184,7 +184,7 @@ public class PlanService {
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
-        if(planReviewRepository.existsAllByPlan(plan)){
+        if(planReviewRepository.existsAllByPlanAndDeletedAtIsNull(plan)){
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
         //Business
@@ -317,7 +317,7 @@ public class PlanService {
             String remainDate = null;
             Boolean hasReview = null;
             if (LocalDate.now().isAfter(plan.getEndDate())){
-                hasReview = planReviewRepository.existsAllByPlanAndReportFilter(plan);
+                hasReview = planReviewRepository.existsAllByPlanAndDeletedAtIsNull(plan);
             }else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
                 remainDate="D-DAY";
             }else if (LocalDate.now().isBefore(plan.getStartDate())){
