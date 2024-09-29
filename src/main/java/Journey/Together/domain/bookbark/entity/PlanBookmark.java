@@ -27,6 +27,7 @@ public class PlanBookmark extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Plan plan;
 
     @Builder

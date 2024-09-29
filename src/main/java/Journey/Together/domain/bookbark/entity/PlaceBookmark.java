@@ -26,6 +26,7 @@ public class PlaceBookmark extends BaseTimeEntity {
     Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "place_id")
     Place place;
 
