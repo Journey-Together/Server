@@ -8,6 +8,9 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Getter
 @Setter
 @Entity
@@ -22,10 +25,12 @@ public class Day extends BaseTimeEntity {
 
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
     @ManyToOne(targetEntity = Plan.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Plan plan;
 
     @ManyToOne(targetEntity = Place.class, fetch = FetchType.LAZY)

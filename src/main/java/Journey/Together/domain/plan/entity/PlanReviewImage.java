@@ -1,5 +1,8 @@
 package Journey.Together.domain.plan.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import Journey.Together.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +21,7 @@ public class PlanReviewImage extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "planReview_id", nullable = false, columnDefinition = "bigint")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PlanReview planReview;
 
     @Column(name = "imageUrl")

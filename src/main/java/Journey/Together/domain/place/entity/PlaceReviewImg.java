@@ -1,5 +1,8 @@
 package Journey.Together.domain.place.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +19,7 @@ public class PlaceReviewImg {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_review_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     PlaceReview placeReview;
 
     String imgUrl;

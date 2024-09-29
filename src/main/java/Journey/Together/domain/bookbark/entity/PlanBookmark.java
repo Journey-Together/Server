@@ -1,5 +1,8 @@
 package Journey.Together.domain.bookbark.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.global.common.BaseTimeEntity;
@@ -19,6 +22,7 @@ public class PlanBookmark extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
