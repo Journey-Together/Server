@@ -36,6 +36,7 @@ public class PlanReview extends BaseTimeEntity {
 
     @OneToOne
     @JoinColumn(name = "plan_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Plan plan;
 
     private Boolean report = false;
