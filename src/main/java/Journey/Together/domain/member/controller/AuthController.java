@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     @Operation(summary = "회원탈퇴 API", description = "회원탈퇴 등록")
-    @PostMapping("/withdrawal")
+    @DeleteMapping("/withdrawal")
     public ApiResponse<Void> withdrawal(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         authService.withdrawal(principalDetails.getMember());
         return ApiResponse.success(Success.DELETE_USER_SUCCESS);
