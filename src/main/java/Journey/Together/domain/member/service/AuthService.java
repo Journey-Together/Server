@@ -164,8 +164,6 @@ public class AuthService {
             Long id = kakaoClient.unlinkUser(kakaoToken.access_token());
             if(id==null){
                 throw new ApplicationException(ErrorCode.KAKAO_REFRESH_TOKEN_ERROR);
-            }else if(!id.equals(member.getMemberId())){
-                throw new ApplicationException(ErrorCode.KAKAO_DELETE_ERROR);
             }
         }
 
