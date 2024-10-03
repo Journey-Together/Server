@@ -82,7 +82,6 @@ public class PlaceService {
         Boolean isMark = false;
 
         Place place = getPlace(placeId);
-        System.out.println(place.getId());
         Long myPlaceReviewId;
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByPlaceAndMember(place,member);

@@ -35,11 +35,12 @@ public record PlaceDetailGuestRes(
         String place_tel=null;
         String place_homepage=null;
 
-        if(!place.getTel().isBlank())
+        if(place.getId() != null && !place.getTel().isBlank())
             place_tel = place.getTel();
 
-        if(!place.getHomepage().isBlank())
+        if(place.getHomepage() != null && !place.getHomepage().isBlank())
             place_homepage = place.getHomepage();
+
 
 
         return new PlaceDetailGuestRes(place.getId(), place.getName(), place.getFirstImg(), place.getAddress(), cat, place.getOverview(), place.getMapX().toString(), place.getMapY().toString(),

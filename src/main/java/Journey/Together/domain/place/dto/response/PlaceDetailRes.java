@@ -39,10 +39,10 @@ public record PlaceDetailRes(
         String place_tel=null;
         String place_homepage=null;
 
-        if(!place.getTel().isBlank())
+        if(place.getId() != null && !place.getTel().isBlank())
             place_tel = place.getTel();
 
-        if(!place.getHomepage().isBlank())
+        if(place.getHomepage() != null && !place.getHomepage().isBlank())
             place_homepage = place.getHomepage();
 
 
