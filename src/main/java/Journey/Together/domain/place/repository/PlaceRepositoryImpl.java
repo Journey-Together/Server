@@ -59,6 +59,7 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
         List<Place> places = queryFactory
                 .selectDistinct(place)
                 .from(place)
+                .join(place.placeDisabilityCategories, disabilityPlaceCategory)
                 .where(categoryEq(category), queryContains(query), disabilityTypeHas(disabilityType),
                         detailFilterHas(detailFilter).or(defaultDisabilityTypes(disabilityType)),
                         areacodeEq(areacode), sigungucodeEq(sigungucode))
@@ -71,6 +72,7 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
         long total = queryFactory
                 .select(place.countDistinct())
                 .from(place)
+                .join(place.placeDisabilityCategories, disabilityPlaceCategory)
                 .where(categoryEq(category), queryContains(query), disabilityTypeHas(disabilityType),
                         detailFilterHas(detailFilter).or(defaultDisabilityTypes(disabilityType)),
                         areacodeEq(areacode), sigungucodeEq(sigungucode))
@@ -88,6 +90,7 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
         List<Place> places = queryFactory
                 .selectDistinct(place)
                 .from(place)
+                .join(place.placeDisabilityCategories, disabilityPlaceCategory)
                 .where(categoryEq(category), disabilityTypeHas(disabilityType), detailFilterHas(detailFilter),
                         mapIn(minX,maxX,minY,maxY) )
                 .orderBy(arg(arrange))
