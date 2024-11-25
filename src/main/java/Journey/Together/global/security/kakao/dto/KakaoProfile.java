@@ -1,7 +1,6 @@
 package Journey.Together.global.security.kakao.dto;
 
 public record KakaoProfile(
-        // 2023년 12월까지 없었던 것으로 보이는 데이터인데, 현재 계속 조회됨. (포럼에 문의된 상황)
         Boolean setPrivacyInfo,
         Long id,
         String connected_at,
@@ -12,8 +11,7 @@ public record KakaoProfile(
     public record Properties(
             String nickname,
             String profile_image,
-            String thumbnail_image,
-            String name
+            String thumbnail_image
     ) {
     }
 
@@ -21,14 +19,12 @@ public record KakaoProfile(
     public record KakaoAccount(
             Boolean profile_nickname_needs_agreement,
             Boolean profile_image_needs_agreement,
-            Boolean name_needs_agreement,
             Profile profile,
             Boolean has_email,
             Boolean email_needs_agreement,
             Boolean is_email_valid,
             Boolean is_email_verified,
-            String email,
-            String name
+            String email
     ) {
         public record Profile(
                 String nickname,
