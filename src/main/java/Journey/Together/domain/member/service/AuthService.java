@@ -51,6 +51,7 @@ public class AuthService {
     private final NaverProperties naverProperties;
     private final S3Client s3Client;
 
+    private final MemberService memberService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
@@ -131,21 +132,23 @@ public class AuthService {
         return LoginRes.of(member, tokenDto);
     }
     @Transactional
-    public void signOut(String token, Member member) {
+    public void signOut(String token, Long memberId) {
         // Validation
         String accessToken = token.substring(7);
         tokenProvider.validateToken(accessToken);
 
         // Business Logic - Refresh Token 삭제 및 Access Token 블랙리스트 등록
         tokenProvider.getExpiration(accessToken);
+        Member member = memberService.findMemberById(memberId);
         member.setRefreshToken(null);
 
         // Response
     }
 
     @Transactional
-    public void withdrawal(Member member) {
+    public void withdrawal(Long memberId) {
         // Validation
+        Member member = memberService.findMemberById(memberId);
 
         // Business Logic - 회원 논리적 삭제 진행
         if(member.getLoginType().equals(LoginType.NAVER)) {
@@ -173,11 +176,13 @@ public class AuthService {
 
     }
     @Transactional
-    public TokenDto reissue(String token, Member member) {
+    public TokenDto reissue(String token, Long memberId) {
         String refreshToken = token.substring(7);
 
         // Token 유효성 검사
         tokenProvider.validateToken(refreshToken);
+
+        Member member = memberService.findMemberById(memberId);
 
         String memberRefreshToken = member.getRefreshToken();
         if (refreshToken.isBlank() || memberRefreshToken.isEmpty() || !memberRefreshToken.equals(refreshToken)) {

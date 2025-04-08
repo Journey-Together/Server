@@ -48,7 +48,7 @@ public class PlaceController {
     @GetMapping("/{placeId}")
     public ApiResponse<PlaceDetailRes> getPlaceDetail(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                       @PathVariable Long placeId){
-        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getPlaceDetail(principalDetails.getMember(), placeId));
+        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getPlaceDetail(principalDetails.getMemberId(), placeId));
     }
 
     @GetMapping("guest/{placeId}")
@@ -62,14 +62,14 @@ public class PlaceController {
                                        @RequestPart PlaceReviewReq placeReviewReq,
                                        @PathVariable Long placeId) {
         images = (images == null) ? new ArrayList<>() : images;
-        placeService.createReview(principalDetails.getMember(), images,placeReviewReq, placeId);
+        placeService.createReview(principalDetails.getMemberId(), images,placeReviewReq, placeId);
         return ApiResponse.success(Success.CREATE_PLACE_REVIEW_SUCCESS);
     }
 
     @GetMapping("/review/{placeId}")
     public ApiResponse<PlaceReviewRes> getPlaceReview(@AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long placeId, @PageableDefault(size = 5,page = 0) Pageable pageable) {
-        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(principalDetails.getMember(), placeId, pageable));
+        return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(principalDetails.getMemberId(), placeId, pageable));
     }
 
     @GetMapping("/review/guest/{placeId}")
@@ -81,20 +81,20 @@ public class PlaceController {
     @GetMapping("/review/my")
     public ApiResponse<MyPlaceReviewRes> getPlaceMyReviews(
             @AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 5,page = 0) Pageable pageable) {
-        return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_LIST_SUCCESS, placeService.getMyReviews(principalDetails.getMember(), pageable));
+        return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_LIST_SUCCESS, placeService.getMyReviews(principalDetails.getMemberId(), pageable));
     }
 
     @DeleteMapping("/review/my/{reviewId}")
     public ApiResponse<?> deletePlaceMyReview(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long reviewId) {
-        placeService.deleteMyPlaceReview(principalDetails.getMember(),reviewId);
+        placeService.deleteMyPlaceReview(principalDetails.getMemberId(),reviewId);
         return ApiResponse.success(Success.DELETE_MY_PLACE_REVIEW_SUCCESS);
     }
 
     @GetMapping("/review/my/{reviewId}")
     public ApiResponse<MyReview> getPlaceMyReview(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long reviewId) {
-        return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_SUCCESS,placeService.getReview(principalDetails.getMember(),reviewId));
+        return ApiResponse.success(Success.GET_MY_PLACE_REVIEW_SUCCESS,placeService.getReview(principalDetails.getMemberId(),reviewId));
     }
 
     @PatchMapping("/review/my/{reviewId}")
@@ -104,7 +104,7 @@ public class PlaceController {
             @RequestPart(required = false) List<MultipartFile> addImages,
             @PathVariable Long reviewId) {
         addImages = (addImages == null) ? new ArrayList<>() : addImages;
-        placeService.updateMyPlaceReview(principalDetails.getMember(),updateReviewDto,addImages,reviewId);
+        placeService.updateMyPlaceReview(principalDetails.getMemberId(),updateReviewDto,addImages,reviewId);
         return ApiResponse.success(Success.UPDATE_MY_PLACE_REVIEW_SUCCESS);
     }
     @GetMapping("/search")
