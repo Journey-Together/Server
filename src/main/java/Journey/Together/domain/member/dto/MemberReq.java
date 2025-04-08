@@ -7,6 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record MemberReq(
         @Null
+        String name,
+        @Null
         String nickname,
         @Null
         String phone,

@@ -72,7 +72,7 @@ public class AuthService {
                 s3Client.upload(imageFile,uuid,"profile_"+uuid);
                 Member newMember = Member.builder()
                         .email(kakaoProfile.kakao_account().email())
-                        .name(kakaoProfile.kakao_account().name())
+                        .name(null)
                         .nickname(kakaoProfile.kakao_account().profile().nickname())
                         .profileUuid(uuid)
                         .phone(null)

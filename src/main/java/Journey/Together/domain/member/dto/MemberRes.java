@@ -20,9 +20,16 @@ public record MemberRes(
         String part2_rel,
         String part2_phone
 ) {
+    private static String checkName(String name) {
+        if(name == null) {
+            return "저장된 이름이 없습니다";
+        }
+        return name;
+    }
     public static MemberRes of(Member member,String profileUrl){
+
         return MemberRes.builder()
-                .name(member.getName())
+                .name(checkName(member.getName()))
                 .nickname(member.getNickname())
                 .phone(member.getPhone())
                 .profileImage(profileUrl)

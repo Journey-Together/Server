@@ -53,6 +53,9 @@ public class MemberService {
         if(memberReq == null){
             return;
         }
+        if(memberReq.name() != null) {
+            member.setName(memberReq.name());
+        }
         if (memberReq.nickname() != null) {
             member.setNickname(memberReq.nickname());
         }
