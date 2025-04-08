@@ -1,5 +1,6 @@
 package Journey.Together.domain.plan.service;
 
+import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.domain.place.entity.PlaceReviewImg;
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.entity.Day;
@@ -48,10 +49,13 @@ public class PlanService {
     private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
     private final S3Client s3Client;
 
+    private final MemberService memberService;
+
     @Transactional
-    public void savePlan(Member member, PlanReq planReq){
+    public void savePlan(Long memberId, PlanReq planReq){
         // Validation
-        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        Member member = memberService.findMemberById(memberId);
+
         //Buisness
         Plan plan = Plan.builder()
                 .member(member)
@@ -66,8 +70,9 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Member member,Long planId,PlanReq planReq){
+    public void updatePlan(Long memberId,Long planId,PlanReq planReq){
         // Validation
+        Member member = memberService.findMemberById(memberId);
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member,planId);
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
@@ -82,8 +87,9 @@ public class PlanService {
 
     }
     @Transactional
-    public PlanRes findPlan(Member member,Long planId) {
+    public PlanRes findPlan(Long memberId,Long planId) {
         // Validation
+        Member member = memberService.findMemberById(memberId);
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
         if (plan == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
@@ -95,8 +101,9 @@ public class PlanService {
     }
 
     @Transactional
-    public void deletePlan(Member member,Long planId){
+    public void deletePlan(Long memberId, Long planId){
         // Validation
+        Member member = memberService.findMemberById(memberId);
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member,planId);
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
@@ -105,13 +112,13 @@ public class PlanService {
         //Buisness
         dayRepository.deleteAllByMemberAndPlan(member,plan);
         if(planReview!=null){
-            deletePlanReview(member,planReview.getPlanReviewId());
+            deletePlanReview(memberId,planReview.getPlanReviewId());
         }
         planRepository.deletePlanByPlanId(planId);
     }
 
     @Transactional
-    public PlanDetailRes findPlanDetail(Member member, Long planId){
+    public PlanDetailRes findPlanDetail(Long memberId, Long planId){
         // Validation
         Plan plan = planRepository.findPlanByPlanIdAndDeletedAtIsNull(planId);
         if(plan == null){
@@ -148,10 +155,10 @@ public class PlanService {
         // 날짜 순으로 정렬
         dailyLists.sort(Comparator.comparing(DailyList::getDate));
 
-        if (member ==null){
+        if (memberId == null){
             isWriter = false;
         }else {
-            isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
+            isWriter = plan.getMember().getMemberId().equals(memberId);
         }
         String remainDate = isBetween(plan.getStartDate(),plan.getEndDate());
 
@@ -160,8 +167,9 @@ public class PlanService {
     }
 
     @Transactional
-    public Boolean updatePlanIsPublic(Member member,Long planId){
+    public Boolean updatePlanIsPublic(Long memberId, Long planId){
         // Validation
+        Member member = memberService.findMemberById(memberId);
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member,planId,LocalDate.now());
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
@@ -178,8 +186,9 @@ public class PlanService {
     }
 
     @Transactional
-    public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq,List<MultipartFile> images){
+    public void savePlanReview(Long memberId, Long planId, PlanReviewReq planReviewReq,List<MultipartFile> images){
         // Validation
+        Member member = memberService.findMemberById(memberId);
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member,planId,LocalDate.now());
         if(plan == null){
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
@@ -212,7 +221,7 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanReviewRes findPlanReview(Member member,long planId){
+    public PlanReviewRes findPlanReview(Long memberId, long planId){
         // Validation
         Plan plan = planRepository.findPlanByPlanIdAndDeletedAtIsNull(planId);
         if(plan == null){
@@ -221,10 +230,10 @@ public class PlanService {
         PlanReview planReview = planReviewRepository.findPlanReview(plan);
         //Buisness
         boolean isWriter;
-        if (member ==null){
+        if (memberId ==null){
             isWriter = false;
         }else {
-            isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
+            isWriter = plan.getMember().getMemberId().equals(memberId);
         }
         String profileUrl = s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile_"+plan.getMember().getProfileUuid();
         if(planReview==null){
@@ -243,12 +252,13 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlanReview(Member member, Long reviewId, UpdatePlanReviewReq updatePlanReviewReq, List<MultipartFile> images) {
+    public void updatePlanReview(Long memberId, Long reviewId, UpdatePlanReviewReq updatePlanReviewReq, List<MultipartFile> images) {
         // Validation
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if(!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())){
+        if(!Objects.equals(planReview.getPlan().getMember().getMemberId(), memberId)){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
+        Member member = memberService.findMemberById(memberId);
         //Business
         if (images != null) {
             try {
@@ -285,10 +295,10 @@ public class PlanService {
     }
 
     @Transactional
-    public void deletePlanReview(Member member,Long reviewId){
+    public void deletePlanReview(Long memberId, Long reviewId){
         //Vailda
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if(!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())){
+        if(!Objects.equals(planReview.getPlan().getMember().getMemberId(), memberId)){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
@@ -303,8 +313,9 @@ public class PlanService {
     }
 
     @Transactional
-    public List<MyPlanRes> findMyPlans(Member member) {
+    public List<MyPlanRes> findMyPlans(Long memberId) {
         //Vaildation
+        Member member = memberService.findMemberById(memberId);
         List<Plan> list = planRepository.findAllByMemberAndDeletedAtIsNull(member);
         //Business
         List<Plan> top3list = list.stream()
@@ -343,7 +354,8 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanPageRes findIsCompelete(Member member, Pageable page, Boolean compelete){
+    public PlanPageRes findIsCompelete(Long memberId, Pageable page, Boolean compelete){
+        Member member = memberService.findMemberById(memberId);
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<Plan> planPage;
         List<PlanRes> planResList;
@@ -372,7 +384,7 @@ public class PlanService {
         return OpenPlanPageRes.of(openPlanResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
     }
 
-    public void savePlaceByDay(List<DailyPlace> places, Member member,Plan plan){
+    public void savePlaceByDay(List<DailyPlace> places, Member member, Plan plan){
         for(DailyPlace dailyPlace : places){
             for(Long placeId : dailyPlace.places()){
                 Place place = placeRepository.findById(placeId).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));

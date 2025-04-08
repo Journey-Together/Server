@@ -7,6 +7,7 @@ import Journey.Together.domain.bookbark.entity.PlanBookmark;
 import Journey.Together.domain.bookbark.entity.PlanBookmarkRes;
 import Journey.Together.domain.bookbark.repository.PlaceBookmarkRepository;
 import Journey.Together.domain.bookbark.repository.PlanBookmarkRepository;
+import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.repository.DayRepository;
@@ -39,12 +40,14 @@ public class BookmarkService {
     private final DayRepository dayRepository;
     private final PlanRepository planRepository;
 
+    private final MemberService memberService;
 
     private final S3Client s3Client;
 
 
     //북마크한 여행지 이름만 가져오기
-    public List<PlaceBookmarkDto> getBookmarkPlaceNames(Member member){
+    public List<PlaceBookmarkDto> getBookmarkPlaceNames(Long memberId){
+        Member member = memberService.findMemberById(memberId);
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByMemberOrderByPlaceNameAsc(member);
         if(placeBookmarkList.isEmpty() || placeBookmarkList==null)
             return new ArrayList<>();
@@ -55,8 +58,9 @@ public class BookmarkService {
 
     @Transactional
     // 북마크 상태변경
-    public void placeBookmark(Member member, Long placeId){
+    public void placeBookmark(Long memberId, Long placeId){
         Place place = getPlace(placeId);
+        Member member = memberService.findMemberById(memberId);
 
         PlaceBookmark placeBookmark = placeBookmarkRepository.findPlaceBookmarkByPlaceAndMember(place, member);
         if (placeBookmark == null) {
@@ -73,7 +77,8 @@ public class BookmarkService {
 
     @Transactional
     // 북마크 상태변경
-    public void planBookmark(Member member, Long planId){
+    public void planBookmark(Long memberId, Long planId){
+        Member member = memberService.findMemberById(memberId);
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
 
@@ -92,7 +97,8 @@ public class BookmarkService {
 
     @Transactional
     // 북마크 상태변경
-    public PlanBookMarkStateRes findPlanBookmark(Member member, Long planId){
+    public PlanBookMarkStateRes findPlanBookmark(Long memberId, Long planId){
+        Member member = memberService.findMemberById(memberId);
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_PLAN_EXCEPTION));
         PlanBookmark planBookmark = planBookmarkRepository.findPlanBookmarkByPlanAndMember(plan, member);
@@ -109,8 +115,9 @@ public class BookmarkService {
                 ()->new ApplicationException(ErrorCode.NOT_FOUND_PLACE_EXCEPTION));
     }
 
-    public List<PlaceBookmarkRes> getPlaceBookmarks(Member member) {
+    public List<PlaceBookmarkRes> getPlaceBookmarks(Long memberId) {
         List<PlaceBookmarkRes> list = new ArrayList<>();
+        Member member = memberService.findMemberById(memberId);
 
         List<PlaceBookmark> placeBookmarkList = placeBookmarkRepository.findAllByMemberOrderByCreatedAtDesc(member);
         placeBookmarkList.forEach(
@@ -123,18 +130,19 @@ public class BookmarkService {
         return list;
     }
 
-    public List<PlanBookmarkRes> getPlanBookmarks(Member member) {
+    public List<PlanBookmarkRes> getPlanBookmarks(Long memberId) {
         List<PlanBookmarkRes> list = new ArrayList<>();
+        Member member = memberService.findMemberById(memberId);
 
         List<PlanBookmark> planBookmarkList = planBookmarkRepository.findAllByMemberOrderByCreatedAtDesc(member);
         planBookmarkList.forEach( planBookmark -> {
-            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),s3Client.getUrl()+planBookmark.getPlan().getMember().getProfileUuid()+"/profile_"+planBookmark.getPlan().getMember().getProfileUuid(),getPlanImageUrl(member, planBookmark.getPlan())));
+            list.add(PlanBookmarkRes.of(planBookmark.getPlan(),s3Client.getUrl()+planBookmark.getPlan().getMember().getProfileUuid()+"/profile_"+planBookmark.getPlan().getMember().getProfileUuid(),getPlanImageUrl(planBookmark.getPlan())));
         });
 
         return list;
     }
 
-    private String getPlanImageUrl(Member member, Plan plan){
+    private String getPlanImageUrl(Plan plan){
         List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
         if (dayList.isEmpty() || dayList == null) {
             return null;

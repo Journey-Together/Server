@@ -26,7 +26,7 @@ public class MyPageController {
 
     @GetMapping
     public ApiResponse<MyPageRes> getMyPage(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ApiResponse.success(Success.GET_MYPAGE_SUCCESS, memberService.getMypage(principalDetails.getMember()));
+        return ApiResponse.success(Success.GET_MYPAGE_SUCCESS, memberService.getMypage(principalDetails.getMemberId()));
     }
 
 }

@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        // 토큰이 존재할 경우, Authentication에 인증 정보 저장 및 로그 출력
+        // 토큰이 존재할 경우, Authentication에 인증 정보 저장
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);

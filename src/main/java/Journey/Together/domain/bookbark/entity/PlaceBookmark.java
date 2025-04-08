@@ -7,7 +7,12 @@ import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
