@@ -56,7 +56,7 @@ public class SecurityConfig {
         // 요청 URI별 권한 설정
         http.authorizeHttpRequests((authorize) ->
                 // Swagger UI 외부 접속 허용
-                authorize.requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                authorize.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // 로그인 로직 접속 허용
                         .requestMatchers("/v1/auth/**", "/oauth2/**", "/login.html").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
