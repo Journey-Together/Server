@@ -71,7 +71,7 @@ jobs:
             docker run --name $NEXT_NAME -p $NEXT_PORT:8080 \
               ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}
 
-            sleep 30
+            sleep 60
             if curl -f http://localhost:$NEXT_PORT/actuator/health; then
               ln -sf ~/nginx/$NEXT_CONF ~/nginx/nginx.conf
               docker restart nginx
