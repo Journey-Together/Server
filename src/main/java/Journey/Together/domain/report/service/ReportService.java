@@ -71,8 +71,8 @@ public class ReportService {
         }
     }
 
-    public ReportRes getReports(Member member, Boolean approval, String reason, String reviewType, Pageable pageable) {
-        if(!member.getMemberType().equals(MemberType.ADMIN)){
+    public ReportRes getReports(MemberType memberType, Boolean approval, String reason, String reviewType, Pageable pageable) {
+        if(!memberType.equals(MemberType.ADMIN)){
             throw new ApplicationException(ErrorCode.WRONG_ACCESS_EXCEPTION);
         }
 
@@ -102,8 +102,8 @@ public class ReportService {
     }
 
     @Transactional
-    public void setApprovalStatus(Member member, ApprovalDto approvalDto) {
-        if(!member.getMemberType().equals(MemberType.ADMIN)){
+    public void setApprovalStatus(MemberType memberType, ApprovalDto approvalDto) {
+        if(!memberType.equals(MemberType.ADMIN)){
             throw new ApplicationException(ErrorCode.WRONG_ACCESS_EXCEPTION);
         }
 

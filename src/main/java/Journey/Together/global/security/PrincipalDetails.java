@@ -1,6 +1,7 @@
 package Journey.Together.global.security;
 
 import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.member.enumerate.MemberType;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,39 +15,38 @@ import java.util.Map;
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Getter
-    private final Member member;
+    private String email;
+
+    @Getter
+    private MemberType memberType;
+
+    @Getter
+    private Long memberId;
     private Map<String, Object> attributes;
 
     // 일반 로그인
-    public PrincipalDetails(Member member) {
-        this.member = member;
-    }
-
-    // OAuth 로그인
-    public PrincipalDetails(Member member, Map<String, Object> attributes) {
-        this.member = member;
-        this.attributes = attributes;
+    public PrincipalDetails(String email, MemberType memberType, Long memberId) {
+        this.email = email;
+        this.memberType = memberType;
+        this.memberId = memberId;
     }
 
     // 권한 정보 반환 (GENERAL, ADMIN 중 하나)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority(String.valueOf(member.getMemberType())));
+        authorities.add(new SimpleGrantedAuthority(String.valueOf(memberType)));
 
         return authorities;
     }
 
-    // 사용자의 비밀번호 반환
-    @Override
-    public String getPassword() {
-        return member.getPassword();
-    }
-
     // 사용자의 이름 반환
     @Override
-    public String getUsername() {
-        return member.getName();
+    public String getUsername() { return null; }
+
+    @Override
+    public String getPassword() {
+        return null;  // 패스워드는 JWT 인증 방식에서 필요하지 않음
     }
 
     // 계정이 잠기지 않았으므로 true 반환

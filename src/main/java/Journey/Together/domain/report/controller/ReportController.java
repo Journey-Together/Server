@@ -38,13 +38,13 @@ public class ReportController {
                                              @PageableDefault(size = 10,page = 0) Pageable pageable
                                      ){
         return ApiResponse.success(Success.CREATE_RERORT_SUCCESS,
-                reportService.getReports(principalDetails.getMember(), approval, reason, reviewType, pageable));
+                reportService.getReports(principalDetails.getMemberType(), approval, reason, reviewType, pageable));
     }
 
     @PatchMapping()
     public ApiResponse<?> setAprrovalStatus(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                             @RequestBody ApprovalDto approvalDto){
-            reportService.setApprovalStatus(principalDetails.getMember(), approvalDto);
+            reportService.setApprovalStatus(principalDetails.getMemberType(), approvalDto);
         return ApiResponse.success(Success.UPDATE_APPROVAL_SUCCESS);
     }
 

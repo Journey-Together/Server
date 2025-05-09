@@ -1,6 +1,8 @@
 package Journey.Together.domain.place.service;
 
 import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.member.enumerate.MemberType;
+import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.request.UpdateReviewDto;
 import Journey.Together.domain.place.dto.response.*;
@@ -24,9 +26,11 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.monitor.os.OsStats;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.data.domain.Pageable;
 import Journey.Together.global.exception.Success;
+import Journey.Together.global.security.PrincipalDetails;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +58,8 @@ public class PlaceService {
     private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
     private final PlaceBookmarkRepository placeBookmarkRepository;
 
+    private final MemberService memberService;
+
     private final RestHighLevelClient client;
     private final S3Client s3Client;
 
@@ -75,8 +81,8 @@ public class PlaceService {
     }
 
     //여행지 상세 정보 가져오기
-    public PlaceDetailRes getPlaceDetail(Member member, Long placeId){
-       // PlaceDetailRes of(Place place, Boolean isMark, Integer bookmarkNum, List<String> disability, List<String> subDisability, List< PlaceReviewDto > reviewList)
+    public PlaceDetailRes getPlaceDetail(Long memberId, Long placeId){
+        Member member = memberService.findMemberById(memberId);
 
         Boolean isReview = false;
         Boolean isMark = false;
@@ -183,8 +189,9 @@ public class PlaceService {
 
     //여행지 후기 생성
     @Transactional
-    public void createReview(Member member, List<MultipartFile> images, PlaceReviewReq placeReviewReq, Long placeId){
+    public void createReview(Long memberId, List<MultipartFile> images, PlaceReviewReq placeReviewReq, Long placeId){
         Place place = getPlace(placeId);
+        Member member = memberService.findMemberById(memberId);
 
         if(placeReviewRepository.findPlaceReviewByMemberAndPlace(member,place) != null)
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
@@ -216,8 +223,10 @@ public class PlaceService {
     }
 
     //관광지 후기 가져오기
-    public PlaceReviewRes getReviews(Member member,Long placeId, Pageable page){
+    public PlaceReviewRes getReviews(Long memberId,Long placeId, Pageable page){
         Place place = getPlace(placeId);
+        Member member = memberService.findMemberById(memberId);
+
         List<PlaceReivewListDto> placeReviewList =new ArrayList<>();
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByPlaceAndReportIsNullOrReportFalseOrderByCreatedAtDesc(place, pageable);
@@ -251,7 +260,8 @@ public class PlaceService {
 
     }
     //나의 여행지 후기
-    public MyPlaceReviewRes getMyReviews(Member member, Pageable page){
+    public MyPlaceReviewRes getMyReviews(Long memberId, Pageable page){
+        Member member = memberService.findMemberById(memberId);
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<PlaceReview> placeReviewPage = placeReviewRepository.findAllByMemberOrderByCreatedAtDesc(member, pageable);
 
@@ -264,13 +274,13 @@ public class PlaceService {
 
     //나의 여행지 후기 삭제
     @Transactional
-    public void deleteMyPlaceReview(Member member, Long reviewId){
+    public void deleteMyPlaceReview(Long memberId, Long reviewId){
 
         PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
                 () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
 
-        if(placeReview.getMember() != member){
-            new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        if(!Objects.equals(placeReview.getMember().getMemberId(), memberId)){
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
         placeReviewImgRepository.findAllByPlaceReview(placeReview).forEach(
                 placeReviewImg -> s3Client.delete(StringUtils.substringAfter(placeReviewImg.getImgUrl(), partToFind))
@@ -282,12 +292,12 @@ public class PlaceService {
     }
 
     //나의 여행지 후기 보기(1개)
-    public MyReview getReview(Member member, Long reviewId){
+    public MyReview getReview(Long memberId, Long reviewId){
         PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
                 () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
 
-        if(placeReview.getMember() != member){
-            new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
+        if(!Objects.equals(placeReview.getMember().getMemberId(), memberId)){
+            throw new ApplicationException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
 
         List<String> list = placeReviewImgRepository.findAllByPlaceReview(placeReview)
@@ -345,11 +355,11 @@ public class PlaceService {
     }
 
     @Transactional
-    public void updateMyPlaceReview(Member member, UpdateReviewDto updateReviewDto, List<MultipartFile> addImages, Long reviewId) {
+    public void updateMyPlaceReview(Long memberId, UpdateReviewDto updateReviewDto, List<MultipartFile> addImages, Long reviewId) {
         PlaceReview placeReview = placeReviewRepository.findById(reviewId).orElseThrow(
                 () -> new ApplicationException(ErrorCode.NOT_FOUND_PLACE_REVIEW_EXCEPTION));
 
-        if(placeReview.getMember().getMemberId() != member.getMemberId()){
+        if(!Objects.equals(placeReview.getMember().getMemberId(), memberId)){
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
@@ -357,7 +367,7 @@ public class PlaceService {
             try {
                 for(MultipartFile file : addImages) {
                     String uuid = UUID.randomUUID().toString();
-                    final String imageUrl = s3Client.upload(file, POST_IMAGE_FOLDER_NAME+member.getMemberId(), uuid);
+                    final String imageUrl = s3Client.upload(file, POST_IMAGE_FOLDER_NAME+memberId, uuid);
                     PlaceReviewImg placeReviewImg = PlaceReviewImg.builder().placeReview(placeReview).imgUrl(imageUrl).build();
                     placeReviewImgRepository.save(placeReviewImg);
                 }

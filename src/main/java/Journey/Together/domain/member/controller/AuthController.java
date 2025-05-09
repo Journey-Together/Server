@@ -40,14 +40,14 @@ public class AuthController {
     @PostMapping("/sign-out")
     public ApiResponse<Void> signOut(HttpServletRequest request, @AuthenticationPrincipal PrincipalDetails principalDetails) {
         String token = request.getHeader("Authorization");
-        authService.signOut(token, principalDetails.getMember());
+        authService.signOut(token, principalDetails.getMemberId());
         return ApiResponse.success(Success.SIGNOUT_SUCCESS);
     }
 
     @Operation(summary = "회원탈퇴 API", description = "회원탈퇴 등록")
     @DeleteMapping("/withdrawal")
     public ApiResponse<Void> withdrawal(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        authService.withdrawal(principalDetails.getMember());
+        authService.withdrawal(principalDetails.getMemberId());
         return ApiResponse.success(Success.DELETE_USER_SUCCESS);
     }
 
@@ -59,6 +59,6 @@ public class AuthController {
         if (token == null || !token.startsWith("Bearer ")) {
             return ApiResponse.success(Success.LOGIN_SUCCESS);
         }
-        return ApiResponse.success(Success.RE_ISSUE_TOKEN_SUCCESS,authService.reissue(token, principalDetails.getMember()));
+        return ApiResponse.success(Success.RE_ISSUE_TOKEN_SUCCESS,authService.reissue(token, principalDetails.getMemberId()));
     }
 }

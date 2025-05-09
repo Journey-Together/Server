@@ -22,25 +22,25 @@ public class MemberController {
 
     @PatchMapping ("")
     public ApiResponse saveMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestPart(required = false) MultipartFile profileImage, @RequestPart(required = false) MemberReq memberReq) {
-        memberService.saveInfo(principalDetails.getMember(),profileImage,memberReq);
+        memberService.saveInfo(principalDetails.getMemberId(),profileImage,memberReq);
         return ApiResponse.success(Success.UPDATE_USER_INFO_SUCCESS);
     }
 
     @GetMapping("")
     public ApiResponse<MemberRes> findMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails){
-        MemberRes memberRes = memberService.findMemberInfo(principalDetails.getMember());
+        MemberRes memberRes = memberService.findMemberInfo(principalDetails.getMemberId());
         return ApiResponse.success(Success.GET_MYPAGE_SUCCESS,memberRes);
     }
 
     @PatchMapping("/interest-type")
     public ApiResponse updateInterestType(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody InterestDto interestDto) {
-        memberService.updateMemberInterest(principalDetails.getMember(),interestDto);
+        memberService.updateMemberInterest(principalDetails.getMemberId(),interestDto);
         return ApiResponse.success(Success.UPDATE_USER_INFO_SUCCESS);
     }
 
     @GetMapping("/interest-type")
     public ApiResponse<InterestDto> findInterestType(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        InterestDto interestDto = memberService.findMemberInterest(principalDetails.getMember());
+        InterestDto interestDto = memberService.findMemberInterest(principalDetails.getMemberId());
         return ApiResponse.success(Success.GET_USER_INTEREST_SUCCESS,interestDto);
     }
 }

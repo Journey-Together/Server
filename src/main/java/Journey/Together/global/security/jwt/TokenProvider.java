@@ -142,8 +142,8 @@ public class TokenProvider {
     public Authentication getAuthentication(String token) {
         String email = getEmail(token);
         MemberType memberType = getType(token);
-        Member member = memberRepository.findMemberByEmailAndMemberTypeAndDeletedAtIsNull(email, memberType).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
-        PrincipalDetails principalDetails = new PrincipalDetails(member);
+        Long memberId = getId(token);
+        PrincipalDetails principalDetails = new PrincipalDetails(email, memberType, memberId);
 
         return new UsernamePasswordAuthenticationToken(principalDetails, "", principalDetails.getAuthorities());
     }
@@ -167,6 +167,16 @@ public class TokenProvider {
     }
 
     /**
+     * 토큰에서 id 정보 반환
+     *
+     * @param token - 일반적으로 액세스 토큰 / 토큰 재발급 요청 시에는 리프레쉬 토큰이 들어옴
+     * @return 사용자의 id 반환
+     */
+    public Long getId(String token) {
+        return Long.valueOf(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("id").toString());
+    }
+
+    /**
      * 토큰의 만료기한 반환
      * @param token - 일반적으로 액세스 토큰 / 토큰 재발급 요청 시에는 리프레쉬 토큰이 들어옴
      * @return 해당 토큰의 만료정보를 반환
@@ -178,11 +188,12 @@ public class TokenProvider {
     /**
      * Claims 정보 생성
      * @param member - 사용자 정보 중 사용자를 구분할 수 있는 정보 두 개를 활용함
-     * @return 사용자 구분 정보인 이메일과 역할을 저장한 Claims 객체 반환
+     * @return 사용자 구분 정보인 이메일과 역할과 id를 저장한 Claims 객체 반환
      */
     private Claims getClaims(Member member) {
         Claims claims = Jwts.claims().setSubject(member.getEmail());
         claims.put("role", member.getMemberType());
+        claims.put("id", member.getMemberId());
 
         return claims;
     }
