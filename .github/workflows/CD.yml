@@ -80,7 +80,9 @@ jobs:
 
             if curl -f http://localhost:$NEXT_PORT/actuator/health; then
               ln -sf ~/nginx/$NEXT_CONF ~/nginx/nginx.conf
-              docker restart nginx
+              docker stop nginx && docker rm nginx
+              docker run -d --name nginx --network app-network -p 80:80 \
+                -v ~/nginx/nginx.conf:/etc/nginx/nginx.conf nginx
               docker stop $CURRENT_NAME && docker rm $CURRENT_NAME
             else
               docker stop $NEXT_NAME && docker rm $NEXT_NAME
