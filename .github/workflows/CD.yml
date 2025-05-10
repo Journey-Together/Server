@@ -68,7 +68,7 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}
 
             docker stop $NEXT_NAME || true && docker rm $NEXT_NAME || true
-            docker run -d --name $NEXT_NAME -p $NEXT_PORT:8080 ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}
+            docker run -d --name $NEXT_NAME --network app-network -p $NEXT_PORT:8080 ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}
     
             for i in {1..24}; do
               if curl -fs http://localhost:$NEXT_PORT/actuator/health; then
