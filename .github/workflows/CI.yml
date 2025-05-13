@@ -1,13 +1,14 @@
-
-name: AWS EC2 Deploy
+name: CI with Gradle
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
+permissions: write-all
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -30,54 +31,12 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
       - name: Make application.yml
         run: |
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_SECRET }}" > src/main/resources/application-release.yml
         shell: bash
 
-
-      - name: BootJar with Gradle
-        run: ./gradlew clean bootJar -Dspring.profiles.active=release
-      - name: Docker Image push
-        run: |
-          docker buildx create --use
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-          docker buildx build --platform linux/amd64 \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }} \
-            --push .
-
-      - name: Blue-Green Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.EC2_SERVER_IP }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            if docker ps | grep app-blue; then
-              NEXT_PORT=8081
-              NEXT_NAME=app-green
-              NEXT_CONF=green.conf
-              CURRENT_NAME=app-blue
-            else
-              NEXT_PORT=8080
-              NEXT_NAME=app-blue
-              NEXT_CONF=blue.conf
-              CURRENT_NAME=app-green
-            fi
-
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}
-
-            docker stop $NEXT_NAME || true && docker rm $NEXT_NAME || true
-            docker run -d --name $NEXT_NAME -p $NEXT_PORT:8080 \
-              ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}
-
-            sleep 30
-            if curl -f http://localhost:$NEXT_PORT/actuator/health; then
-              ln -sf ~/nginx/$NEXT_CONF ~/nginx/nginx.conf
-              docker restart nginx
-              docker stop $CURRENT_NAME && docker rm $CURRENT_NAME
-            else
-              docker stop $NEXT_NAME && docker rm $NEXT_NAME
-              exit 1
-            fi
+      - name: Build with Gradle
+        run: ./gradlew clean bootJar
