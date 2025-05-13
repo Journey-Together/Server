@@ -6,6 +6,7 @@ import Journey.Together.domain.report.dto.ReportRes;
 import Journey.Together.domain.report.enumerate.ReviewType;
 import Journey.Together.domain.report.service.ReportService;
 import Journey.Together.global.common.ApiResponse;
+import Journey.Together.global.config.PublicEndpoint;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/report")
+@PublicEndpoint
 @Tag(name = "Report", description = "신고하기 관련 API")
 public class ReportController {
     private final ReportService reportService;

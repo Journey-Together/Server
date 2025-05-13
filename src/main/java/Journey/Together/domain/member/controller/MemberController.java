@@ -5,6 +5,7 @@ import Journey.Together.domain.member.dto.MemberReq;
 import Journey.Together.domain.member.dto.MemberRes;
 import Journey.Together.domain.member.service.MemberService;
 import Journey.Together.global.common.ApiResponse;
+import Journey.Together.global.config.PublicEndpoint;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@PublicEndpoint
 @RequestMapping("/v1/member")
 @Tag(name = "Member", description = "사용자 관련 API")
 public class MemberController {

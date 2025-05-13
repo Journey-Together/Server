@@ -25,7 +25,6 @@ public class JwtFilter extends OncePerRequestFilter {
         //jwt 유효성 검사를 하지않음
         if ("/v1/auth/sign-in".equals(requestURI) || "/actuator/health".equals(requestURI)
                 || "/v1/place/main".equals(requestURI)) {
-
             filterChain.doFilter(request, response);
             return;
         }
