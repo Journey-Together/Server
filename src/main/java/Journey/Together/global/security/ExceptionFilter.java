@@ -1,24 +1,38 @@
 package Journey.Together.global.security;
 
+import Journey.Together.global.common.DiscordErrorSender;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import Journey.Together.global.external.DiscordClient;
+import Journey.Together.global.external.dto.DiscordMessage;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class ExceptionFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
+    private final DiscordErrorSender discordErrorSender;
 
     // Jwt Filter에서 발생하는 Exception Handling
     @Override
@@ -26,6 +40,7 @@ public class ExceptionFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (ApplicationException e) {
+            discordErrorSender.sendDiscordAlarm(e, new ServletWebRequest(request));
             setResponse(response);
         }
     }
@@ -39,5 +54,6 @@ public class ExceptionFilter extends OncePerRequestFilter {
         String errorJson = objectMapper.writeValueAsString(errorResponse);
 
         response.getWriter().write(errorJson);
+
     }
 }
