@@ -3,8 +3,10 @@ package Journey.Together.global.common;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
@@ -21,13 +23,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DiscordErrorSender {
 	private final DiscordClient discordClient;
+	private final Environment environment;
 
 	public void sendDiscordAlarm(Exception e, WebRequest request) {
-		try {
-			discordClient.sendAlarm(createMessage(e, request));
-		} catch (Exception ex) {
-			log.error("❌ Discord 알림 전송 실패: {}", ex.getMessage());
+		if (Arrays.asList(environment.getActiveProfiles()).get(0).contains("dev")) {
+			try {
+				discordClient.sendAlarm(createMessage(e, request));
+			} catch (Exception ex) {
+				log.error("❌ Discord 알림 전송 실패: {}", ex.getMessage());
+			}
 		}
+
 	}
 
 	private DiscordMessage createMessage(Exception e, WebRequest request) {
@@ -45,7 +51,7 @@ public class DiscordErrorSender {
 								+ "\n### 🔗 요청 URL\n"
 								+ createRequestFullPath(request)
 								+ "\n### 📄 ErrorCode\n"
-								+  "[" + appEx.getErrorCode().getCode() + "] "
+								+ "[" + appEx.getErrorCode().getCode() + "] "
 								+ appEx.getErrorCode().getMessage()
 								+ "\n### 📄 StackTrace\n"
 								+ "```\n"
