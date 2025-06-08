@@ -41,7 +41,7 @@ public class DiscordErrorSender {
 
 		if (e instanceof ApplicationException appEx) {
 			message = DiscordMessage.builder()
-				.content("# 🚨 ApplicationException 발생")
+				.content("# 🚨 에러 발생 🚨")
 				.embeds(List.of(
 					DiscordMessage.Embed.builder()
 						.title("❗️ 에러 정보")
@@ -61,9 +61,8 @@ public class DiscordErrorSender {
 				))
 				.build();
 		} else {
-			// 일반적인 예외는 메시지와 스택트레이스만 전송
 			message = DiscordMessage.builder()
-				.content("# 🚨 예외 발생")
+				.content("# 🚨🚨🚨 정의되지 않은 에러 발생 🚨🚨🚨")
 				.embeds(List.of(
 					DiscordMessage.Embed.builder()
 						.title("❗️ 에러 정보")

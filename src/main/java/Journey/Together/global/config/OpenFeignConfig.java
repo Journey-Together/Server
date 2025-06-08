@@ -5,21 +5,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import feign.Logger;
-import feign.RequestInterceptor;
 
 @Configuration
 @EnableFeignClients(basePackages = "Journey.Together.global.external")
-public class DiscordFeignConfiguration {
+public class OpenFeignConfig {
 
     @Bean
-    public Logger.Level feignLoggerLevel() {
+    Logger.Level feignLoggerLevel() {
         return Logger.Level.BASIC;
-    }
-
-    @Bean
-    public RequestInterceptor discordRequestInterceptor() {
-        return template -> {
-            template.header("Content-Type", "application/json");
-        };
     }
 }
