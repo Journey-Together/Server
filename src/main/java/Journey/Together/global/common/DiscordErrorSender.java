@@ -26,7 +26,7 @@ public class DiscordErrorSender {
 	private final Environment environment;
 
 	public void sendDiscordAlarm(Exception e, WebRequest request) {
-		if (Arrays.asList(environment.getActiveProfiles()).get(0).contains("dev")) {
+		if (Arrays.asList(environment.getActiveProfiles()).get(0).contains("release")) {
 			try {
 				discordClient.sendAlarm(createMessage(e, request));
 			} catch (Exception ex) {
