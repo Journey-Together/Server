@@ -9,7 +9,7 @@ import Journey.Together.global.external.dto.DiscordMessage;
 
 @FeignClient(
 	name = "discord-client",
-	url = "https://discord.com/api/webhooks/1380907427234582722/ZYXX60PqalyHfCxxC5Vh38lF2IInXw_l1lQjEoNgQUR_IXoM8bHIKMwohUi6dZLZRAh4",
+	url = "${discord.webhook-url}",
 	configuration = OpenFeignConfig.class)
 public interface DiscordClient {
 
