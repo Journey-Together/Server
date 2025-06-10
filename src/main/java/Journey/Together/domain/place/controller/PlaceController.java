@@ -11,6 +11,8 @@ import Journey.Together.domain.place.dto.response.SearchPlaceRes;
 import Journey.Together.domain.place.service.DataMigrationService;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.global.common.ApiResponse;
+import Journey.Together.global.exception.ApplicationException;
+import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
