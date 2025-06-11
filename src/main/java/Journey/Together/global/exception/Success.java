@@ -16,7 +16,7 @@ public enum Success {
 	CREATE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 생성 성공"),
 	CREATE_PLACE_REVIEW_SUCCESS(HttpStatus.CREATED, "리뷰 작성 성공"),
 	CREATE_RERORT_SUCCESS(HttpStatus.CREATED, "신고 성공"),
-
+	CREATE_SUCCESS(HttpStatus.CREATED, "데이터 생성 성공"),
 	/**
 	 * 200 OK
 	 */

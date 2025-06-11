@@ -18,4 +18,6 @@ public class DisabilitySubCategory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id") // 외래 키
     private DisabilityCategory category;
+
+
 }

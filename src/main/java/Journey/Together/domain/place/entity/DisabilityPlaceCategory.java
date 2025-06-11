@@ -28,8 +28,9 @@ public class DisabilityPlaceCategory {
     private String description;
 
     @Builder
-    public DisabilityPlaceCategory(Place place, DisabilitySubCategory subCategory){
+    public DisabilityPlaceCategory(Place place, DisabilitySubCategory subCategory, String description){
         this.place=place;
         this.subCategory=subCategory;
+        this.description =description;
     }
 }

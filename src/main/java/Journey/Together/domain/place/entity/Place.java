@@ -56,9 +56,29 @@ public class Place {
         this.areaCode = areaCode;
         this.sigunguCode = sigunguCode;
     }
+    @Builder
+    public Place(Long id, String name, String address, String firstImg, String category, Double mapX, Double mapY,
+        String createdAt, String overview, String areaCode, String sigunguCode, String tel, String homepage) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.firstImg = firstImg;
+        this.category = category;
+        this.mapX = mapX;
+        this.mapY = mapY;
+        this.createdAt = createdAt;
+        this.overview = overview;
+        this.areaCode = areaCode;
+        this.sigunguCode = sigunguCode;
+        this.tel = tel;
+        this.homepage = homepage;
+    }
 
     public Long getId() {
         return id;
     }
 
+    public void setDisabilityCategories(Set<DisabilityPlaceCategory> placeDisabilityCategories){
+        this.placeDisabilityCategories = placeDisabilityCategories;
+    }
 }

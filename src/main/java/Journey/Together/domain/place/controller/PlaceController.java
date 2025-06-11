@@ -10,6 +10,7 @@ import Journey.Together.domain.place.dto.response.PlaceRes;
 import Journey.Together.domain.place.dto.response.SearchPlaceRes;
 import Journey.Together.domain.place.service.DataMigrationService;
 import Journey.Together.domain.place.service.PlaceService;
+import Journey.Together.domain.place.service.PublicDataService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
@@ -39,6 +40,7 @@ import java.util.Map;
 public class PlaceController {
 
     private final PlaceService placeService;
+    private final PublicDataService publicDataService;
     private final DataMigrationService dataMigrationService;
 
     @GetMapping("/main")
@@ -149,4 +151,9 @@ public class PlaceController {
         return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS);
     }
 
+    @PostMapping("/internal/public-data")
+    public ApiResponse<?> savePublicData(@AuthenticationPrincipal PrincipalDetails principalDetails){
+        publicDataService.savePublicData(principalDetails.getMember());
+        return ApiResponse.success(Success.CREATE_SUCCESS);
+    }
 }
