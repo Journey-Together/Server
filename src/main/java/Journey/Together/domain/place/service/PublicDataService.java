@@ -45,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PublicDataService {
 
-	@Value("${publicdata.tourism.service-key}")
+	@Value("${public-data.tourism.service-key}")
 	private String serviceKey;
 
 	private static final int NUM_OF_ROWS = 100;
@@ -132,7 +132,7 @@ public class PublicDataService {
 	public List<String> getCategoryCodes() {
 		try {
 			ResponsePublicData<ResponseCode> categoryCodes = publicVisitKoreaClient.fetchCategoryCode(
-				RequestCode.of(serviceKey, NUM_OF_ROWS, INITIAL_PAGE_NO));
+				RequestCode.of(serviceKey, NUM_OF_ROWS, INITIAL_PAGE_NO).toMap());
 			return extractItems(categoryCodes).stream()
 				.map(ResponseCode::code).toList();
 		} catch (Exception e) {
@@ -144,7 +144,7 @@ public class PublicDataService {
 	public List<String> getDongCodes() {
 		try {
 			ResponsePublicData<ResponseCode> dongCodes = publicVisitKoreaClient.fetchDongCode(
-				RequestCode.of(serviceKey, NUM_OF_ROWS, INITIAL_PAGE_NO));
+				RequestCode.of(serviceKey, NUM_OF_ROWS, INITIAL_PAGE_NO).toMap());
 			return extractItems(dongCodes).stream()
 				.map(ResponseCode::code).toList();
 		} catch (Exception e) {
@@ -156,10 +156,10 @@ public class PublicDataService {
 	public List<ResponseBasicData> getBasicData(int pageNo, String dongCode, String categoryCode) {
 		try {
 			ResponsePublicData<ResponseBasicData> response = publicVisitKoreaClient.fetchBasicData(
-				RequestBasicData.of(dongCode, categoryCode, serviceKey, NUM_OF_ROWS, pageNo));
+				RequestBasicData.of(dongCode, categoryCode, serviceKey, NUM_OF_ROWS, pageNo).toMap());
 			return extractItems(response);
 		} catch (Exception e) {
-			log.error("기본 관광 데이터 호출 실패", e);
+			log.error("["+ dongCode + "][" + categoryCode + "] no."+ pageNo +" 기본 관광 데이터 호출 실패", e);
 			return Collections.emptyList();
 		}
 	}
@@ -167,10 +167,10 @@ public class PublicDataService {
 	public List<ResponseDataDetail> getDetailData(Long contendId) {
 		try {
 			ResponsePublicData<ResponseDataDetail> response = publicVisitKoreaClient.fetchDataDetail(
-				RequestDetailData.of(serviceKey, contendId));
+				RequestDetailData.of(serviceKey, contendId).toMap());
 			return extractItems(response);
 		} catch (Exception e) {
-			log.error("상세 관광 데이터 호출 실패", e);
+			log.error("[" +contendId + "] 상세 관광 데이터 호출 실패", e);
 			return Collections.emptyList();
 		}
 	}
@@ -178,10 +178,10 @@ public class PublicDataService {
 	public List<ResponsePlaceDisabilityCategory> getDisabilityCategories(Long contendId) {
 		try {
 			ResponsePublicData<ResponsePlaceDisabilityCategory> response = publicVisitKoreaClient.fetchDisabilityCategoryData(
-				RequestDetailData.of(serviceKey, contendId));
+				RequestDetailData.of(serviceKey, contendId).toMap());
 			return extractItems(response);
 		} catch (Exception e) {
-			log.error("관광 장애 카테고리 데이터 호출 실패", e);
+			log.error( "[" +contendId + "] 관광 장애 카테고리 데이터 호출 실패", e);
 			return Collections.emptyList();
 		}
 	}
