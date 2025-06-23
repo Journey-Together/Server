@@ -26,38 +26,38 @@ public class BookmarkController {
     @GetMapping("/names")
     public ApiResponse<List<PlaceBookmarkDto>> getBookmarkPlaceNames(
             @AuthenticationPrincipal PrincipalDetails principalDetails){
-        return ApiResponse.success(Success.GET_BOOKMARK_PLACE_NAMES_SUCCESS, bookmarkService.getBookmarkPlaceNames(principalDetails.getMember()));
+        return ApiResponse.success(Success.GET_BOOKMARK_PLACE_NAMES_SUCCESS, bookmarkService.getBookmarkPlaceNames(principalDetails.getMemberId()));
     }
     @GetMapping("/place")
     public ApiResponse<List<PlaceBookmarkRes>> getPlaceBookmarks(
             @AuthenticationPrincipal PrincipalDetails principalDetails){
-        return ApiResponse.success(Success.GET_BOOKMARK_PLACES_SUCCESS, bookmarkService.getPlaceBookmarks(principalDetails.getMember()));
+        return ApiResponse.success(Success.GET_BOOKMARK_PLACES_SUCCESS, bookmarkService.getPlaceBookmarks(principalDetails.getMemberId()));
     }
 
     @GetMapping("/plan")
     public ApiResponse<List<PlanBookmarkRes>> getPlanBookmarks(
             @AuthenticationPrincipal PrincipalDetails principalDetails){
-        return ApiResponse.success(Success.GET_BOOKMARK_PLAN_SUCCESS, bookmarkService.getPlanBookmarks(principalDetails.getMember()));
+        return ApiResponse.success(Success.GET_BOOKMARK_PLAN_SUCCESS, bookmarkService.getPlanBookmarks(principalDetails.getMemberId()));
     }
 
     @PatchMapping("/place/{placeId}")
     public ApiResponse<?> updatePlaceBookmark(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long placeId){
-        bookmarkService.placeBookmark(principalDetails.getMember(), placeId);
+        bookmarkService.placeBookmark(principalDetails.getMemberId(), placeId);
         return ApiResponse.success(Success.CHANGE_BOOKMARK_SUCCESS);
     }
 
     @PatchMapping("/plan/{planId}")
     public ApiResponse<?> updatePlanBookmark(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long planId){
-        bookmarkService.planBookmark(principalDetails.getMember(), planId);
+        bookmarkService.planBookmark(principalDetails.getMemberId(), planId);
         return ApiResponse.success(Success.CHANGE_BOOKMARK_SUCCESS);
     }
 
     @GetMapping("/plan/{planId}")
     public ApiResponse<PlanBookMarkStateRes> findPlanBookmark(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long planId){
-        return ApiResponse.success(Success.GET_BOOKMARK_PLAN_STATE_SUCCESS,bookmarkService.findPlanBookmark(principalDetails.getMember(), planId));
+        return ApiResponse.success(Success.GET_BOOKMARK_PLAN_STATE_SUCCESS,bookmarkService.findPlanBookmark(principalDetails.getMemberId(), planId));
     }
 
 }
