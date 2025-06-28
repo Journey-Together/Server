@@ -12,7 +12,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import Journey.Together.global.exception.ApplicationException;
-import Journey.Together.global.external.DiscordClient;
+import Journey.Together.global.external.ErrorDiscordClient;
 import Journey.Together.global.external.dto.DiscordMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class DiscordErrorSender {
-	private final DiscordClient discordClient;
+	private final ErrorDiscordClient discordClient;
 	private final Environment environment;
 
 	public void sendDiscordAlarm(Exception e, WebRequest request) {

@@ -40,7 +40,6 @@ import java.util.Map;
 public class PlaceController {
 
     private final PlaceService placeService;
-    private final PublicDataService publicDataService;
     private final DataMigrationService dataMigrationService;
 
     @GetMapping("/main")
@@ -149,11 +148,5 @@ public class PlaceController {
     ) throws IOException {
         dataMigrationService.migrateData();
         return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS);
-    }
-
-    @PostMapping("/internal/public-data")
-    public ApiResponse<?> savePublicData(@AuthenticationPrincipal PrincipalDetails principalDetails){
-        publicDataService.savePublicData(principalDetails.getMember());
-        return ApiResponse.success(Success.CREATE_SUCCESS);
     }
 }

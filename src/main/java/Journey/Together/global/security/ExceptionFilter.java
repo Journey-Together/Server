@@ -6,8 +6,6 @@ import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import Journey.Together.global.external.DiscordClient;
-import Journey.Together.global.external.dto.DiscordMessage;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,14 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @Slf4j
