@@ -44,4 +44,9 @@ public interface PublicVisitKoreaClient {
 	/** 무장애정보 조회 **/
 	@GetMapping("/detailWithTour2")
 	ResponsePublicData<ResponsePlaceDisabilityCategory> fetchDisabilityCategoryData(@RequestParam Map<String, Object> params);
+
+	/** 무장애 여행정보 동기화 목록 조회*/
+	@GetMapping("/areaBasedSyncList2")
+	ResponsePublicData<ResponseBasicData> fetchSyncData(@RequestParam Map<String, Object> params);
+
 }

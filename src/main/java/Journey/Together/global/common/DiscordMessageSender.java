@@ -44,7 +44,7 @@ public class DiscordMessageSender {
 							+ LocalDateTime.now()
 							+ "\n"
 							+ "\n"
-							+ "###" + description
+							+ "### " + description
 							+ "\n")
 					.build()
 			)).build();

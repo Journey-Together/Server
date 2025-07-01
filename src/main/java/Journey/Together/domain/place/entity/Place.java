@@ -1,5 +1,6 @@
 package Journey.Together.domain.place.entity;
 
+import Journey.Together.global.external.dto.response.ResponseBasicData;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
