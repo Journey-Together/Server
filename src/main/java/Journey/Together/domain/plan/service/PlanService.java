@@ -3,21 +3,21 @@ package Journey.Together.domain.plan.service;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.validator.MemberValidator;
 import Journey.Together.domain.place.entity.Place;
-import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.entity.PlanReview;
 import Journey.Together.domain.plan.entity.PlanReviewImage;
-import Journey.Together.domain.plan.repository.DayRepository;
 import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
 import Journey.Together.domain.plan.repository.PlanReviewRepository;
 import Journey.Together.domain.plan.service.deleter.PlanDeleter;
 import Journey.Together.domain.plan.service.factory.PlanFactory;
+import Journey.Together.domain.plan.service.factory.PlanReviewFactory;
 import Journey.Together.domain.plan.service.modifier.PlanModifier;
 import Journey.Together.domain.plan.service.query.PlanDetailQueryService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
+import Journey.Together.domain.plan.service.validator.PlanReviewValidator;
 import Journey.Together.domain.plan.service.validator.PlanValidator;
 import Journey.Together.domain.plan.util.DateUtil;
 import Journey.Together.global.exception.ApplicationException;
@@ -44,21 +44,26 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlanService {
     private final PlanRepository planRepository;
-    private final DayRepository dayRepository;
     private final PlaceRepository placeRepository;
     private final PlanReviewRepository planReviewRepository;
     private final PlanReviewImageRepository planReviewImageRepository;
-    private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
 
     private final PlanPlaceService planPlaceService;
-    private final PlanFactory planFactory;
-    private final PlanValidator planValidator;
-    private final MemberValidator memberValidator;
-    private final PlanModifier planModifier;
     private final PlanQueryService planQueryService;
-    private final S3Client s3Client;
-    private final PlanDeleter planDeleter;
     private final PlanDetailQueryService planDetailQueryService;
+
+    private final PlanFactory planFactory;
+    private final PlanReviewFactory planReviewFactory;
+    private final PlanModifier planModifier;
+    private final PlanDeleter planDeleter;
+
+    private final PlanValidator planValidator;
+    private final PlanReviewValidator planReviewValidator;
+    private final MemberValidator memberValidator;
+
+    private final S3Client s3Client;
+
+
 
     @Transactional
     public void savePlan(Member member, PlanReq planReq) {
@@ -126,19 +131,11 @@ public class PlanService {
     public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq, List<MultipartFile> images) {
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member, planId, LocalDate.now());
-        if (plan == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-        }
-        if (planReviewRepository.existsAllByPlanAndDeletedAtIsNull(plan)) {
-            throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
-        }
+        planValidator.validateExists(plan);
+        planReviewValidator.validateExists(plan);
+
         //Business
-        PlanReview planReview = PlanReview.builder()
-                .member(member)
-                .grade(planReviewReq.grade())
-                .content(planReviewReq.content())
-                .plan(plan)
-                .build();
+        PlanReview planReview = planReviewFactory.createPlanReview(member,plan,planReviewReq);
         planReviewRepository.save(planReview);
 
         if (images != null) {
