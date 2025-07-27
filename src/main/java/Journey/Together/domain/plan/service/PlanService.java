@@ -2,7 +2,6 @@ package Journey.Together.domain.plan.service;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.validator.MemberValidator;
-import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.entity.Plan;
@@ -118,16 +117,6 @@ public class PlanService {
 
         //Response
         return planModifier.togglePublic(plan);
-    }
-
-    @Transactional
-    public PlaceInfoPageRes searchPlace(String word, Pageable page) {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<Place> placePage = placeRepository.findAllByNameContainsOrderByCreatedAtDesc(word, pageable);
-        List<PlaceInfo> placeInfoList = placePage.getContent().stream()
-                .map(PlaceInfo::of)
-                .collect(Collectors.toList());
-        return PlaceInfoPageRes.of(placeInfoList, placePage.getNumber(), placePage.getSize(), placePage.getTotalPages(), placePage.isLast(), placePage.getTotalElements());
     }
 
     @Transactional
