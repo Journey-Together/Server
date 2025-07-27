@@ -24,7 +24,7 @@ public class PlanReviewController {
     private final PlanReviewQueryService planReviewQueryService;
     private final PlanReviewService planReviewService;
 
-    @PostMapping("/review/{plan_id}")
+    @PostMapping("{plan_id}/reviews")
     public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart PlanReviewReq planReviewReq){
         planReviewService.savePlanReview(principalDetails.getMember(),planId,planReviewReq,images);
         return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
@@ -40,13 +40,13 @@ public class PlanReviewController {
         return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planReviewQueryService.getReview(null,planId));
     }
 
-    @PatchMapping("/review/{review_id}")
+    @PatchMapping("/reviews/{review_id}")
     public ApiResponse updatePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart(required = false) UpdatePlanReviewReq planReviewReq){
         planReviewService.updatePlanReview(principalDetails.getMember(),reviewId,planReviewReq,images);
         return ApiResponse.success(Success.UPDATE_REVIEW_SUCCESS);
     }
 
-    @DeleteMapping("/review/{review_id}")
+    @DeleteMapping("/reviews/{review_id}")
     public ApiResponse deletePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId){
         planReviewService.deletePlanReview(principalDetails.getMember(),reviewId);
         return ApiResponse.success(Success.DELETE_PLAN_REVIEW_SUCCESS);

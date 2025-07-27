@@ -2,23 +2,17 @@ package Journey.Together.domain.plan.service;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.validator.MemberValidator;
-import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.plan.dto.PlanDetailRes;
 import Journey.Together.domain.plan.dto.PlanReq;
 import Journey.Together.domain.plan.dto.PlanRes;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.repository.PlanRepository;
-import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
-import Journey.Together.domain.plan.repository.PlanReviewRepository;
 import Journey.Together.domain.plan.service.deleter.PlanDeleter;
 import Journey.Together.domain.plan.service.factory.PlanFactory;
-import Journey.Together.domain.plan.service.factory.PlanReviewFactory;
 import Journey.Together.domain.plan.service.modifier.PlanModifier;
 import Journey.Together.domain.plan.service.query.PlanDetailQueryService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
-import Journey.Together.domain.plan.service.validator.PlanReviewValidator;
 import Journey.Together.domain.plan.service.validator.PlanValidator;
-import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,27 +24,17 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class PlanService {
     private final PlanRepository planRepository;
-    private final PlaceRepository placeRepository;
-    private final PlanReviewRepository planReviewRepository;
-    private final PlanReviewImageRepository planReviewImageRepository;
 
     private final PlanPlaceService planPlaceService;
-    private final PlanReviewImageService planReviewImageService;
-
     private final PlanQueryService planQueryService;
     private final PlanDetailQueryService planDetailQueryService;
 
     private final PlanFactory planFactory;
-    private final PlanReviewFactory planReviewFactory;
     private final PlanModifier planModifier;
     private final PlanDeleter planDeleter;
 
     private final PlanValidator planValidator;
-    private final PlanReviewValidator planReviewValidator;
     private final MemberValidator memberValidator;
-
-    private final S3Client s3Client;
-
 
     @Transactional
     public void savePlan(Member member, PlanReq planReq) {

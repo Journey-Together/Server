@@ -47,7 +47,7 @@ public class PlanController {
         return ApiResponse.success(Success.DELETE_PLAN_SUCCESS);
     }
 
-    @PatchMapping("/{plan_id}/ispublic")
+    @PatchMapping("/{plan_id}/public")
     public ApiResponse updatePlanIsPublic(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable("plan_id") Long planId){
         return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS,planService.updatePlanIsPublic(principalDetails.getMember(),planId));
     }
