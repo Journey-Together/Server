@@ -148,37 +148,6 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanReviewRes findPlanReview(Member member, long planId) {
-        // Validation
-        Plan plan = planRepository.findPlanByPlanIdAndDeletedAtIsNull(planId);
-        if (plan == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-        }
-        PlanReview planReview = planReviewRepository.findPlanReview(plan);
-        //Buisness
-        boolean isWriter;
-        if (member == null) {
-            isWriter = false;
-        } else {
-            isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
-        }
-        String profileUrl = s3Client.baseUrl() + plan.getMember().getProfileUuid() + "/profile_" + plan.getMember().getProfileUuid();
-        if (planReview == null) {
-            //리뷰가 없을 경우
-            return PlanReviewRes.of(null, null, null, isWriter, false, null, profileUrl, null);
-        } else {
-            List<String> imageList = getReviewImageList(planReview);
-            //리뷰가 있고 신고 없을 경우
-            if (planReview.getReport() == null) {
-                return PlanReviewRes.of(planReview.getPlanReviewId(), planReview.getContent(), planReview.getGrade(), isWriter, true, imageList, profileUrl, null);
-            }
-            //리뷰가 있고 신고 비승인
-            return PlanReviewRes.of(planReview.getPlanReviewId(), planReview.getContent(), planReview.getGrade(), isWriter, true, imageList, profileUrl, planReview.getReport());
-        }
-
-    }
-
-    @Transactional
     public void updatePlanReview(Member member, Long reviewId, UpdatePlanReviewReq updatePlanReviewReq, List<MultipartFile> images) {
         // Validation
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
@@ -306,14 +275,5 @@ public class PlanService {
                 .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl() + plan.getMember().getProfileUuid() + "/profile_" + plan.getMember().getProfileUuid(), planQueryService.getFirstPlaceImageOfPlan(plan)))
                 .collect(Collectors.toList());
         return OpenPlanPageRes.of(openPlanResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
-    }
-
-    public List<String> getReviewImageList(PlanReview planReview) {
-        List<String> list = new ArrayList<>();
-        List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-        for (PlanReviewImage planReviewImage : planReviewImageList) {
-            list.add(planReviewImage.getImageUrl());
-        }
-        return list;
     }
 }

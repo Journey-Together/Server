@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,5 +28,12 @@ public class PlanReviewImageService {
                     .build();
             planReviewImageRepository.save(image);
         }
+    }
+
+    public List<String> getImageUrls(PlanReview planReview) {
+        return planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview)
+                .stream()
+                .map(PlanReviewImage::getImageUrl)
+                .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,7 @@ package Journey.Together.domain.plan.controller;
 
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.service.PlanService;
+import Journey.Together.domain.plan.service.query.PlanReviewQueryService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
@@ -21,6 +22,8 @@ import java.util.List;
 @Tag(name = "Plan", description = "일정 관련 API")
 public class PlanController {
     private final PlanService planService;
+    private final PlanReviewQueryService planReviewQueryService;
+
     @PostMapping("")
     public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails,@RequestBody PlanReq planReq){
         planService.savePlan(principalDetails.getMember(),planReq);
@@ -62,7 +65,7 @@ public class PlanController {
 
     @GetMapping("/review/{plan_id}")
     public ApiResponse<PlanReviewRes> findPlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
-        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(principalDetails.getMember(),planId));
+        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planReviewQueryService.getReview(principalDetails.getMember(),planId));
     }
 
     @PatchMapping("/review/{review_id}")
@@ -79,7 +82,7 @@ public class PlanController {
 
     @GetMapping("/guest/review/{plan_id}")
     public ApiResponse<PlanReviewRes> findPlanReviewGuest(@PathVariable("plan_id")Long planId){
-        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(null,planId));
+        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planReviewQueryService.getReview(null,planId));
     }
 
     @GetMapping("/open")
