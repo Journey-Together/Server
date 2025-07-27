@@ -1,4 +1,4 @@
-package Journey.Together.domain.plan.factory;
+package Journey.Together.domain.plan.service.factory;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.place.entity.Place;

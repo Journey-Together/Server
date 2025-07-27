@@ -6,7 +6,7 @@ import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.plan.dto.DailyPlace;
 import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
-import Journey.Together.domain.plan.factory.PlanFactory;
+import Journey.Together.domain.plan.service.factory.PlanFactory;
 import Journey.Together.domain.plan.repository.DayRepository;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;

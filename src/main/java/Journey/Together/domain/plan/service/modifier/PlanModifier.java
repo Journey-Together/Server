@@ -1,4 +1,4 @@
-package Journey.Together.domain.plan.modifier;
+package Journey.Together.domain.plan.service.modifier;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.plan.dto.PlanReq;

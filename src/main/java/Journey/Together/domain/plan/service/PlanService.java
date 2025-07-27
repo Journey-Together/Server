@@ -6,8 +6,9 @@ import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.entity.PlanReview;
 import Journey.Together.domain.plan.entity.PlanReviewImage;
-import Journey.Together.domain.plan.factory.PlanFactory;
-import Journey.Together.domain.plan.modifier.PlanModifier;
+import Journey.Together.domain.plan.service.deleter.PlanDeleter;
+import Journey.Together.domain.plan.service.factory.PlanFactory;
+import Journey.Together.domain.plan.service.modifier.PlanModifier;
 import Journey.Together.domain.plan.repository.DayRepository;
 import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
@@ -17,7 +18,7 @@ import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
-import Journey.Together.domain.plan.validator.PlanValidator;
+import Journey.Together.domain.plan.service.validator.PlanValidator;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
@@ -55,6 +56,7 @@ public class PlanService {
     private final PlanModifier planModifier;
     private final PlanQueryService planQueryService;
     private final S3Client s3Client;
+    private final PlanDeleter planDeleter;
 
     @Transactional
     public void savePlan(Member member, PlanReq planReq) {
@@ -93,16 +95,9 @@ public class PlanService {
     public void deletePlan(Member member, Long planId) {
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
-        if (plan == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-        }
-        PlanReview planReview = planReviewRepository.findPlanReviewByPlanAndDeletedAtIsNull(plan);
-        //Buisness
-        dayRepository.deleteAllByMemberAndPlan(member, plan);
-        if (planReview != null) {
-            deletePlanReview(member, planReview.getPlanReviewId());
-        }
-        planRepository.deletePlanByPlanId(planId);
+        planValidator.validateExists(plan);
+
+        planDeleter.delete(member, plan);
     }
 
     @Transactional

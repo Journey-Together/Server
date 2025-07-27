@@ -1,4 +1,4 @@
-package Journey.Together.domain.plan.validator;
+package Journey.Together.domain.plan.service.validator;
 
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.global.exception.ApplicationException;
