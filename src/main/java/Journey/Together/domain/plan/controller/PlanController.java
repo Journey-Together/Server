@@ -93,7 +93,7 @@ public class PlanController {
 
     @GetMapping("/open")
     public ApiResponse<OpenPlanPageRes> findOpenPlans(@PageableDefault(size = 6) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findOpenPlans(pageable));
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planQueryService.findOpenPlans(pageable));
     }
 
     @GetMapping("/detail/{plan_id}")

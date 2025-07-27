@@ -3,7 +3,9 @@ package Journey.Together.domain.plan.service;
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.validator.MemberValidator;
 import Journey.Together.domain.place.repository.PlaceRepository;
-import Journey.Together.domain.plan.dto.*;
+import Journey.Together.domain.plan.dto.PlanDetailRes;
+import Journey.Together.domain.plan.dto.PlanReq;
+import Journey.Together.domain.plan.dto.PlanRes;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
@@ -18,16 +20,10 @@ import Journey.Together.domain.plan.service.validator.PlanReviewValidator;
 import Journey.Together.domain.plan.service.validator.PlanValidator;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -116,15 +112,5 @@ public class PlanService {
 
         //Response
         return planModifier.togglePublic(plan);
-    }
-
-    @Transactional
-    public OpenPlanPageRes findOpenPlans(Pageable page) {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<Plan> planPage = planRepository.findOpenPlans(LocalDate.now(), pageable);
-        List<OpenPlanRes> openPlanResList = planPage.getContent().stream()
-                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl() + plan.getMember().getProfileUuid() + "/profile_" + plan.getMember().getProfileUuid(), planQueryService.getFirstPlaceImageOfPlan(plan)))
-                .collect(Collectors.toList());
-        return OpenPlanPageRes.of(openPlanResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
     }
 }
