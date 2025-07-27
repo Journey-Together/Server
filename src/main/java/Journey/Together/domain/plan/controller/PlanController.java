@@ -1,6 +1,7 @@
 package Journey.Together.domain.plan.controller;
 
 import Journey.Together.domain.plan.dto.*;
+import Journey.Together.domain.plan.service.PlanReviewService;
 import Journey.Together.domain.plan.service.PlanService;
 import Journey.Together.domain.plan.service.query.PlanReviewQueryService;
 import Journey.Together.global.common.ApiResponse;
@@ -23,6 +24,7 @@ import java.util.List;
 public class PlanController {
     private final PlanService planService;
     private final PlanReviewQueryService planReviewQueryService;
+    private final PlanReviewService planReviewService;
 
     @PostMapping("")
     public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails,@RequestBody PlanReq planReq){
@@ -59,7 +61,7 @@ public class PlanController {
 
     @PostMapping("/review/{plan_id}")
     public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart PlanReviewReq planReviewReq){
-        planService.savePlanReview(principalDetails.getMember(),planId,planReviewReq,images);
+        planReviewService.savePlanReview(principalDetails.getMember(),planId,planReviewReq,images);
         return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
     }
 
@@ -70,7 +72,7 @@ public class PlanController {
 
     @PatchMapping("/review/{review_id}")
     public ApiResponse updatePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart(required = false) UpdatePlanReviewReq planReviewReq){
-        planService.updatePlanReview(principalDetails.getMember(),reviewId,planReviewReq,images);
+        planReviewService.updatePlanReview(principalDetails.getMember(),reviewId,planReviewReq,images);
         return ApiResponse.success(Success.UPDATE_REVIEW_SUCCESS);
     }
 

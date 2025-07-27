@@ -15,7 +15,6 @@ import Journey.Together.domain.plan.service.deleter.PlanDeleter;
 import Journey.Together.domain.plan.service.factory.PlanFactory;
 import Journey.Together.domain.plan.service.factory.PlanReviewFactory;
 import Journey.Together.domain.plan.service.modifier.PlanModifier;
-import Journey.Together.domain.plan.service.modifier.PlanReviewModifier;
 import Journey.Together.domain.plan.service.query.PlanDetailQueryService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.service.validator.PlanReviewValidator;
@@ -31,7 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -60,7 +58,6 @@ public class PlanService {
     private final PlanFactory planFactory;
     private final PlanReviewFactory planReviewFactory;
     private final PlanModifier planModifier;
-    private final PlanReviewModifier planReviewModifier;
     private final PlanDeleter planDeleter;
 
     private final PlanValidator planValidator;
@@ -130,43 +127,6 @@ public class PlanService {
 
         //Response
         return planModifier.togglePublic(plan);
-    }
-
-    @Transactional
-    public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq, List<MultipartFile> images) {
-        // Validation
-        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member, planId, LocalDate.now());
-        planValidator.validateExists(plan);
-        planReviewValidator.validateExists(plan);
-
-        //Business
-        PlanReview planReview = planReviewFactory.createPlanReview(member, plan, planReviewReq);
-        planReviewRepository.save(planReview);
-
-        if (images != null) {
-            planReviewImageService.uploadAndSaveImages(images, planReview, member.getProfileUuid());
-        }
-
-        planModifier.updateIsPublic(plan, planReviewReq.isPublic());
-    }
-
-    @Transactional
-    public void updatePlanReview(Member member, Long reviewId, UpdatePlanReviewReq req, List<MultipartFile> images) {
-        PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        planReviewValidator.validateWriter(member, planReview);
-
-        // 이미지 업로드
-        if (images != null && !images.isEmpty()) {
-            planReviewImageService.uploadAndSaveImages(images, planReview, member.getProfileUuid());
-        }
-
-        // 이미지 삭제
-        if (req.deleteImgUrls() != null) {
-            planReviewImageService.deleteImages(req.deleteImgUrls());
-        }
-
-        // 내용 수정
-        planReviewModifier.update(planReview, req);
     }
 
     @Transactional
