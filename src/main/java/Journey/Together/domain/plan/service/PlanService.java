@@ -1,5 +1,6 @@
 package Journey.Together.domain.plan.service;
 
+import Journey.Together.domain.member.validator.MemberValidator;
 import Journey.Together.domain.place.entity.PlaceReviewImg;
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.entity.Day;
@@ -50,12 +51,13 @@ public class PlanService {
 
     private final PlanPlaceService planPlaceService;
     private final PlanFactory planFactory;
+    private final MemberValidator memberValidator;
     private final S3Client s3Client;
 
     @Transactional
     public void savePlan(Member member, PlanReq planReq) {
         // Validation
-        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        memberValidator.validateExistsAndActive(member.getEmail());
         //Buisness
         Plan plan = planFactory.createPlan(member, planReq);
         planRepository.save(plan);
