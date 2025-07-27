@@ -14,6 +14,7 @@ import Journey.Together.domain.plan.repository.PlanReviewRepository;
 import Journey.Together.domain.plan.service.deleter.PlanDeleter;
 import Journey.Together.domain.plan.service.factory.PlanFactory;
 import Journey.Together.domain.plan.service.factory.PlanReviewFactory;
+import Journey.Together.domain.plan.service.factory.PlanReviewImageFactory;
 import Journey.Together.domain.plan.service.modifier.PlanModifier;
 import Journey.Together.domain.plan.service.query.PlanDetailQueryService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
@@ -56,6 +57,7 @@ public class PlanService {
 
     private final PlanFactory planFactory;
     private final PlanReviewFactory planReviewFactory;
+    private final PlanReviewImageFactory planReviewImageFactory;
     private final PlanModifier planModifier;
     private final PlanDeleter planDeleter;
 
@@ -160,10 +162,7 @@ public class PlanService {
                 for (MultipartFile file : images) {
                     String uuid = UUID.randomUUID().toString();
                     String url = s3Client.upload(file, member.getProfileUuid(), uuid);
-                    PlanReviewImage planReviewImage = PlanReviewImage.builder()
-                            .planReview(planReview)
-                            .imageUrl(url)
-                            .build();
+                    PlanReviewImage planReviewImage = planReviewImageFactory.createPlanReviewImage(planReview,url);
                     planReviewImageRepository.save(planReviewImage);
                 }
             } catch (RuntimeException e) {
