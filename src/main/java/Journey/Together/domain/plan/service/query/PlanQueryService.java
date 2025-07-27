@@ -6,6 +6,7 @@ import Journey.Together.domain.plan.repository.DayRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,6 +19,18 @@ public class PlanQueryService {
         if (!dayList.isEmpty()) {
             String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
             return placeImageUrl.isEmpty() ? null : placeImageUrl;
+        }
+        return null;
+    }
+
+    public List<String> getPlaceImageListOfPlan(Plan plan) {
+        List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
+        List<String> list = new ArrayList<>();
+        if (!dayList.isEmpty()) {
+            dayList.forEach(day -> {
+                list.add(day.getPlace().getFirstImg());
+            });
+            return list;
         }
         return null;
     }

@@ -1,22 +1,22 @@
 package Journey.Together.domain.plan.service;
 
+import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.validator.MemberValidator;
+import Journey.Together.domain.place.entity.Place;
+import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
+import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.plan.dto.*;
-import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.entity.PlanReview;
 import Journey.Together.domain.plan.entity.PlanReviewImage;
-import Journey.Together.domain.plan.service.deleter.PlanDeleter;
-import Journey.Together.domain.plan.service.factory.PlanFactory;
-import Journey.Together.domain.plan.service.modifier.PlanModifier;
 import Journey.Together.domain.plan.repository.DayRepository;
 import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
 import Journey.Together.domain.plan.repository.PlanReviewRepository;
-import Journey.Together.domain.member.entity.Member;
-import Journey.Together.domain.place.entity.Place;
-import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
-import Journey.Together.domain.place.repository.PlaceRepository;
+import Journey.Together.domain.plan.service.deleter.PlanDeleter;
+import Journey.Together.domain.plan.service.factory.PlanFactory;
+import Journey.Together.domain.plan.service.modifier.PlanModifier;
+import Journey.Together.domain.plan.service.query.PlanDetailQueryService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.service.validator.PlanValidator;
 import Journey.Together.global.exception.ApplicationException;
@@ -57,6 +57,7 @@ public class PlanService {
     private final PlanQueryService planQueryService;
     private final S3Client s3Client;
     private final PlanDeleter planDeleter;
+    private final PlanDetailQueryService planDetailQueryService;
 
     @Transactional
     public void savePlan(Member member, PlanReq planReq) {
@@ -104,49 +105,9 @@ public class PlanService {
     public PlanDetailRes findPlanDetail(Member member, Long planId) {
         // Validation
         Plan plan = planRepository.findPlanByPlanIdAndDeletedAtIsNull(planId);
-        if (plan == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-        }
+        planValidator.validateExists(plan);
 
-        //Buisness
-        boolean isWriter;
-        List<DailyList> dailyLists = new ArrayList<>();
-        List<Day> dayList = dayRepository.findAllByMemberAndPlanOrderByDateAsc(plan.getMember(), plan);
-        List<String> imageUrls = getPlaceImageList(plan);
-
-        Map<LocalDate, List<Day>> groupedByDate = dayList.stream()
-                .collect(Collectors.groupingBy(Day::getDate));
-
-        LocalDate startDate = plan.getStartDate();
-        LocalDate endDate = plan.getEndDate();
-
-        // startDate부터 endDate까지의 날짜들을 순회
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            List<Day> days = groupedByDate.get(date);
-            List<DailyPlaceInfo> dailyPlaceInfoList = new ArrayList<>();
-            if (days != null) {
-                for (Day day : days) {
-                    List<Long> disabilityCategoryList = disabilityPlaceCategoryRepository.findDisabilityCategoryIds(day.getPlace().getId());
-                    DailyPlaceInfo dailyPlaceInfo = DailyPlaceInfo.of(day.getPlace(), disabilityCategoryList);
-                    dailyPlaceInfoList.add(dailyPlaceInfo);
-                }
-            }
-            DailyList dailyList = DailyList.of(date, dailyPlaceInfoList);
-            dailyLists.add(dailyList);
-        }
-
-        // 날짜 순으로 정렬
-        dailyLists.sort(Comparator.comparing(DailyList::getDate));
-
-        if (member == null) {
-            isWriter = false;
-        } else {
-            isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
-        }
-        String remainDate = isBetween(plan.getStartDate(), plan.getEndDate());
-
-        //Response
-        return PlanDetailRes.of(imageUrls, dailyLists, isWriter, plan, remainDate);
+        return planDetailQueryService.getDetail(member, plan);
     }
 
     @Transactional
@@ -372,17 +333,6 @@ public class PlanService {
         return null;
     }
 
-    public List<String> getPlaceImageList(Plan plan) {
-        List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
-        List<String> list = new ArrayList<>();
-        if (!dayList.isEmpty()) {
-            dayList.forEach(day -> {
-                list.add(day.getPlace().getFirstImg());
-            });
-            return list;
-        }
-        return null;
-    }
 
     public List<String> getReviewImageList(PlanReview planReview) {
         List<String> list = new ArrayList<>();
