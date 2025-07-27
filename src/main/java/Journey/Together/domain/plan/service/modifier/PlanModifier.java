@@ -29,4 +29,8 @@ public class PlanModifier {
         plan.setIsPublic(!plan.getIsPublic());
         return plan.getIsPublic();
     }
+
+    public void updateIsPublic(Plan plan, boolean isPublic) {
+        plan.setIsPublic(isPublic);
+    }
 }

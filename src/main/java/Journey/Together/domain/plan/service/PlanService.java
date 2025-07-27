@@ -49,6 +49,8 @@ public class PlanService {
     private final PlanReviewImageRepository planReviewImageRepository;
 
     private final PlanPlaceService planPlaceService;
+    private final PlanReviewImageService planReviewImageService;
+
     private final PlanQueryService planQueryService;
     private final PlanDetailQueryService planDetailQueryService;
 
@@ -139,18 +141,10 @@ public class PlanService {
         planReviewRepository.save(planReview);
 
         if (images != null) {
-            for (MultipartFile file : images) {
-                String uuid = UUID.randomUUID().toString();
-                String url = s3Client.upload(file, member.getProfileUuid(), uuid);
-                PlanReviewImage planReviewImage = PlanReviewImage.builder()
-                        .planReview(planReview)
-                        .imageUrl(url)
-                        .build();
-                planReviewImageRepository.save(planReviewImage);
-            }
+            planReviewImageService.uploadAndSaveImages(images, planReview, member.getProfileUuid());
         }
 
-        plan.setIsPublic(planReviewReq.isPublic());
+        planModifier.updateIsPublic(plan, planReviewReq.isPublic());
     }
 
     @Transactional
