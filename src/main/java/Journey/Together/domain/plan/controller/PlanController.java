@@ -3,6 +3,7 @@ package Journey.Together.domain.plan.controller;
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.service.PlanReviewService;
 import Journey.Together.domain.plan.service.PlanService;
+import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.service.query.PlanReviewQueryService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.Success;
@@ -25,6 +26,7 @@ public class PlanController {
     private final PlanService planService;
     private final PlanReviewQueryService planReviewQueryService;
     private final PlanReviewService planReviewService;
+    private final PlanQueryService planQueryService;
 
     @PostMapping("")
     public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails,@RequestBody PlanReq planReq){
@@ -104,7 +106,7 @@ public class PlanController {
 
     @GetMapping("/my")
     public ApiResponse<List<MyPlanRes>> findMyPlans(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ApiResponse.success(Success.GET_MYPLAN_SUCCESS,planService.findMyPlans(principalDetails.getMember()));
+        return ApiResponse.success(Success.GET_MYPLAN_SUCCESS,planQueryService.findMyPlans(principalDetails.getMember()));
     }
 
     @GetMapping("/my/not-complete")

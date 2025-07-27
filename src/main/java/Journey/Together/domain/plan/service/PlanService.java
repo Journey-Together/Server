@@ -28,10 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -122,36 +118,6 @@ public class PlanService {
 
         //Response
         return planModifier.togglePublic(plan);
-    }
-
-    @Transactional
-    public List<MyPlanRes> findMyPlans(Member member) {
-        //Vaildation
-        List<Plan> list = planRepository.findAllByMemberAndDeletedAtIsNull(member);
-        //Business
-        List<Plan> top3list = list.stream()
-                .sorted(Comparator.comparingLong(plan -> Math.abs(ChronoUnit.DAYS.between(LocalDate.now(), plan.getStartDate()))))
-                .limit(3)
-                .toList();
-        List<MyPlanRes> myPlanResList = new ArrayList<>();
-        for (Plan plan : top3list) {
-            String image = planQueryService.getFirstPlaceImageOfPlan(plan);
-            String remainDate = null;
-            Boolean hasReview = null;
-            if (LocalDate.now().isAfter(plan.getEndDate())) {
-                hasReview = planReviewRepository.existsAllByPlanAndDeletedAtIsNull(plan);
-            } else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))) {
-                remainDate = "D-DAY";
-            } else if (LocalDate.now().isBefore(plan.getStartDate())) {
-                Period period = Period.between(LocalDate.now(), plan.getStartDate());
-                remainDate = "D-" + period.getDays();
-            }
-            MyPlanRes myPlanRes = MyPlanRes.of(plan, image, remainDate, hasReview);
-            myPlanResList.add(myPlanRes);
-        }
-
-        //Response
-        return myPlanResList;
     }
 
     @Transactional
