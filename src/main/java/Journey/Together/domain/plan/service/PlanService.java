@@ -16,7 +16,6 @@ import Journey.Together.domain.plan.service.query.PlanDetailQueryService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.service.validator.PlanReviewValidator;
 import Journey.Together.domain.plan.service.validator.PlanValidator;
-import Journey.Together.domain.plan.util.DateUtil;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -117,26 +116,6 @@ public class PlanService {
 
         //Response
         return planModifier.togglePublic(plan);
-    }
-
-    @Transactional
-    public PlanPageRes findIsCompelete(Member member, Pageable page, Boolean compelete) {
-        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<Plan> planPage;
-        List<PlanRes> planResList;
-        if (compelete) {
-            planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member, LocalDate.now(), pageable);
-            planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan, planQueryService.getFirstPlaceImageOfPlan(plan), null, planReviewRepository.existsAllByPlanAndReportFilter(plan)))
-                    .collect(Collectors.toList());
-        } else {
-            planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member, LocalDate.now(), pageable);
-            planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan, planQueryService.getFirstPlaceImageOfPlan(plan), DateUtil.getRemainDateString(plan.getStartDate(), plan.getEndDate()), null))
-                    .collect(Collectors.toList());
-        }
-
-        return PlanPageRes.of(planResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
     }
 
     @Transactional

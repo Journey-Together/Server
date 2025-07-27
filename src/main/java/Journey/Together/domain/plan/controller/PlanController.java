@@ -113,11 +113,11 @@ public class PlanController {
 
     @GetMapping("/my/not-complete")
     public ApiResponse<PlanPageRes> findNotComplete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 6,page = 0) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findIsCompelete(principalDetails.getMember(),pageable,false));
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planQueryService.findIsCompelete(principalDetails.getMember(),pageable,false));
     }
     @GetMapping("/my/complete")
     public ApiResponse<PlanPageRes> findComplete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 6) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findIsCompelete(principalDetails.getMember(),pageable,true));
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planQueryService.findIsCompelete(principalDetails.getMember(),pageable,true));
     }
 
 }

@@ -2,6 +2,8 @@ package Journey.Together.domain.plan.service.query;
 
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.plan.dto.MyPlanRes;
+import Journey.Together.domain.plan.dto.PlanPageRes;
+import Journey.Together.domain.plan.dto.PlanRes;
 import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.repository.DayRepository;
@@ -9,6 +11,10 @@ import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewRepository;
 import Journey.Together.domain.plan.util.DateUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +76,26 @@ public class PlanQueryService {
                     return MyPlanRes.of(plan, image, remainDate, hasReview);
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public PlanPageRes findIsCompelete(Member member, Pageable page, Boolean compelete) {
+        Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
+        Page<Plan> planPage;
+        List<PlanRes> planResList;
+        if (compelete) {
+            planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member, LocalDate.now(), pageable);
+            planResList = planPage.getContent().stream()
+                    .map(plan -> PlanRes.of(plan, getFirstPlaceImageOfPlan(plan), null, planReviewRepository.existsAllByPlanAndReportFilter(plan)))
+                    .collect(Collectors.toList());
+        } else {
+            planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member, LocalDate.now(), pageable);
+            planResList = planPage.getContent().stream()
+                    .map(plan -> PlanRes.of(plan, getFirstPlaceImageOfPlan(plan), DateUtil.getRemainDateString(plan.getStartDate(), plan.getEndDate()), null))
+                    .collect(Collectors.toList());
+        }
+
+        return PlanPageRes.of(planResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
     }
 
 }
