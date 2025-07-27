@@ -6,6 +6,7 @@ import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.entity.PlanReview;
 import Journey.Together.domain.plan.entity.PlanReviewImage;
+import Journey.Together.domain.plan.factory.PlanFactory;
 import Journey.Together.domain.plan.repository.DayRepository;
 import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
@@ -46,6 +47,8 @@ public class PlanService {
     private final PlanReviewRepository planReviewRepository;
     private final PlanReviewImageRepository planReviewImageRepository;
     private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
+
+    private final PlanFactory planFactory;
     private final S3Client s3Client;
 
     @Transactional
@@ -53,13 +56,7 @@ public class PlanService {
         // Validation
         memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Buisness
-        Plan plan = Plan.builder()
-                .member(member)
-                .title(planReq.title())
-                .startDate(planReq.startDate())
-                .endDate(planReq.endDate())
-                .isPublic(false)
-                .build();
+        Plan plan = planFactory.createPlan(member,planReq);
         planRepository.save(plan);
         //날짜별 장소 정보 저장
         savePlaceByDay(planReq.dailyplace(),member,plan);
