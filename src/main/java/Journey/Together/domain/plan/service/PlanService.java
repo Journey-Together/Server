@@ -19,6 +19,7 @@ import Journey.Together.domain.plan.service.modifier.PlanModifier;
 import Journey.Together.domain.plan.service.query.PlanDetailQueryService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.service.validator.PlanValidator;
+import Journey.Together.domain.plan.util.DateUtil;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
@@ -306,7 +307,7 @@ public class PlanService {
         } else {
             planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member, LocalDate.now(), pageable);
             planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan, planQueryService.getFirstPlaceImageOfPlan(plan), isBetween(plan.getStartDate(), plan.getEndDate()), null))
+                    .map(plan -> PlanRes.of(plan, planQueryService.getFirstPlaceImageOfPlan(plan), DateUtil.getRemainDateString(plan.getStartDate(), plan.getEndDate()), null))
                     .collect(Collectors.toList());
         }
 
@@ -322,17 +323,6 @@ public class PlanService {
                 .collect(Collectors.toList());
         return OpenPlanPageRes.of(openPlanResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
     }
-
-    public String isBetween(LocalDate startDate, LocalDate endDate) {
-        if ((LocalDate.now().isEqual(startDate) || LocalDate.now().isAfter(startDate) && (LocalDate.now().isEqual(endDate) || LocalDate.now().isBefore(endDate)))) {
-            return "D-DAY";
-        } else if (LocalDate.now().isBefore(startDate)) {
-            Period period = Period.between(LocalDate.now(), startDate);
-            return "D-" + period.getDays();
-        }
-        return null;
-    }
-
 
     public List<String> getReviewImageList(PlanReview planReview) {
         List<String> list = new ArrayList<>();

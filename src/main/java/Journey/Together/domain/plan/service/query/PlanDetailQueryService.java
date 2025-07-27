@@ -8,6 +8,7 @@ import Journey.Together.domain.plan.dto.PlanDetailRes;
 import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.repository.DayRepository;
+import Journey.Together.domain.plan.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +54,7 @@ public class PlanDetailQueryService {
         }
 
         dailyLists.sort(Comparator.comparing(DailyList::getDate));
-        String remainDate = isBetween(startDate, endDate);
+        String remainDate = DateUtil.getRemainDateString(startDate, endDate);
 
         return PlanDetailRes.of(imageUrls, dailyLists, isWriter, plan, remainDate);
     }
