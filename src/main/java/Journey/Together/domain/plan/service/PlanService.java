@@ -8,6 +8,7 @@ import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.entity.PlanReview;
 import Journey.Together.domain.plan.entity.PlanReviewImage;
 import Journey.Together.domain.plan.factory.PlanFactory;
+import Journey.Together.domain.plan.modifier.PlanModifier;
 import Journey.Together.domain.plan.repository.DayRepository;
 import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
@@ -17,6 +18,7 @@ import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
+import Journey.Together.domain.plan.validator.PlanValidator;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
@@ -41,7 +43,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PlanService {
-    private final MemberRepository memberRepository;
     private final PlanRepository planRepository;
     private final DayRepository dayRepository;
     private final PlaceRepository placeRepository;
@@ -51,7 +52,9 @@ public class PlanService {
 
     private final PlanPlaceService planPlaceService;
     private final PlanFactory planFactory;
+    private final PlanValidator planValidator;
     private final MemberValidator memberValidator;
+    private final PlanModifier planModifier;
     private final S3Client s3Client;
 
     @Transactional
@@ -69,17 +72,11 @@ public class PlanService {
     public void updatePlan(Member member, Long planId, PlanReq planReq) {
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
-        if (plan == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-        }
+        planValidator.validateExists(plan);
         //Business
-        dayRepository.deleteAllByMemberAndPlan(member, plan);
-
-        plan.updatePlan(planReq.title(), planReq.startDate(), planReq.endDate());
-        planRepository.save(plan);
+        planModifier.modifyPlan(member,plan,planReq);
 
         planPlaceService.savePlacesByDay(planReq.dailyplace(), member, plan);
-
     }
 
     @Transactional
