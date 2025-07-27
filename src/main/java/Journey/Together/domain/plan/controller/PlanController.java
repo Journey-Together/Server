@@ -1,5 +1,6 @@
 package Journey.Together.domain.plan.controller;
 
+import Journey.Together.domain.place.service.query.PlaceQueryService;
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.service.PlanReviewService;
 import Journey.Together.domain.plan.service.PlanService;
@@ -27,6 +28,7 @@ public class PlanController {
     private final PlanReviewQueryService planReviewQueryService;
     private final PlanReviewService planReviewService;
     private final PlanQueryService planQueryService;
+    private final PlaceQueryService placeQueryService;
 
     @PostMapping("")
     public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails,@RequestBody PlanReq planReq){
@@ -58,7 +60,7 @@ public class PlanController {
 
     @GetMapping("/search")
     public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.searchPlace(word,pageable));
+        return ApiResponse.success(Success.SEARCH_SUCCESS,placeQueryService.searchPlace(word,pageable));
     }
 
     @PostMapping("/review/{plan_id}")
