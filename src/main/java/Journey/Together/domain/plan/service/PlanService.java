@@ -1,7 +1,6 @@
 package Journey.Together.domain.plan.service;
 
 import Journey.Together.domain.member.validator.MemberValidator;
-import Journey.Together.domain.place.entity.PlaceReviewImg;
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
@@ -14,17 +13,16 @@ import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
 import Journey.Together.domain.plan.repository.PlanReviewRepository;
 import Journey.Together.domain.member.entity.Member;
-import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
+import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.validator.PlanValidator;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.monitor.os.OsStats;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,6 +53,7 @@ public class PlanService {
     private final PlanValidator planValidator;
     private final MemberValidator memberValidator;
     private final PlanModifier planModifier;
+    private final PlanQueryService planQueryService;
     private final S3Client s3Client;
 
     @Transactional
@@ -83,11 +82,9 @@ public class PlanService {
     public PlanRes findPlan(Member member, Long planId) {
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
-        if (plan == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-        }
+        planValidator.validateExists(plan);
         //Buisness
-        String image = getPlaceFirstImage(plan);
+        String image = planQueryService.getFirstPlaceImageOfPlan(plan);
         //Response
         return PlanRes.of(plan, image, null, null);
     }
@@ -311,7 +308,7 @@ public class PlanService {
                 .toList();
         List<MyPlanRes> myPlanResList = new ArrayList<>();
         for (Plan plan : top3list) {
-            String image = getPlaceFirstImage(plan);
+            String image = planQueryService.getFirstPlaceImageOfPlan(plan);
             String remainDate = null;
             Boolean hasReview = null;
             if (LocalDate.now().isAfter(plan.getEndDate())) {
@@ -348,12 +345,12 @@ public class PlanService {
         if (compelete) {
             planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member, LocalDate.now(), pageable);
             planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan, getPlaceFirstImage(plan), null, planReviewRepository.existsAllByPlanAndReportFilter(plan)))
+                    .map(plan -> PlanRes.of(plan, planQueryService.getFirstPlaceImageOfPlan(plan), null, planReviewRepository.existsAllByPlanAndReportFilter(plan)))
                     .collect(Collectors.toList());
         } else {
             planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member, LocalDate.now(), pageable);
             planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan, getPlaceFirstImage(plan), isBetween(plan.getStartDate(), plan.getEndDate()), null))
+                    .map(plan -> PlanRes.of(plan, planQueryService.getFirstPlaceImageOfPlan(plan), isBetween(plan.getStartDate(), plan.getEndDate()), null))
                     .collect(Collectors.toList());
         }
 
@@ -365,7 +362,7 @@ public class PlanService {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<Plan> planPage = planRepository.findOpenPlans(LocalDate.now(), pageable);
         List<OpenPlanRes> openPlanResList = planPage.getContent().stream()
-                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl() + plan.getMember().getProfileUuid() + "/profile_" + plan.getMember().getProfileUuid(), getPlaceFirstImage(plan)))
+                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl() + plan.getMember().getProfileUuid() + "/profile_" + plan.getMember().getProfileUuid(), planQueryService.getFirstPlaceImageOfPlan(plan)))
                 .collect(Collectors.toList());
         return OpenPlanPageRes.of(openPlanResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
     }
@@ -376,18 +373,6 @@ public class PlanService {
         } else if (LocalDate.now().isBefore(startDate)) {
             Period period = Period.between(LocalDate.now(), startDate);
             return "D-" + period.getDays();
-        }
-        return null;
-    }
-
-    public String getPlaceFirstImage(Plan plan) {
-        List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
-        if (!dayList.isEmpty()) {
-            String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
-            if (placeImageUrl.isEmpty()) {
-                return null;
-            }
-            return dayList.get(0).getPlace().getFirstImg();
         }
         return null;
     }
