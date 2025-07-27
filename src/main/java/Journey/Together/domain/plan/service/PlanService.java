@@ -14,8 +14,8 @@ import Journey.Together.domain.plan.repository.PlanReviewRepository;
 import Journey.Together.domain.plan.service.deleter.PlanDeleter;
 import Journey.Together.domain.plan.service.factory.PlanFactory;
 import Journey.Together.domain.plan.service.factory.PlanReviewFactory;
-import Journey.Together.domain.plan.service.factory.PlanReviewImageFactory;
 import Journey.Together.domain.plan.service.modifier.PlanModifier;
+import Journey.Together.domain.plan.service.modifier.PlanReviewModifier;
 import Journey.Together.domain.plan.service.query.PlanDetailQueryService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.service.validator.PlanReviewValidator;
@@ -25,7 +25,6 @@ import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +36,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,8 +59,8 @@ public class PlanService {
 
     private final PlanFactory planFactory;
     private final PlanReviewFactory planReviewFactory;
-    private final PlanReviewImageFactory planReviewImageFactory;
     private final PlanModifier planModifier;
+    private final PlanReviewModifier planReviewModifier;
     private final PlanDeleter planDeleter;
 
     private final PlanValidator planValidator;
@@ -66,7 +68,6 @@ public class PlanService {
     private final MemberValidator memberValidator;
 
     private final S3Client s3Client;
-
 
 
     @Transactional
@@ -86,7 +87,7 @@ public class PlanService {
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
         planValidator.validateExists(plan);
         //Business
-        planModifier.modifyPlan(member,plan,planReq);
+        planModifier.modifyPlan(member, plan, planReq);
 
         planPlaceService.savePlacesByDay(planReq.dailyplace(), member, plan);
     }
@@ -125,7 +126,7 @@ public class PlanService {
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member, planId, LocalDate.now());
         planValidator.validateExists(plan);
-        planValidator.validateWriter(member,plan);
+        planValidator.validateWriter(member, plan);
 
         //Response
         return planModifier.togglePublic(plan);
@@ -139,7 +140,7 @@ public class PlanService {
         planReviewValidator.validateExists(plan);
 
         //Business
-        PlanReview planReview = planReviewFactory.createPlanReview(member,plan,planReviewReq);
+        PlanReview planReview = planReviewFactory.createPlanReview(member, plan, planReviewReq);
         planReviewRepository.save(planReview);
 
         if (images != null) {
@@ -150,42 +151,22 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlanReview(Member member, Long reviewId, UpdatePlanReviewReq updatePlanReviewReq, List<MultipartFile> images) {
-        // Validation
+    public void updatePlanReview(Member member, Long reviewId, UpdatePlanReviewReq req, List<MultipartFile> images) {
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if (!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())) {
-            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
-        }
-        //Business
-        if (images != null) {
-            try {
-                for (MultipartFile file : images) {
-                    String uuid = UUID.randomUUID().toString();
-                    String url = s3Client.upload(file, member.getProfileUuid(), uuid);
-                    PlanReviewImage planReviewImage = planReviewImageFactory.createPlanReviewImage(planReview,url);
-                    planReviewImageRepository.save(planReviewImage);
-                }
-            } catch (RuntimeException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }
-        if (updatePlanReviewReq != null) {
-            if (updatePlanReviewReq.grade() != null) {
-                planReview.setGrade(updatePlanReviewReq.grade());
-            }
-            if (updatePlanReviewReq.content() != null) {
-                planReview.setContent(updatePlanReviewReq.content());
-            }
-            if (updatePlanReviewReq.deleteImgUrls() != null) {
-                updatePlanReviewReq.deleteImgUrls().forEach(
-                        deleteImg -> {
-                            planReviewImageRepository.deletePlanReviewImageByImageUrl(deleteImg);
-                            s3Client.delete(StringUtils.substringAfter(deleteImg, "com/"));
-                        }
-                );
-            }
+        planReviewValidator.validateWriter(member, planReview);
+
+        // 이미지 업로드
+        if (images != null && !images.isEmpty()) {
+            planReviewImageService.uploadAndSaveImages(images, planReview, member.getProfileUuid());
         }
 
+        // 이미지 삭제
+        if (req.deleteImgUrls() != null) {
+            planReviewImageService.deleteImages(req.deleteImgUrls());
+        }
+
+        // 내용 수정
+        planReviewModifier.update(planReview, req);
     }
 
     @Transactional

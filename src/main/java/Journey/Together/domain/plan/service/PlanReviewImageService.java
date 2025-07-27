@@ -3,8 +3,10 @@ package Journey.Together.domain.plan.service;
 import Journey.Together.domain.plan.entity.PlanReview;
 import Journey.Together.domain.plan.entity.PlanReviewImage;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
+import Journey.Together.domain.plan.service.factory.PlanReviewImageFactory;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,15 +19,13 @@ import java.util.stream.Collectors;
 public class PlanReviewImageService {
     private final S3Client s3Client;
     private final PlanReviewImageRepository planReviewImageRepository;
+    private final PlanReviewImageFactory planReviewImageFactory;
 
     public void uploadAndSaveImages(List<MultipartFile> images, PlanReview planReview, String profileUuid) {
         for (MultipartFile file : images) {
             String uuid = UUID.randomUUID().toString();
             String url = s3Client.upload(file, profileUuid, uuid);
-            PlanReviewImage image = PlanReviewImage.builder()
-                    .planReview(planReview)
-                    .imageUrl(url)
-                    .build();
+            PlanReviewImage image = planReviewImageFactory.createPlanReviewImage(planReview,url);
             planReviewImageRepository.save(image);
         }
     }
@@ -35,5 +35,12 @@ public class PlanReviewImageService {
                 .stream()
                 .map(PlanReviewImage::getImageUrl)
                 .collect(Collectors.toList());
+    }
+
+    public void deleteImages(List<String> deleteImgUrls) {
+        for (String url : deleteImgUrls) {
+            planReviewImageRepository.deletePlanReviewImageByImageUrl(url);
+            s3Client.delete(StringUtils.substringAfter(url, "com/"));
+        }
     }
 }
