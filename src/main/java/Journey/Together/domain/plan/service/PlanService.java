@@ -52,34 +52,35 @@ public class PlanService {
     private final S3Client s3Client;
 
     @Transactional
-    public void savePlan(Member member, PlanReq planReq){
+    public void savePlan(Member member, PlanReq planReq) {
         // Validation
-        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+        memberRepository.findMemberByEmailAndDeletedAtIsNull(member.getEmail()).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
         //Buisness
-        Plan plan = planFactory.createPlan(member,planReq);
+        Plan plan = planFactory.createPlan(member, planReq);
         planRepository.save(plan);
         //날짜별 장소 정보 저장
-        savePlaceByDay(planReq.dailyplace(),member,plan);
+        savePlaceByDay(planReq.dailyplace(), member, plan);
     }
 
     @Transactional
-    public void updatePlan(Member member,Long planId,PlanReq planReq){
+    public void updatePlan(Member member, Long planId, PlanReq planReq) {
         // Validation
-        Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member,planId);
-        if(plan == null){
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
+        if (plan == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
         //Business
-        dayRepository.deleteAllByMemberAndPlan(member,plan);
+        dayRepository.deleteAllByMemberAndPlan(member, plan);
 
-        plan.updatePlan(planReq.title(),planReq.startDate(),planReq.endDate());
+        plan.updatePlan(planReq.title(), planReq.startDate(), planReq.endDate());
         planRepository.save(plan);
 
-        savePlaceByDay(planReq.dailyplace(),member,plan);
+        savePlaceByDay(planReq.dailyplace(), member, plan);
 
     }
+
     @Transactional
-    public PlanRes findPlan(Member member,Long planId) {
+    public PlanRes findPlan(Member member, Long planId) {
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
         if (plan == null) {
@@ -88,37 +89,37 @@ public class PlanService {
         //Buisness
         String image = getPlaceFirstImage(plan);
         //Response
-        return PlanRes.of(plan,image,null,null);
+        return PlanRes.of(plan, image, null, null);
     }
 
     @Transactional
-    public void deletePlan(Member member,Long planId){
+    public void deletePlan(Member member, Long planId) {
         // Validation
-        Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member,planId);
-        if(plan == null){
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
+        if (plan == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanAndDeletedAtIsNull(plan);
         //Buisness
-        dayRepository.deleteAllByMemberAndPlan(member,plan);
-        if(planReview!=null){
-            deletePlanReview(member,planReview.getPlanReviewId());
+        dayRepository.deleteAllByMemberAndPlan(member, plan);
+        if (planReview != null) {
+            deletePlanReview(member, planReview.getPlanReviewId());
         }
         planRepository.deletePlanByPlanId(planId);
     }
 
     @Transactional
-    public PlanDetailRes findPlanDetail(Member member, Long planId){
+    public PlanDetailRes findPlanDetail(Member member, Long planId) {
         // Validation
         Plan plan = planRepository.findPlanByPlanIdAndDeletedAtIsNull(planId);
-        if(plan == null){
+        if (plan == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
 
         //Buisness
         boolean isWriter;
         List<DailyList> dailyLists = new ArrayList<>();
-        List<Day> dayList = dayRepository.findAllByMemberAndPlanOrderByDateAsc(plan.getMember(),plan);
+        List<Day> dayList = dayRepository.findAllByMemberAndPlanOrderByDateAsc(plan.getMember(), plan);
         List<String> imageUrls = getPlaceImageList(plan);
 
         Map<LocalDate, List<Day>> groupedByDate = dayList.stream()
@@ -145,25 +146,25 @@ public class PlanService {
         // 날짜 순으로 정렬
         dailyLists.sort(Comparator.comparing(DailyList::getDate));
 
-        if (member ==null){
+        if (member == null) {
             isWriter = false;
-        }else {
+        } else {
             isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
         }
-        String remainDate = isBetween(plan.getStartDate(),plan.getEndDate());
+        String remainDate = isBetween(plan.getStartDate(), plan.getEndDate());
 
         //Response
-        return PlanDetailRes.of(imageUrls,dailyLists,isWriter,plan,remainDate);
+        return PlanDetailRes.of(imageUrls, dailyLists, isWriter, plan, remainDate);
     }
 
     @Transactional
-    public Boolean updatePlanIsPublic(Member member,Long planId){
+    public Boolean updatePlanIsPublic(Member member, Long planId) {
         // Validation
-        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member,planId,LocalDate.now());
-        if(plan == null){
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member, planId, LocalDate.now());
+        if (plan == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
-        if(!Objects.equals(plan.getMember().getMemberId(), member.getMemberId())){
+        if (!Objects.equals(plan.getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
 
@@ -175,13 +176,13 @@ public class PlanService {
     }
 
     @Transactional
-    public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq,List<MultipartFile> images){
+    public void savePlanReview(Member member, Long planId, PlanReviewReq planReviewReq, List<MultipartFile> images) {
         // Validation
-        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member,planId,LocalDate.now());
-        if(plan == null){
+        Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member, planId, LocalDate.now());
+        if (plan == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
-        if(planReviewRepository.existsAllByPlanAndDeletedAtIsNull(plan)){
+        if (planReviewRepository.existsAllByPlanAndDeletedAtIsNull(plan)) {
             throw new ApplicationException(ErrorCode.ALREADY_EXIST_EXCEPTION);
         }
         //Business
@@ -193,10 +194,10 @@ public class PlanService {
                 .build();
         planReviewRepository.save(planReview);
 
-        if(images!=null){
-            for(MultipartFile file : images){
+        if (images != null) {
+            for (MultipartFile file : images) {
                 String uuid = UUID.randomUUID().toString();
-                String url = s3Client.upload(file,member.getProfileUuid(),uuid);
+                String url = s3Client.upload(file, member.getProfileUuid(), uuid);
                 PlanReviewImage planReviewImage = PlanReviewImage.builder()
                         .planReview(planReview)
                         .imageUrl(url)
@@ -209,32 +210,32 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanReviewRes findPlanReview(Member member,long planId){
+    public PlanReviewRes findPlanReview(Member member, long planId) {
         // Validation
         Plan plan = planRepository.findPlanByPlanIdAndDeletedAtIsNull(planId);
-        if(plan == null){
+        if (plan == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
         PlanReview planReview = planReviewRepository.findPlanReview(plan);
         //Buisness
         boolean isWriter;
-        if (member ==null){
+        if (member == null) {
             isWriter = false;
-        }else {
+        } else {
             isWriter = plan.getMember().getMemberId().equals(member.getMemberId());
         }
-        String profileUrl = s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile_"+plan.getMember().getProfileUuid();
-        if(planReview==null){
+        String profileUrl = s3Client.baseUrl() + plan.getMember().getProfileUuid() + "/profile_" + plan.getMember().getProfileUuid();
+        if (planReview == null) {
             //리뷰가 없을 경우
-            return PlanReviewRes.of(null,null,null,isWriter,false,null,profileUrl,null);
-        }else {
+            return PlanReviewRes.of(null, null, null, isWriter, false, null, profileUrl, null);
+        } else {
             List<String> imageList = getReviewImageList(planReview);
             //리뷰가 있고 신고 없을 경우
-            if(planReview.getReport()==null){
-                return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true,imageList,profileUrl,null);
+            if (planReview.getReport() == null) {
+                return PlanReviewRes.of(planReview.getPlanReviewId(), planReview.getContent(), planReview.getGrade(), isWriter, true, imageList, profileUrl, null);
             }
             //리뷰가 있고 신고 비승인
-            return PlanReviewRes.of(planReview.getPlanReviewId(),planReview.getContent(),planReview.getGrade(),isWriter,true,imageList,profileUrl,planReview.getReport());
+            return PlanReviewRes.of(planReview.getPlanReviewId(), planReview.getContent(), planReview.getGrade(), isWriter, true, imageList, profileUrl, planReview.getReport());
         }
 
     }
@@ -243,15 +244,15 @@ public class PlanService {
     public void updatePlanReview(Member member, Long reviewId, UpdatePlanReviewReq updatePlanReviewReq, List<MultipartFile> images) {
         // Validation
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if(!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())){
+        if (!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         //Business
         if (images != null) {
             try {
-                for(MultipartFile file : images) {
+                for (MultipartFile file : images) {
                     String uuid = UUID.randomUUID().toString();
-                    String url = s3Client.upload(file,member.getProfileUuid(),uuid);
+                    String url = s3Client.upload(file, member.getProfileUuid(), uuid);
                     PlanReviewImage planReviewImage = PlanReviewImage.builder()
                             .planReview(planReview)
                             .imageUrl(url)
@@ -282,15 +283,15 @@ public class PlanService {
     }
 
     @Transactional
-    public void deletePlanReview(Member member,Long reviewId){
+    public void deletePlanReview(Member member, Long reviewId) {
         //Vailda
         PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if(!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())){
+        if (!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
         }
         List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-        if(planReviewImageList!=null){
-            for(PlanReviewImage planReviewImage : planReviewImageList){
+        if (planReviewImageList != null) {
+            for (PlanReviewImage planReviewImage : planReviewImageList) {
                 String filename = planReviewImage.getImageUrl().replace(s3Client.baseUrl(), "");
                 s3Client.delete(filename);
                 planReviewImageRepository.deletePlanReviewImageByPlanReviewImageId(planReviewImage.getPlanReviewImageId());
@@ -309,19 +310,19 @@ public class PlanService {
                 .limit(3)
                 .toList();
         List<MyPlanRes> myPlanResList = new ArrayList<>();
-        for(Plan plan : top3list){
+        for (Plan plan : top3list) {
             String image = getPlaceFirstImage(plan);
             String remainDate = null;
             Boolean hasReview = null;
-            if (LocalDate.now().isAfter(plan.getEndDate())){
+            if (LocalDate.now().isAfter(plan.getEndDate())) {
                 hasReview = planReviewRepository.existsAllByPlanAndDeletedAtIsNull(plan);
-            }else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))){
-                remainDate="D-DAY";
-            }else if (LocalDate.now().isBefore(plan.getStartDate())){
-                Period period = Period.between(LocalDate.now(),plan.getStartDate());
-                remainDate="D-"+period.getDays();
+            } else if ((LocalDate.now().isEqual(plan.getStartDate()) || LocalDate.now().isAfter(plan.getStartDate())) && (LocalDate.now().isEqual(plan.getEndDate()) || LocalDate.now().isBefore(plan.getEndDate()))) {
+                remainDate = "D-DAY";
+            } else if (LocalDate.now().isBefore(plan.getStartDate())) {
+                Period period = Period.between(LocalDate.now(), plan.getStartDate());
+                remainDate = "D-" + period.getDays();
             }
-            MyPlanRes myPlanRes = MyPlanRes.of(plan,image,remainDate,hasReview);
+            MyPlanRes myPlanRes = MyPlanRes.of(plan, image, remainDate, hasReview);
             myPlanResList.add(myPlanRes);
         }
 
@@ -330,75 +331,70 @@ public class PlanService {
     }
 
     @Transactional
-    public PlaceInfoPageRes searchPlace(String word, Pageable page){
+    public PlaceInfoPageRes searchPlace(String word, Pageable page) {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<Place> placePage = placeRepository.findAllByNameContainsOrderByCreatedAtDesc(word,pageable);
+        Page<Place> placePage = placeRepository.findAllByNameContainsOrderByCreatedAtDesc(word, pageable);
         List<PlaceInfo> placeInfoList = placePage.getContent().stream()
                 .map(PlaceInfo::of)
                 .collect(Collectors.toList());
-        return PlaceInfoPageRes.of(placeInfoList, placePage.getNumber(), placePage.getSize(), placePage.getTotalPages(), placePage.isLast(),placePage.getTotalElements());
+        return PlaceInfoPageRes.of(placeInfoList, placePage.getNumber(), placePage.getSize(), placePage.getTotalPages(), placePage.isLast(), placePage.getTotalElements());
     }
 
     @Transactional
-    public PlanPageRes findIsCompelete(Member member, Pageable page, Boolean compelete){
+    public PlanPageRes findIsCompelete(Member member, Pageable page, Boolean compelete) {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
         Page<Plan> planPage;
         List<PlanRes> planResList;
-        if(compelete){
-            planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member,LocalDate.now(),pageable);
+        if (compelete) {
+            planPage = planRepository.findAllByMemberAndEndDateBeforeAndDeletedAtIsNull(member, LocalDate.now(), pageable);
             planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),null,planReviewRepository.existsAllByPlanAndReportFilter(plan)))
+                    .map(plan -> PlanRes.of(plan, getPlaceFirstImage(plan), null, planReviewRepository.existsAllByPlanAndReportFilter(plan)))
                     .collect(Collectors.toList());
-        }else {
-            planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member,LocalDate.now(),pageable);
+        } else {
+            planPage = planRepository.findAllByMemberAndEndDateGreaterThanEqualAndDeletedAtIsNull(member, LocalDate.now(), pageable);
             planResList = planPage.getContent().stream()
-                    .map(plan -> PlanRes.of(plan,getPlaceFirstImage(plan),isBetween(plan.getStartDate(),plan.getEndDate()),null))
+                    .map(plan -> PlanRes.of(plan, getPlaceFirstImage(plan), isBetween(plan.getStartDate(), plan.getEndDate()), null))
                     .collect(Collectors.toList());
         }
 
-        return PlanPageRes.of(planResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
+        return PlanPageRes.of(planResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
     }
 
     @Transactional
-    public OpenPlanPageRes findOpenPlans(Pageable page){
+    public OpenPlanPageRes findOpenPlans(Pageable page) {
         Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("createdAt").descending());
-        Page<Plan> planPage = planRepository.findOpenPlans(LocalDate.now(),pageable);
+        Page<Plan> planPage = planRepository.findOpenPlans(LocalDate.now(), pageable);
         List<OpenPlanRes> openPlanResList = planPage.getContent().stream()
-                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl()+plan.getMember().getProfileUuid()+"/profile_"+plan.getMember().getProfileUuid(),getPlaceFirstImage(plan)))
+                .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl() + plan.getMember().getProfileUuid() + "/profile_" + plan.getMember().getProfileUuid(), getPlaceFirstImage(plan)))
                 .collect(Collectors.toList());
-        return OpenPlanPageRes.of(openPlanResList,planPage.getNumber(),planPage.getSize(),planPage.getTotalPages(),planPage.isLast());
+        return OpenPlanPageRes.of(openPlanResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
     }
 
-    public void savePlaceByDay(List<DailyPlace> places, Member member,Plan plan){
-        for(DailyPlace dailyPlace : places){
-            for(Long placeId : dailyPlace.places()){
-                Place place = placeRepository.findById(placeId).orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
-                Day day = Day.builder()
-                        .member(member)
-                        .plan(plan)
-                        .place(place)
-                        .date(dailyPlace.date())
-                        .build();
+    public void savePlaceByDay(List<DailyPlace> places, Member member, Plan plan) {
+        for (DailyPlace dailyPlace : places) {
+            for (Long placeId : dailyPlace.places()) {
+                Place place = placeRepository.findById(placeId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
+                Day day = planFactory.createDay(member, plan, place, dailyPlace.date());
                 dayRepository.save(day);
             }
         }
     }
 
-    public String isBetween(LocalDate startDate,LocalDate endDate){
-       if ((LocalDate.now().isEqual(startDate) || LocalDate.now().isAfter(startDate) && (LocalDate.now().isEqual(endDate) || LocalDate.now().isBefore(endDate)))){
+    public String isBetween(LocalDate startDate, LocalDate endDate) {
+        if ((LocalDate.now().isEqual(startDate) || LocalDate.now().isAfter(startDate) && (LocalDate.now().isEqual(endDate) || LocalDate.now().isBefore(endDate)))) {
             return "D-DAY";
-       }else if (LocalDate.now().isBefore(startDate)){
-            Period period = Period.between(LocalDate.now(),startDate);
-            return "D-"+ period.getDays();
-       }
-       return null;
+        } else if (LocalDate.now().isBefore(startDate)) {
+            Period period = Period.between(LocalDate.now(), startDate);
+            return "D-" + period.getDays();
+        }
+        return null;
     }
 
-    public String getPlaceFirstImage(Plan plan){
+    public String getPlaceFirstImage(Plan plan) {
         List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
-        if(!dayList.isEmpty()){
+        if (!dayList.isEmpty()) {
             String placeImageUrl = dayList.get(0).getPlace().getFirstImg();
-            if(placeImageUrl.isEmpty()){
+            if (placeImageUrl.isEmpty()) {
                 return null;
             }
             return dayList.get(0).getPlace().getFirstImg();
@@ -406,20 +402,22 @@ public class PlanService {
         return null;
     }
 
-    public List<String> getPlaceImageList(Plan plan){
+    public List<String> getPlaceImageList(Plan plan) {
         List<Day> dayList = dayRepository.findByPlanOrderByCreatedAtDesc(plan);
         List<String> list = new ArrayList<>();
-        if(!dayList.isEmpty()){
-           dayList.forEach(day ->{list.add(day.getPlace().getFirstImg());});
-           return list;
+        if (!dayList.isEmpty()) {
+            dayList.forEach(day -> {
+                list.add(day.getPlace().getFirstImg());
+            });
+            return list;
         }
         return null;
     }
 
-    public List<String> getReviewImageList(PlanReview planReview){
+    public List<String> getReviewImageList(PlanReview planReview) {
         List<String> list = new ArrayList<>();
         List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-        for(PlanReviewImage planReviewImage : planReviewImageList){
+        for (PlanReviewImage planReviewImage : planReviewImageList) {
             list.add(planReviewImage.getImageUrl());
         }
         return list;

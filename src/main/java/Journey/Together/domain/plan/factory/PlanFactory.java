@@ -1,9 +1,13 @@
 package Journey.Together.domain.plan.factory;
 
 import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.plan.dto.PlanReq;
+import Journey.Together.domain.plan.entity.Day;
 import Journey.Together.domain.plan.entity.Plan;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 @Component
 public class PlanFactory {
@@ -14,6 +18,15 @@ public class PlanFactory {
                 .startDate(planReq.startDate())
                 .endDate(planReq.endDate())
                 .isPublic(false)
+                .build();
+    }
+
+    public Day createDay(Member member, Plan plan, Place place, LocalDate date) {
+        return Day.builder()
+                .member(member)
+                .plan(plan)
+                .place(place)
+                .date(date)
                 .build();
     }
 }
