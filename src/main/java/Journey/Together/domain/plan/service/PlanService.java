@@ -48,6 +48,7 @@ public class PlanService {
     private final PlanReviewImageRepository planReviewImageRepository;
     private final DisabilityPlaceCategoryRepository disabilityPlaceCategoryRepository;
 
+    private final PlanPlaceService planPlaceService;
     private final PlanFactory planFactory;
     private final S3Client s3Client;
 
@@ -59,7 +60,7 @@ public class PlanService {
         Plan plan = planFactory.createPlan(member, planReq);
         planRepository.save(plan);
         //날짜별 장소 정보 저장
-        savePlaceByDay(planReq.dailyplace(), member, plan);
+        planPlaceService.savePlacesByDay(planReq.dailyplace(), member, plan);
     }
 
     @Transactional
@@ -75,7 +76,7 @@ public class PlanService {
         plan.updatePlan(planReq.title(), planReq.startDate(), planReq.endDate());
         planRepository.save(plan);
 
-        savePlaceByDay(planReq.dailyplace(), member, plan);
+        planPlaceService.savePlacesByDay(planReq.dailyplace(), member, plan);
 
     }
 
@@ -368,16 +369,6 @@ public class PlanService {
                 .map(plan -> OpenPlanRes.of(plan, s3Client.baseUrl() + plan.getMember().getProfileUuid() + "/profile_" + plan.getMember().getProfileUuid(), getPlaceFirstImage(plan)))
                 .collect(Collectors.toList());
         return OpenPlanPageRes.of(openPlanResList, planPage.getNumber(), planPage.getSize(), planPage.getTotalPages(), planPage.isLast());
-    }
-
-    public void savePlaceByDay(List<DailyPlace> places, Member member, Plan plan) {
-        for (DailyPlace dailyPlace : places) {
-            for (Long placeId : dailyPlace.places()) {
-                Place place = placeRepository.findById(placeId).orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION));
-                Day day = planFactory.createDay(member, plan, place, dailyPlace.date());
-                dayRepository.save(day);
-            }
-        }
     }
 
     public String isBetween(LocalDate startDate, LocalDate endDate) {
