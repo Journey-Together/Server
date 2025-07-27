@@ -6,8 +6,6 @@ import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.PlaceRepository;
 import Journey.Together.domain.plan.dto.*;
 import Journey.Together.domain.plan.entity.Plan;
-import Journey.Together.domain.plan.entity.PlanReview;
-import Journey.Together.domain.plan.entity.PlanReviewImage;
 import Journey.Together.domain.plan.repository.PlanRepository;
 import Journey.Together.domain.plan.repository.PlanReviewImageRepository;
 import Journey.Together.domain.plan.repository.PlanReviewRepository;
@@ -20,8 +18,6 @@ import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.service.validator.PlanReviewValidator;
 import Journey.Together.domain.plan.service.validator.PlanValidator;
 import Journey.Together.domain.plan.util.DateUtil;
-import Journey.Together.global.exception.ApplicationException;
-import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,7 +33,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -127,24 +122,6 @@ public class PlanService {
 
         //Response
         return planModifier.togglePublic(plan);
-    }
-
-    @Transactional
-    public void deletePlanReview(Member member, Long reviewId) {
-        //Vailda
-        PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
-        if (!Objects.equals(planReview.getPlan().getMember().getMemberId(), member.getMemberId())) {
-            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
-        }
-        List<PlanReviewImage> planReviewImageList = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
-        if (planReviewImageList != null) {
-            for (PlanReviewImage planReviewImage : planReviewImageList) {
-                String filename = planReviewImage.getImageUrl().replace(s3Client.baseUrl(), "");
-                s3Client.delete(filename);
-                planReviewImageRepository.deletePlanReviewImageByPlanReviewImageId(planReviewImage.getPlanReviewImageId());
-            }
-        }
-        planReviewRepository.deletePlanReviewByPlanReviewId(planReview.getPlanReviewId());
     }
 
     @Transactional

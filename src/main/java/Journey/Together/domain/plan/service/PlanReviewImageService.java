@@ -43,4 +43,14 @@ public class PlanReviewImageService {
             s3Client.delete(StringUtils.substringAfter(url, "com/"));
         }
     }
+
+    public void deleteAllImages(PlanReview planReview) {
+        List<PlanReviewImage> images = planReviewImageRepository.findAllByPlanReviewAndDeletedAtIsNull(planReview);
+
+        for (PlanReviewImage image : images) {
+            String filename = image.getImageUrl().replace(s3Client.baseUrl(), "");
+            s3Client.delete(filename); // S3에서 이미지 삭제
+            planReviewImageRepository.deletePlanReviewImageByPlanReviewImageId(image.getPlanReviewImageId());
+        }
+    }
 }

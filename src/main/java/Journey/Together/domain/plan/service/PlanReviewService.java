@@ -68,4 +68,14 @@ public class PlanReviewService {
         // 내용 수정
         planReviewModifier.update(planReview, req);
     }
+
+    @Transactional
+    public void deletePlanReview(Member member, Long reviewId) {
+        PlanReview planReview = planReviewRepository.findPlanReviewByPlanReviewIdAndDeletedAtIsNull(reviewId);
+        planReviewValidator.validateWriter(member, planReview);
+
+        planReviewImageService.deleteAllImages(planReview); // 이미지 삭제 책임 위임
+
+        planReviewRepository.deletePlanReviewByPlanReviewId(planReview.getPlanReviewId());
+    }
 }

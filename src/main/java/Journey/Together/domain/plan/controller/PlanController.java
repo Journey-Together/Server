@@ -78,7 +78,7 @@ public class PlanController {
 
     @DeleteMapping("/review/{review_id}")
     public ApiResponse deletePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId){
-        planService.deletePlanReview(principalDetails.getMember(),reviewId);
+        planReviewService.deletePlanReview(principalDetails.getMember(),reviewId);
         return ApiResponse.success(Success.DELETE_PLAN_REVIEW_SUCCESS);
     }
 
