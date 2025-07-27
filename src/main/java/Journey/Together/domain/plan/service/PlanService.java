@@ -115,18 +115,11 @@ public class PlanService {
     public Boolean updatePlanIsPublic(Member member, Long planId) {
         // Validation
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndEndDateIsBeforeAndDeletedAtIsNull(member, planId, LocalDate.now());
-        if (plan == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
-        }
-        if (!Objects.equals(plan.getMember().getMemberId(), member.getMemberId())) {
-            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
-        }
-
-        //Business
-        plan.setIsPublic(!plan.getIsPublic());
+        planValidator.validateExists(plan);
+        planValidator.validateWriter(member,plan);
 
         //Response
-        return plan.getIsPublic();
+        return planModifier.togglePublic(plan);
     }
 
     @Transactional

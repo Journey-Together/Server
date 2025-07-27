@@ -24,4 +24,9 @@ public class PlanModifier {
         // save는 변경 감지 안 될 경우에만 필요
         planRepository.save(plan);
     }
+
+    public Boolean togglePublic(Plan plan) {
+        plan.setIsPublic(!plan.getIsPublic());
+        return plan.getIsPublic();
+    }
 }
