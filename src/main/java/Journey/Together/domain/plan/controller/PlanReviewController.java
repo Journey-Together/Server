@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/plan")
-@Tag(name = "Plan", description = "일정 관련 API")
+@Tag(name = "PlanReview", description = "일정 리뷰 관련 API")
 public class PlanReviewController {
     private final PlanReviewQueryService planReviewQueryService;
     private final PlanReviewService planReviewService;
