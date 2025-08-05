@@ -1,6 +1,5 @@
 package Journey.Together.domain.plan.service.modifier;
 
-import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.plan.dto.PlanReq;
 import Journey.Together.domain.plan.entity.Plan;
 import Journey.Together.domain.plan.repository.DayRepository;
@@ -14,10 +13,7 @@ public class PlanModifier {
     private final DayRepository dayRepository;
     private final PlanRepository planRepository;
 
-    public void modifyPlan(Member member, Plan plan, PlanReq planReq) {
-        // 기존 Day 삭제
-        dayRepository.deleteAllByMemberAndPlan(member, plan);
-
+    public void modifyPlan(Plan plan, PlanReq planReq) {
         // Plan 수정
         plan.updatePlan(planReq.title(), planReq.startDate(), planReq.endDate());
 

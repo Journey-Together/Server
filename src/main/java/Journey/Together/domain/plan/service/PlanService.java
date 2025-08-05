@@ -47,7 +47,7 @@ public class PlanService {
         Plan plan = planFactory.createPlan(member, planReq);
         planRepository.save(plan);
         //날짜별 장소 정보 저장
-        planPlaceService.savePlacesByDay(planReq.dailyplace(), member, plan);
+        planPlaceService.updatePlacesByDay(member, plan, planReq.dailyplace());
     }
 
     @Transactional
@@ -56,7 +56,7 @@ public class PlanService {
         Plan plan = planRepository.findPlanByMemberAndPlanIdAndDeletedAtIsNull(member, planId);
         planValidator.validateExists(plan);
         //Business
-        planModifier.modifyPlan(member, plan, planReq);
+        planModifier.modifyPlan(plan, planReq);
 
         planPlaceService.savePlacesByDay(planReq.dailyplace(), member, plan);
     }
