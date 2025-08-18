@@ -12,6 +12,7 @@ import Journey.Together.domain.place.service.DataMigrationService;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.domain.place.service.PublicDataService;
 import Journey.Together.global.common.ApiResponse;
+import Journey.Together.global.config.PublicEndpoint;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.Success;
@@ -42,6 +43,7 @@ public class PlaceController {
     private final PlaceService placeService;
     private final DataMigrationService dataMigrationService;
 
+    @PublicEndpoint
     @GetMapping("/main")
     public ApiResponse<MainRes> getMain(
                                         @RequestParam String areacode, @RequestParam String sigungucode) {
@@ -54,6 +56,7 @@ public class PlaceController {
         return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getPlaceDetail(principalDetails.getMember(), placeId));
     }
 
+    @PublicEndpoint
     @GetMapping("guest/{placeId}")
     public ApiResponse<PlaceDetailGuestRes> getPlaceDetail(@PathVariable Long placeId){
         return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeService.getGeustPlaceDetail(placeId));
@@ -75,6 +78,8 @@ public class PlaceController {
         return ApiResponse.success(Success.GET_PLACE_REVIEW_LIST_SUCCESS, placeService.getReviews(principalDetails.getMember(), placeId, pageable));
     }
 
+
+    @PublicEndpoint
     @GetMapping("/review/guest/{placeId}")
     public ApiResponse<PlaceReviewRes> getPlaceReview(
             @PathVariable Long placeId, @PageableDefault(size = 5,page = 0) Pageable pageable) {
@@ -110,6 +115,7 @@ public class PlaceController {
         placeService.updateMyPlaceReview(principalDetails.getMember(),updateReviewDto,addImages,reviewId);
         return ApiResponse.success(Success.UPDATE_MY_PLACE_REVIEW_SUCCESS);
     }
+    @PublicEndpoint
     @GetMapping("/search")
     public ApiResponse<SearchPlaceRes> searchPlaceList(
                                                        @RequestParam(required = false) String category,
@@ -123,6 +129,7 @@ public class PlaceController {
         return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceList(category,query,disabilityType,detailFilter,areacode,sigungucode,arrange,pageable));
     }
 
+    @PublicEndpoint
     @GetMapping("/search/map")
     public ApiResponse<List<PlaceRes>> searchPlaceList(
             @RequestParam(required = false) String category,
@@ -136,6 +143,7 @@ public class PlaceController {
         return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceMap(category,disabilityType,detailFilter,arrange,minX,maxX,minY,maxY));
     }
 
+    @PublicEndpoint
     @GetMapping("/search/autocomplete")
     public ApiResponse<List<Map<String,Object>>> searchPlaceComplete(
             @RequestParam String query

@@ -7,6 +7,7 @@ import Journey.Together.domain.plan.service.PlanService;
 import Journey.Together.domain.plan.service.query.PlanQueryService;
 import Journey.Together.domain.plan.service.query.PlanReviewQueryService;
 import Journey.Together.global.common.ApiResponse;
+import Journey.Together.global.config.PublicEndpoint;
 import Journey.Together.global.exception.Success;
 import Journey.Together.global.security.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,6 +59,7 @@ public class PlanController {
         return ApiResponse.success(Success.UPDATE_PLAN_SUCCESS,planService.updatePlanIsPublic(principalDetails.getMember(),planId));
     }
 
+    @PublicEndpoint
     @GetMapping("/search")
     public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,placeQueryService.searchPlace(word,pageable));
@@ -86,11 +88,13 @@ public class PlanController {
         return ApiResponse.success(Success.DELETE_PLAN_REVIEW_SUCCESS);
     }
 
+    @PublicEndpoint
     @GetMapping("/guest/review/{plan_id}")
     public ApiResponse<PlanReviewRes> findPlanReviewGuest(@PathVariable("plan_id")Long planId){
         return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planReviewQueryService.getReview(null,planId));
     }
 
+    @PublicEndpoint
     @GetMapping("/open")
     public ApiResponse<OpenPlanPageRes> findOpenPlans(@PageableDefault(size = 6) Pageable pageable){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planQueryService.findOpenPlans(pageable));
@@ -101,6 +105,7 @@ public class PlanController {
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findPlanDetail(principalDetails.getMember(),planId));
     }
 
+    @PublicEndpoint
     @GetMapping("/guest/detail/{plan_id}")
     public ApiResponse<PlanDetailRes> findPalnDetailInfo(@PathVariable("plan_id")Long planId){
         return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findPlanDetail(null,planId));
