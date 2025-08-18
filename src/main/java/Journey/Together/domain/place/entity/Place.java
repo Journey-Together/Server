@@ -1,5 +1,6 @@
 package Journey.Together.domain.place.entity;
 
+import Journey.Together.global.external.dto.response.ResponseBasicData;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -44,7 +45,7 @@ public class Place {
     private Set<DisabilityPlaceCategory> placeDisabilityCategories = new HashSet<>();
 
     @Builder
-    public Place(Long id, String name, String address, String firstImg, String category, Double mapX, Double mapY, String createdAt, String areaCode, String sigunguCode){
+    public Place(Long id, String name, String address, String firstImg, String category, Double mapX, Double mapY, String createdAt, String areaCode, String sigunguCode, String tel){
         this.id =id;
         this.name=name;
         this.address=address;
@@ -55,10 +56,18 @@ public class Place {
         this.createdAt=createdAt;
         this.areaCode = areaCode;
         this.sigunguCode = sigunguCode;
+        this.tel = tel;
     }
-
     public Long getId() {
         return id;
     }
 
+    public void setDetailData(String homepage, String overview){
+        this.homepage = homepage;
+        this.overview = overview;
+    }
+
+    public void setDisabilityCategories(Set<DisabilityPlaceCategory> placeDisabilityCategories){
+        this.placeDisabilityCategories = placeDisabilityCategories;
+    }
 }

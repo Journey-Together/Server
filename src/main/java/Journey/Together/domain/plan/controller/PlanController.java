@@ -1,7 +1,11 @@
 package Journey.Together.domain.plan.controller;
 
+import Journey.Together.domain.place.service.query.PlaceQueryService;
 import Journey.Together.domain.plan.dto.*;
+import Journey.Together.domain.plan.service.PlanReviewService;
 import Journey.Together.domain.plan.service.PlanService;
+import Journey.Together.domain.plan.service.query.PlanQueryService;
+import Journey.Together.domain.plan.service.query.PlanReviewQueryService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.config.PublicEndpoint;
 import Journey.Together.global.exception.Success;
@@ -22,6 +26,11 @@ import java.util.List;
 @Tag(name = "Plan", description = "일정 관련 API")
 public class PlanController {
     private final PlanService planService;
+    private final PlanReviewQueryService planReviewQueryService;
+    private final PlanReviewService planReviewService;
+    private final PlanQueryService planQueryService;
+    private final PlaceQueryService placeQueryService;
+
     @PostMapping("")
     public ApiResponse savePlan(@AuthenticationPrincipal PrincipalDetails principalDetails,@RequestBody PlanReq planReq){
         planService.savePlan(principalDetails.getMember(),planReq);
@@ -53,42 +62,42 @@ public class PlanController {
     @PublicEndpoint
     @GetMapping("/search")
     public ApiResponse<PlaceInfoPageRes> searchPlace(@RequestParam String word, @PageableDefault(size = 6,page = 0) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.searchPlace(word,pageable));
+        return ApiResponse.success(Success.SEARCH_SUCCESS,placeQueryService.searchPlace(word,pageable));
     }
 
     @PostMapping("/review/{plan_id}")
     public ApiResponse savePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart PlanReviewReq planReviewReq){
-        planService.savePlanReview(principalDetails.getMember(),planId,planReviewReq,images);
+        planReviewService.savePlanReview(principalDetails.getMember(),planId,planReviewReq,images);
         return ApiResponse.success(Success.CREATE_REVIEW_SUCCESS);
     }
 
     @GetMapping("/review/{plan_id}")
     public ApiResponse<PlanReviewRes> findPlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("plan_id")Long planId){
-        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(principalDetails.getMember(),planId));
+        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planReviewQueryService.getReview(principalDetails.getMember(),planId));
     }
 
     @PatchMapping("/review/{review_id}")
     public ApiResponse updatePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId, @RequestPart(required = false) List<MultipartFile> images, @RequestPart(required = false) UpdatePlanReviewReq planReviewReq){
-        planService.updatePlanReview(principalDetails.getMember(),reviewId,planReviewReq,images);
+        planReviewService.updatePlanReview(principalDetails.getMember(),reviewId,planReviewReq,images);
         return ApiResponse.success(Success.UPDATE_REVIEW_SUCCESS);
     }
 
     @DeleteMapping("/review/{review_id}")
     public ApiResponse deletePlanReview(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable("review_id")Long reviewId){
-        planService.deletePlanReview(principalDetails.getMember(),reviewId);
+        planReviewService.deletePlanReview(principalDetails.getMember(),reviewId);
         return ApiResponse.success(Success.DELETE_PLAN_REVIEW_SUCCESS);
     }
 
     @PublicEndpoint
     @GetMapping("/guest/review/{plan_id}")
     public ApiResponse<PlanReviewRes> findPlanReviewGuest(@PathVariable("plan_id")Long planId){
-        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planService.findPlanReview(null,planId));
+        return ApiResponse.success(Success.GET_REVIEW_SUCCESS,planReviewQueryService.getReview(null,planId));
     }
 
     @PublicEndpoint
     @GetMapping("/open")
     public ApiResponse<OpenPlanPageRes> findOpenPlans(@PageableDefault(size = 6) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findOpenPlans(pageable));
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planQueryService.findOpenPlans(pageable));
     }
 
     @GetMapping("/detail/{plan_id}")
@@ -104,16 +113,16 @@ public class PlanController {
 
     @GetMapping("/my")
     public ApiResponse<List<MyPlanRes>> findMyPlans(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ApiResponse.success(Success.GET_MYPLAN_SUCCESS,planService.findMyPlans(principalDetails.getMember()));
+        return ApiResponse.success(Success.GET_MYPLAN_SUCCESS,planQueryService.findMyPlans(principalDetails.getMember()));
     }
 
     @GetMapping("/my/not-complete")
     public ApiResponse<PlanPageRes> findNotComplete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 6,page = 0) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findIsCompelete(principalDetails.getMember(),pageable,false));
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planQueryService.findIsCompelete(principalDetails.getMember(),pageable,false));
     }
     @GetMapping("/my/complete")
     public ApiResponse<PlanPageRes> findComplete(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(size = 6) Pageable pageable){
-        return ApiResponse.success(Success.SEARCH_SUCCESS,planService.findIsCompelete(principalDetails.getMember(),pageable,true));
+        return ApiResponse.success(Success.SEARCH_SUCCESS,planQueryService.findIsCompelete(principalDetails.getMember(),pageable,true));
     }
 
 }

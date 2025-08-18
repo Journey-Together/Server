@@ -1,0 +1,22 @@
+package Journey.Together.domain.plan.service.validator;
+
+import Journey.Together.domain.member.entity.Member;
+import Journey.Together.domain.plan.entity.Plan;
+import Journey.Together.global.exception.ApplicationException;
+import Journey.Together.global.exception.ErrorCode;
+import org.springframework.stereotype.Component;
+
+@Component
+public class PlanValidator {
+    public void validateExists(Plan plan) {
+        if (plan == null) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+    }
+
+    public void validateWriter(Member requester, Plan plan) {
+        if (!requester.getMemberId().equals(plan.getMember().getMemberId())) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        }
+    }
+}

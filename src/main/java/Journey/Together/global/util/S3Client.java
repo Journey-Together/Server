@@ -52,8 +52,7 @@ public class S3Client {
 
         // Check File upload
         try {
-            amazonS3Client.putObject(new PutObjectRequest(bucket, url, multipartFile.getInputStream(), objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+            amazonS3Client.putObject(new PutObjectRequest(bucket, url, multipartFile.getInputStream(), objectMetadata));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -82,8 +81,7 @@ public class S3Client {
 
         // 새 파일 업로드
         try {
-            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, newFile.getInputStream(), objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, newFile.getInputStream(), objectMetadata));
         } catch (IOException e) {
             throw new ApplicationException(ErrorCode.INTERNAL_SERVER_EXCEPTION);
         }
