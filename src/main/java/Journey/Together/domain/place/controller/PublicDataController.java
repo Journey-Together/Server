@@ -20,6 +20,8 @@ public class PublicDataController {
 
 	private final PublicDataService publicDataService;
 
+	/** 개별 저장 api - 필요없어서 주석처리
+	 * 추후에 특정 분류만 필요할때 사용
 	@PostMapping("/basic")
 	public ApiResponse<?> savePublicDataBasic(@AuthenticationPrincipal PrincipalDetails principalDetails){
 		publicDataService.savePublicDataBasic(principalDetails.getMember());
@@ -37,6 +39,7 @@ public class PublicDataController {
 		publicDataService.savePublicDataCategory(principalDetails.getMember());
 		return ApiResponse.success(Success.CREATE_SUCCESS);
 	}
+	 */
 
 	@PostMapping()
 	public ApiResponse<?> savePublicData(@AuthenticationPrincipal PrincipalDetails principalDetails){

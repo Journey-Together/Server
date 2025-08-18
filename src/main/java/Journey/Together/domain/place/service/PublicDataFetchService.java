@@ -1,5 +1,6 @@
 package Journey.Together.domain.place.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +15,7 @@ import Journey.Together.global.external.PublicVisitKoreaClient;
 import Journey.Together.global.external.dto.request.RequestBasicData;
 import Journey.Together.global.external.dto.request.RequestCode;
 import Journey.Together.global.external.dto.request.RequestDetailData;
+import Journey.Together.global.external.dto.request.RequestSyncData;
 import Journey.Together.global.external.dto.response.ResponseBasicData;
 import Journey.Together.global.external.dto.response.ResponseCode;
 import Journey.Together.global.external.dto.response.ResponseDataDetail;
@@ -92,6 +94,22 @@ public class PublicDataFetchService {
 		return dataList;
 	}
 
+	/** 동기화 데이터
+	 * NUM_OF_ROWS 개씩 pageNo를 늘려가며 데이터가 더 이상 없을때까지 fetch **/
+	public List<ResponseBasicData> fetchSyncData(LocalDate modifiedTime) {
+		int pageNo = INITIAL_PAGE_NO;
+		List<ResponseBasicData> dataList = new ArrayList<>();
+
+		while (true) {
+			List<ResponseBasicData> pageData = getSyncData(pageNo++, modifiedTime);
+			if (pageData.isEmpty()) {
+				break;
+			}
+			dataList.addAll(pageData);
+		}
+		return dataList;
+	}
+
 	private List<ResponseBasicData> getBasicData(int pageNo, String dongCode, String categoryCode) {
 		try {
 			ResponsePublicData<ResponseBasicData> response = publicVisitKoreaClient.fetchBasicData(
@@ -121,6 +139,17 @@ public class PublicDataFetchService {
 			return extractItems(response);
 		} catch (Exception e) {
 			log.error("[" + contendId + "] 관광 장애 카테고리 데이터 호출 실패", e);
+			return Collections.emptyList();
+		}
+	}
+
+	public List<ResponseBasicData> getSyncData(int pageNo, LocalDate modifiedTime) {
+		try {
+			ResponsePublicData<ResponseBasicData> response = publicVisitKoreaClient.fetchBasicData(
+				RequestSyncData.of(modifiedTime, serviceKey, NUM_OF_ROWS, pageNo).toMap());
+			return extractItems(response);
+		} catch (Exception e) {
+			log.error("[" + modifiedTime + "] no." + pageNo + " 동기화 관광 데이터 호출 실패", e);
 			return Collections.emptyList();
 		}
 	}

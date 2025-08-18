@@ -2,6 +2,7 @@ package Journey.Together.domain.place.service;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,6 @@ import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.DisabilitySubCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
-import Journey.Together.global.common.DiscordErrorSender;
 import Journey.Together.global.common.DiscordMessageSender;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
@@ -50,18 +50,17 @@ public class PublicDataService {
 
 	/** 공공데이터 저장 전체로 */
 	@Transactional
-	public  void savePublicData(Member member){
+	public void savePublicData(Member member){
 		validate(member);
 
-		savePublicDataBasic(member);
-		savePublicDataDetail(member);
-		savePublicDataCategory(member);
+		savePublicDataBasic();
+		savePublicDataDetail();
+		savePublicDataCategory();
 	}
 
 	/** 공공데이터 기본정보 저장 */
 	@Transactional
-	public void savePublicDataBasic(Member member) {
-		validate(member);
+	public void savePublicDataBasic() {
 
 		try {
 			notifyPublicDataSaveStatus("공공데이터 *기본정보*  저장", "프로세스 시작");
@@ -70,7 +69,7 @@ public class PublicDataService {
 
 			List<ResponseBasicData> basicDataList = publicDataFetchService.fetchAllBasicData(categoryCodes, dongCodes);
 			List<Place> placeList = basicDataList.stream()
-				.map(this::mapToEntity)
+				.map(ResponseBasicData::mapToEntity)
 				.collect(Collectors.toList());
 
 			placeRepository.saveAll(placeList);
@@ -85,8 +84,7 @@ public class PublicDataService {
 
 	/** 공공데이터 상세정보(overview, homgepage) 저장 */
 	@Transactional
-	public void savePublicDataDetail(Member member) {
-		validate(member);
+	public void savePublicDataDetail() {
 
 		try {
 			notifyPublicDataSaveStatus("공공데이터 *상세정보* 저장", "프로세스 시작");
@@ -119,8 +117,7 @@ public class PublicDataService {
 
 	/** 공공데이터 카테고리 저장 */
 	@Transactional
-	public void savePublicDataCategory(Member member) {
-		validate(member);
+	public void savePublicDataCategory() {
 
 		try {
 			notifyPublicDataSaveStatus("공공데이터 *카테고리* 저장", "프로세스 시작");
@@ -154,13 +151,52 @@ public class PublicDataService {
 		notifyPublicDataSaveStatus("공공데이터 저장", "공공데이터 저장 완료");
 	}
 
+	@Transactional
+	public void syncAllData() {
+		List<Place> places = getSyncBasicData();
+		setSyncDataDetail(places);
+
+		placeRepository.saveAll(places);
+
+		notifyPublicDataSaveStatus("공공데이터 동기화", places.size() + "건 동기화 완료");
+	}
+
+	/** 동기화 데이터 */
+	public List<Place> getSyncBasicData() {
+		try {
+			notifyPublicDataSaveStatus(" 공공데이터 기본정보 동기화 ", "프로세스 시작");
+
+			List<ResponseBasicData> syncData = publicDataFetchService.fetchSyncData(LocalDate.now().minusDays(1));
+			List<Place> placeList = syncData.stream()
+				.map(ResponseBasicData::mapToEntity)
+				.collect(Collectors.toList());
+
+			return placeList;
+		} catch (Exception e) {
+			log.error("공공데이터 기본정보 동기화 중 오류 발생: {}", e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public void setSyncDataDetail(List<Place> syncPlaces) {
+		try {
+			notifyPublicDataSaveStatus("공공데이터 *상세정보* 동기화", "프로세스 시작");
+
+			buildPlaceList(syncPlaces);
+
+		} catch (Exception e) {
+			log.error("공공데이터 상세정보 동기화 중 오류 발생: {}", e.getMessage(), e);
+			throw e;
+		}
+	}
+
 	private void validate(Member member) {
 		if (!member.getMemberType().equals(MemberType.ADMIN)) {
 			throw new ApplicationException(ErrorCode.UNAUTHORIZED_EXCEPTION);
 		}
 	}
 
-	private List<Place> buildPlaceList(List<Place> places) {
+	public List<Place> buildPlaceList(List<Place> places) {
 		places.forEach(place -> {
 			ResponseDataDetail detail = publicDataFetchService.getDetailData(place.getId())
 				.stream()
@@ -226,21 +262,6 @@ public class PublicDataService {
 		return result;
 	}
 
-	private Place mapToEntity(ResponseBasicData basic) {
-		return Place.builder()
-			.id(basic.contentid())
-			.name(basic.title())
-			.address(basic.addr1() + " " + basic.addr2())
-			.firstImg(basic.firstimage())
-			.category(basic.cat1())
-			.mapX(basic.mapx())
-			.mapY(basic.mapy())
-			.createdAt(basic.createdtime())
-			.areaCode(basic.areacode())
-			.sigunguCode(basic.sigungucode())
-			.tel(basic.tel()).build();
-	}
-
 	private String extractHttpsUrl(String input) {
 		if (input == null || input.isBlank()) {
 			return "";
@@ -254,4 +275,5 @@ public class PublicDataService {
 	private void notifyPublicDataSaveStatus(String title, String description) {
 		discordMessageSender.sendDiscordAlarm("공공데이터 저장", title, description);
 	}
+
 }
