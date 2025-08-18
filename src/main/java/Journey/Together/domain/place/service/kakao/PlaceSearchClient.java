@@ -1,6 +1,7 @@
 package Journey.Together.domain.place.service.kakao;
 
 import Journey.Together.domain.place.service.kakao.dto.KakaoAddress;
+import Journey.Together.domain.place.service.kakao.dto.KakaoKeyword;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +27,11 @@ public class PlaceSearchClient {
 
     /**
      *
-     * @param searchAddress 검색하려는 주소
+     * @param address 검색하려는 주소
      * @param format 응답형식
      * @return
      */
-    public KakaoAddress getPlaceInfo(String searchAddress, @Nullable String format) {
+    public KakaoAddress getPlaceInfoByAddress(String address, @Nullable String format) {
         // 요청 보낼 객체 기본 생성
         WebClient webClient = WebClient.builder()
                 .baseUrl(kakaoMapSearchUri)
@@ -43,7 +44,7 @@ public class PlaceSearchClient {
         String response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/address.{format}")
-                        .queryParam("query", searchAddress)    // 필수 쿼리 파라미터
+                        .queryParam("query", address)    // 필수 쿼리 파라미터
                         // .queryParam("x", 127.1086228)
                         // .queryParam("y", 37.4012191)
                         // .queryParam("radius", 20000)
@@ -67,5 +68,50 @@ public class PlaceSearchClient {
         }
 
         return kakaoAddress;
+    }
+
+    /**
+     *
+     * @param keyword 검색하려는 키워드
+     * @param format 응답형식
+     * @return
+     */
+    public KakaoKeyword getPlaceInfoByKeyWord(String keyword, @Nullable String format) {
+        // 요청 보낼 객체 기본 생성
+        WebClient webClient = WebClient.builder()
+                .baseUrl(kakaoMapSearchUri)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoClientId)
+                .build();
+
+        String fmt = (format == null || format.isBlank()) ? "json" : format;
+
+        // 요청 보내기 및 응답 수신
+        String response = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/keyword.{format}")
+                        .queryParam("query", keyword)    // 필수 쿼리 파라미터
+                        // .queryParam("x", 127.1086228)
+                        // .queryParam("y", 37.4012191)
+                        // .queryParam("radius", 20000)
+                        .build(fmt))
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, r ->
+                        r.bodyToMono(String.class).flatMap(body ->
+                                Mono.error(new IllegalStateException("Kakao API error: " + r.statusCode() + " - " + body))
+                        )
+                )
+                .bodyToMono(String.class)
+                .block();
+
+        // 수신된 응답 Mapping
+        ObjectMapper objectMapper = new ObjectMapper();
+        KakaoKeyword kakaoKeyword;
+        try {
+            kakaoKeyword = objectMapper.readValue(response, KakaoKeyword.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return kakaoKeyword;
     }
 }

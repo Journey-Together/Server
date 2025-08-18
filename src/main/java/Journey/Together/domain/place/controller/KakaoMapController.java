@@ -17,6 +17,6 @@ public class KakaoMapController {
 
     @GetMapping("")
     public ApiResponse<KakaoAddress> getPlaceAddressInfo(@RequestParam String searchAddress){
-        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeSearchClient.getPlaceInfo(searchAddress,null));
+        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeSearchClient.getPlaceInfoByAddress(searchAddress,null));
     }
 }
