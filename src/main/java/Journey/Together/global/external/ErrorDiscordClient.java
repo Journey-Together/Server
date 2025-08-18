@@ -8,10 +8,10 @@ import Journey.Together.global.config.OpenFeignConfig;
 import Journey.Together.global.external.dto.DiscordMessage;
 
 @FeignClient(
-	name = "discord-client",
-	url = "${discord.webhook-url}",
+	name = "error-discord-client",
+	url = "${discord.error-webhook-url}",
 	configuration = OpenFeignConfig.class)
-public interface DiscordClient {
+public interface ErrorDiscordClient {
 
 	@PostMapping()
 	void sendAlarm(@RequestBody DiscordMessage message);

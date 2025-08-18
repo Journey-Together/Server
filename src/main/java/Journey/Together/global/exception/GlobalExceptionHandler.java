@@ -1,13 +1,6 @@
 package Journey.Together.global.exception;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import Journey.Together.global.common.DiscordErrorSender;
-import Journey.Together.global.external.DiscordClient;
-import Journey.Together.global.external.dto.DiscordMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
-import org.springframework.web.context.request.WebRequest;
-
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor

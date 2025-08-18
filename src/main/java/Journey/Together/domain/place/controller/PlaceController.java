@@ -10,6 +10,7 @@ import Journey.Together.domain.place.dto.response.PlaceRes;
 import Journey.Together.domain.place.dto.response.SearchPlaceRes;
 import Journey.Together.domain.place.service.DataMigrationService;
 import Journey.Together.domain.place.service.PlaceService;
+import Journey.Together.domain.place.service.PublicDataService;
 import Journey.Together.global.common.ApiResponse;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
@@ -148,5 +149,4 @@ public class PlaceController {
         dataMigrationService.migrateData();
         return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS);
     }
-
 }
