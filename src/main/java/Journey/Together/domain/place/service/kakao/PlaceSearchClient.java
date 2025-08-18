@@ -20,7 +20,7 @@ public class PlaceSearchClient {
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
 
-    @Value("${spring.api.map-search-address}")
+    @Value("${spring.api.kakao.map-search-address}")
     private String kakaoMapSearchUri;
 
 
@@ -42,7 +42,7 @@ public class PlaceSearchClient {
         // 요청 보내기 및 응답 수신
         String response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/v2/local/search/keyword.{format}")
+                        .path("/address.{format}")
                         .queryParam("query", searchAddress)    // 필수 쿼리 파라미터
                         // .queryParam("x", 127.1086228)
                         // .queryParam("y", 37.4012191)

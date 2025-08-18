@@ -71,6 +71,8 @@ public enum Success {
 
 	UPDATE_USER_INFO_SUCCESS(HttpStatus.OK, "사용자 정보 수정 완료"),
 
+	GET_KAKAO_MAP_PLACE_ADDRESS(HttpStatus.OK, "카카오 맵 주소 api 호출 성공"),
+
 
 	/**
 	 * 204 NO_CONTENT
