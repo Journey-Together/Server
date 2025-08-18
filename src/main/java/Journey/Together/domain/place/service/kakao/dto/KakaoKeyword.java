@@ -22,6 +22,7 @@ public record KakaoKeyword(
     public record Documents(
             String place_name,
             String distance,
+            String place_url,
             String category_name,
             String address_name,
             String road_address_name,
