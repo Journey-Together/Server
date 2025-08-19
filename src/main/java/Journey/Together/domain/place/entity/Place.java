@@ -1,6 +1,5 @@
 package Journey.Together.domain.place.entity;
 
-import Journey.Together.global.external.dto.response.ResponseBasicData;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -40,6 +39,8 @@ public class Place {
     @Column(columnDefinition = "TEXT")
     private String homepage;
 
+    private boolean isActive;
+
 
     @OneToMany(mappedBy = "place",fetch = FetchType.LAZY)
     private Set<DisabilityPlaceCategory> placeDisabilityCategories = new HashSet<>();
@@ -57,6 +58,7 @@ public class Place {
         this.areaCode = areaCode;
         this.sigunguCode = sigunguCode;
         this.tel = tel;
+        this.isActive=true;
     }
     public Long getId() {
         return id;
@@ -70,4 +72,6 @@ public class Place {
     public void setDisabilityCategories(Set<DisabilityPlaceCategory> placeDisabilityCategories){
         this.placeDisabilityCategories = placeDisabilityCategories;
     }
+
+    public void setIsActive() {this.isActive = !isActive;}
 }
