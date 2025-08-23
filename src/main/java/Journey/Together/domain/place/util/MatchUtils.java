@@ -25,6 +25,11 @@ public class MatchUtils {
         return s.trim();
     }
 
+    public String normalizeAddress(String raw) {
+        if (raw == null) return null;
+        return raw.replaceAll("\\s+", " ").trim();
+    }
+
     //장소명 비슷한 정도 계산, 비교값이 없거나 null이면 0.0
     public double nameSim(String a, String b) {
         if (a == null || b == null || a.isBlank() || b.isBlank()) return 0.0;
