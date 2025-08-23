@@ -55,6 +55,9 @@ public class PlaceMatchingService {
 
         // 2) 후보 수집: 주소 + 키워드(원형+토큰), dedup
         Retrieval ret = collectCandidates(addrN, nameN);
+
+        // 앵커가 있으면 3km 이내로 전역 노이즈 컷
+        List<Candidate> candidates = pruneByAnchors(anchors, ret.all(), GLOBAL_FILTER_RADIUS);
     }
 
     /**
@@ -152,7 +155,16 @@ public class PlaceMatchingService {
         return new Retrieval(dedup, addrDocs);
     }
 
-    //데이터 저장 및 헬퍼 메소드
+    //앵커 기준 반경 필터링(기본 3km)
+    private List<Candidate> pruneByAnchors(List<Coord> anchors, List<Candidate> all, int radiusMeters) {
+        if(anchors.isEmpty()) return all;
+        return all.stream().filter(c -> {
+            double m = minDistance(anchors, c.lon(), c.lat());
+            return !Double.isNaN(m) && m<=radiusMeters;
+        }).collect(Collectors.toList());
+    }
+
+    //===데이터 저장 및 헬퍼 메소드===
     private void saveIssue(Place place, String kakaoAddress, Double score, MatchStatus status) {
         PlaceMatchIssue issue = PlaceMatchIssue.builder()
                 .place(place)
@@ -202,7 +214,7 @@ public class PlaceMatchingService {
         return d==null?"-":String.format("%.1f",d);
     }
 
-    //내부 record
+    //===내부 record===
     private record Coord(Double lon, Double lat) {}
     private record Retrieval(List<Candidate> all, int addrDocCount) {}
     private record Scored(
