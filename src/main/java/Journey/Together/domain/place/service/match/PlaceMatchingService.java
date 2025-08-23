@@ -8,6 +8,7 @@ import Journey.Together.domain.place.enumerated.MatchStatus;
 import Journey.Together.domain.place.repository.PlaceMatchIssueRepository;
 import Journey.Together.domain.place.service.kakao.PlaceSearchClient;
 import Journey.Together.domain.place.service.kakao.dto.KakaoAddress;
+import Journey.Together.domain.place.service.kakao.dto.KakaoKeyword;
 import Journey.Together.domain.place.util.MatchUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -50,6 +53,8 @@ public class PlaceMatchingService {
         //1. 앵커 좌표 확보: (mapX,mapY) + 주소 지오코딩 결과(최상위 1건)
         List<Coord> anchors = resloveAnchors(place, addrN);
 
+        // 2) 후보 수집: 주소 + 키워드(원형+토큰), dedup
+        Retrieval ret = collectCandidates(addrN, nameN);
     }
 
     /**
@@ -76,6 +81,75 @@ public class PlaceMatchingService {
                 log.debug("address geocode failed: {}", e.getMessage());
             }
         }
+        return anchors;
+    }
+
+    /**
+     *
+     * @param addrN 주소
+     * @param nameN 장소명
+     * @return 주소 기반 카카오 장소 정보 + 장소명으로 키워드 추출하여 키워드 기반 카카오 장소 정보
+     */
+    private Retrieval collectCandidates(String addrN, String nameN) {
+        List<Candidate> out = new ArrayList<>();
+        int addrDocs = 0;
+
+        //주소 검색
+        if(addrN !=null && !addrN.isBlank()) {
+            try{
+                KakaoAddress ka = kakao.getPlaceInfoByAddress(addrN, null);
+                if (ka != null && ka.documents() != null) {
+                    addrDocs = ka.documents().size();
+                    for(var d : ka.documents()) {
+                        Double lon = parseDouble(d.x());
+                        Double lat = parseDouble(d.y());
+                        String a = (d.road_address()!=null && d.road_address().address_name()!=null)
+                                ? d.road_address().address_name()
+                                : (d.address()!=null ? d.address().address_name() : null);
+                        out.add(new Candidate(
+                                "ADDR", "addr:"+addrN,
+                                null, a, lon, lat,
+                                null, null
+                        ));
+                    }
+                }
+            } catch (Exception e) {
+                log.debug("kakao address search error: {}", e.getMessage());
+            }
+        }
+
+        //장소명으로 키워드 추출하여 키워드 기반 카카오 장소 정보 가져오기
+        for (String kw : U.expandKeywords(nameN)) {
+            try {
+                KakaoKeyword kk = kakao.getPlaceInfoByKeyWord(kw, null);
+                if (kk != null && kk.documents() != null) {
+                    for (var d : kk.documents()) {
+                        Double lon = parseDouble(d.x());
+                        Double lat = parseDouble(d.y());
+                        String addr = (d.road_address_name()!=null && !d.road_address_name().isBlank())
+                                ? d.road_address_name() : d.address_name();
+                        out.add(new Candidate(
+                                "KW", d.id(),
+                                d.place_name(), addr, lon, lat,
+                                d.phone(), d.place_url()
+                        ));
+                    }
+                }
+            } catch (Exception e) {
+                log.debug("kakao keyword search error ({}): {}", kw, e.getMessage());
+            }
+            if (out.size() > 300) break; // 후보 과다 방지
+        }
+
+        // dedup: (address|lon|lat) 키 기준
+        List<Candidate> dedup = out.stream().collect(Collectors.collectingAndThen(
+                Collectors.toMap(
+                        c -> (nullToEmpty(c.address()) + "|" + c.lon() + "|" + c.lat()),
+                        c -> c, (a,b)->a, LinkedHashMap::new
+                ),
+                m -> new ArrayList<>(m.values())
+        ));
+        return new Retrieval(dedup, addrDocs);
     }
 
     //데이터 저장 및 헬퍼 메소드
