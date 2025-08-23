@@ -21,7 +21,6 @@ public record MatchDecision(
         double distScore,
 
         boolean renameSuspect,
-        boolean movedSuspect,
-        boolean phoneMatch
+        boolean movedSuspect
 ) {
 }

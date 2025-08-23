@@ -69,7 +69,7 @@ public class PlaceMatchingService {
                     MatchStatus.NOT_FOUND, 0.0,
                     null, null, null, null, null,
                     0, 0, 0, Double.NaN, 0,
-                    false, false, false
+                    false, false
             );
         }
         if (anchors.isEmpty() && candidates.isEmpty()) {
@@ -79,7 +79,7 @@ public class PlaceMatchingService {
                     MatchStatus.CONFLICT, 0.0,
                     null, null, null, null, null,
                     0, 0, 0, Double.NaN, 0,
-                    false, false, false
+                    false, false
             );
         }
         if (candidates.isEmpty()) {
@@ -89,9 +89,12 @@ public class PlaceMatchingService {
                     MatchStatus.CONFLICT, 0.0,
                     null, null, null, null, null,
                     0, 0, 0, Double.NaN, 0,
-                    false, false, false
+                    false, false
             );
         }
+
+        // 4) 스코어링 + 최적 후보 선택
+        Scored scored = pickBest(place, candidates, anchors, nameN, addrN);
 
     }
 
@@ -199,6 +202,40 @@ public class PlaceMatchingService {
         }).collect(Collectors.toList());
     }
 
+    //스코어링 및 최적의 후보 찾기
+    private Scored pickBest(Place p, List<Candidate> cands, List<Coord> anchors,
+                             String nameN, String addrN) {
+        Candidate best = null;
+        double bestScore=-1, bestName=0, bestTok=0, bestAddr=0, bestMeters=Double.NaN, bestDist=0;
+
+        for(Candidate c: cands) {
+            String cn = U.normalizeName(c.name());
+            String ca = U.normalizeAddress(c.address());
+
+            double name = U.nameSim(nameN, cn);
+            double tok = U.tokenOverlap(nameN, cn);
+            double adr    = U.tokenOverlap(addrN, ca);
+            double meters = anchors.isEmpty()
+                    ? U.distanceMeters(p.getMapX(), p.getMapY(), c.lon(), c.lat())
+                    : minDistance(anchors, c.lon(), c.lat());
+            double dist = U.distScore(meters);
+
+            double score = 0.52*name + 0.18*tok + 0.12*adr + 0.18*dist;
+
+            if (score > bestScore) {
+                bestScore = score; best = c;
+                bestName = name; bestTok = tok; bestAddr = adr; bestMeters = meters; bestDist = dist;
+            }
+        }
+        // 플래그(리네임/이전) 계산
+        boolean renameSuspect = (!Double.isNaN(bestMeters) && bestMeters <= SAME_PLACE_DIST_STRONG)
+                && (bestAddr >= ADDR_SIM_WEAK) && (bestName < RENAME_NAME_SIM_MAX);
+        boolean movedSuspect = (bestName >= NAME_SIM_EXISTS)
+                && (bestMeters > MOVED_DIST_MIN && bestMeters <= MOVED_DIST_MAX);
+
+        return new Scored(best, bestName, bestTok, bestAddr, bestMeters, bestDist, bestScore, renameSuspect, movedSuspect);
+    }
+
     //===데이터 저장 및 헬퍼 메소드===
     private void saveIssue(Place place, String kakaoAddress, Double score, MatchStatus status) {
         PlaceMatchIssue issue = PlaceMatchIssue.builder()
@@ -222,7 +259,7 @@ public class PlaceMatchingService {
                 s.best() != null ? s.best().lat()     : null,
                 s.nameSim(), s.tokenOverlap(), s.addrSim(),
                 s.distMeters(), s.distScore(),
-                rename, moved, s.phoneMatch()
+                rename, moved
         );
     }
     private static Double parseDouble(String s) {
@@ -261,7 +298,6 @@ public class PlaceMatchingService {
             double distScore,
             double finalScore,
             boolean renameSuspect,
-            boolean movedSuspect,
-            boolean phoneMatch
+            boolean movedSuspect
     ) {}
 }
