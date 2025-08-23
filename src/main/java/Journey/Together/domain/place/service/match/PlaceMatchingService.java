@@ -58,6 +58,41 @@ public class PlaceMatchingService {
 
         // 앵커가 있으면 3km 이내로 전역 노이즈 컷
         List<Candidate> candidates = pruneByAnchors(anchors, ret.all(), GLOBAL_FILTER_RADIUS);
+
+        //후보가 없을 경우, 조기 종료(NOT_FOUND)
+        // 앵커 있음 + 후보 전무 + 주소검색도 전무 → 강한 NOT_FOUND
+        if (!anchors.isEmpty() && candidates.isEmpty() && ret.addrDocCount() == 0) {
+            // 앵커 있음 + 후보 전무 + 주소검색도 전무 → 강한 NOT_FOUND
+//            deactivate(place);
+            saveIssue(place, null, 0.0, MatchStatus.NOT_FOUND);
+            return new MatchDecision(
+                    MatchStatus.NOT_FOUND, 0.0,
+                    null, null, null, null, null,
+                    0, 0, 0, Double.NaN, 0,
+                    false, false, false
+            );
+        }
+        if (anchors.isEmpty() && candidates.isEmpty()) {
+            // 위치(장소위치도 없음) 기준 자체가 없어서 폐업 단정 금지 → CONFLICT
+            saveIssue(place, null, 0.0, MatchStatus.CONFLICT);
+            return new MatchDecision(
+                    MatchStatus.CONFLICT, 0.0,
+                    null, null, null, null, null,
+                    0, 0, 0, Double.NaN, 0,
+                    false, false, false
+            );
+        }
+        if (candidates.isEmpty()) {
+            // 후보가 0인데 주소검색은 있었다 → 애매. 없음 단정 X
+            saveIssue(place, null, 0.0, MatchStatus.CONFLICT);
+            return new MatchDecision(
+                    MatchStatus.CONFLICT, 0.0,
+                    null, null, null, null, null,
+                    0, 0, 0, Double.NaN, 0,
+                    false, false, false
+            );
+        }
+
     }
 
     /**
