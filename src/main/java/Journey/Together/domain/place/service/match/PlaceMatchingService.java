@@ -96,6 +96,59 @@ public class PlaceMatchingService {
         // 4) 스코어링 + 최적 후보 선택
         Scored scored = pickBest(place, candidates, anchors, nameN, addrN);
 
+        //=== 장소 상태 판정===
+        // A) 존재 확정(주소/이름 완전 일치)
+        boolean existsStrong = (scored.distMeters() <= SAME_PLACE_DIST_SOFT) &&
+                (scored.nameSim() >= NAME_SIM_EXISTS
+                        || scored.tokenOverlap() >= TOKEN_OVERLAP_EXISTS);
+        boolean existsAddrStrong = (scored.distMeters() <= SAME_PLACE_DIST_STRONG) &&
+                (scored.addrSim() >= ADDR_SIM_STRONG);
+
+        if (existsStrong || existsAddrStrong) {
+            log.debug("EXISTS placeId={} dist={}m nameSim={} tok={} addrSim={} phoneMatch={}",
+                    place.getId(), fmt(scored.distMeters()), fmt(scored.nameSim()),
+                    fmt(scored.tokenOverlap()), fmt(scored.addrSim()));
+            return toDecision(MatchStatus.MATCHED, scored, false, false);
+        }
+
+        // B) 리네임 의심
+        boolean renameSuspect = (scored.distMeters() <= SAME_PLACE_DIST_STRONG) &&
+                (scored.addrSim() >= ADDR_SIM_WEAK) &&
+                (scored.nameSim() < RENAME_NAME_SIM_MAX);
+        if (renameSuspect) {
+            saveIssue(place, scored.best().address(), scored.finalScore(), MatchStatus.NEED_REVIEW);
+            return toDecision(MatchStatus.NEED_REVIEW, scored, true, false);
+        }
+
+        // C) 이전 의심(근거리 이동)
+        boolean movedSuspect = (scored.nameSim() >= NAME_SIM_EXISTS) &&
+                (scored.distMeters() > MOVED_DIST_MIN && scored.distMeters() <= MOVED_DIST_MAX);
+        if (movedSuspect) {
+            saveIssue(place, scored.best().address(), scored.finalScore(), MatchStatus.NEED_REVIEW);
+            return toDecision(MatchStatus.NEED_REVIEW, scored, false, true);
+        }
+
+        // D) 없음(폐업/소멸) 확정: 앵커 있고, 반경 1.5km 내 '관련성' 후보가 0
+        if (!anchors.isEmpty()) {
+            boolean relatedWithinRadius = candidates.stream().anyMatch(c -> {
+                double m = minDistance(anchors, c.lon(), c.lat());
+                if (Double.isNaN(m) || m > SCAN_RADIUS_MAX) return false;
+                // 관련성: 이름/토큰 어느 하나라도 중간 이상이거나, 전화 일치
+                String cn = U.normalizeName(c.name());
+                double n = U.nameSim(nameN, cn);
+                double t = U.tokenOverlap(nameN, cn);
+                return n >= 0.60 || t >= 0.50;
+            });
+            if (!relatedWithinRadius) {
+//                deactivate(place);
+                saveIssue(place, scored.best().address(), 0.0, MatchStatus.NOT_FOUND);
+                return toDecision(MatchStatus.NOT_FOUND, scored, false, false);
+            }
+        }
+
+        // E) 애매 → CONFLICT
+        saveIssue(place, scored.best().address(), scored.finalScore(), MatchStatus.CONFLICT);
+        return toDecision(MatchStatus.CONFLICT, scored, false, false);
     }
 
     /**
@@ -228,8 +281,10 @@ public class PlaceMatchingService {
             }
         }
         // 플래그(리네임/이전) 계산
+        //이름만 바뀐 같은 장소 의심
         boolean renameSuspect = (!Double.isNaN(bestMeters) && bestMeters <= SAME_PLACE_DIST_STRONG)
                 && (bestAddr >= ADDR_SIM_WEAK) && (bestName < RENAME_NAME_SIM_MAX);
+        //근거리 이전 의심
         boolean movedSuspect = (bestName >= NAME_SIM_EXISTS)
                 && (bestMeters > MOVED_DIST_MIN && bestMeters <= MOVED_DIST_MAX);
 
