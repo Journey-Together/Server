@@ -18,11 +18,70 @@ public class MatchUtils {
 
     //장소명 정규화- 괄호 및 특수문자 제거, 자주 쓰이는 수식어 제거
     public String normalizeName(String raw) {
-        if(raw == null) return null;
-        String s = PAREN.matcher(raw).replaceAll("");
-        s = s.replaceAll("[^ㄱ-힣0-9a-zA-Z\\s]", "");
-        for (String n : NAME_NOISE) s = s.replace(n, "");
+        if (raw == null) return "";
+        String s = java.text.Normalizer.normalize(raw, java.text.Normalizer.Form.NFKC);
+
+        // 1) 모든 괄호류/마크다운 표기 제거: (), [], {}, <> , 《》, 〈〉, 「」, 『』, 【】, ［］, [[...]]
+        s = stripBrackets(s);
+
+        // 2) 소문자화 + 특수기호 → 공백
+        s = s.toLowerCase(Locale.KOREAN).replaceAll("[^가-힣0-9a-z]+", " ");
+
+        // 3) 행정구 접두어 제거(이름 맨 앞에 있을 때만)
+        s = removeLeadingAdminPrefix(s);
+
+        // 4) 시설 접미사/노이즈 토큰 제거 (주차장/전기차충전소/관리사무소/안내소/정문/후문/입구 등)
+        s = removeFacilityNoise(s);
+
+        // 5) 다중 공백 정리 + 완전 합침(문자단위 유사도용)
+        s = s.replaceAll("\\s+", "");
         return s.trim();
+    }
+
+    private String stripBrackets(String s) {
+        // markdown [[...]]
+        s = s.replaceAll("\\[\\[[^\\]]*\\]\\]", " ");
+        // 일반 [], (), {}, <>
+        s = s.replaceAll("\\([^)]*\\)", " ")
+                .replaceAll("\\[[^\\]]*\\]", " ")
+                .replaceAll("\\{[^}]*\\}", " ")
+                .replaceAll("\\<[^>]*\\>", " ");
+        // 전각/한글권 따옴괄호류
+        s = s.replaceAll("《[^》]*》", " ")
+                .replaceAll("〈[^〉]*〉", " ")
+                .replaceAll("「[^」]*」", " ")
+                .replaceAll("『[^』]*』", " ")
+                .replaceAll("【[^】]*】", " ")
+                .replaceAll("［[^］]*］", " ");
+        return s;
+    }
+
+    private static final Set<String> ADMIN_PREFIX = Set.of(
+            "서울","서울특별시","경기","경기도","인천","부산","대구","광주","대전","울산","세종",
+            "강원","강원특별자치도","충북","충청북도","충남","충청남도","전북","전북특별자치도",
+            "전남","전라남도","경북","경상북도","경남","경상남도","제주","제주특별자치도","청주","포천"
+    );
+    private String removeLeadingAdminPrefix(String s) {
+        // 맨 앞 토큰이 행정구면 삭제
+        var m = Pattern.compile("^(" + String.join("|", ADMIN_PREFIX) + ")\\s+").matcher(s);
+        return m.find() ? s.substring(m.end()) : s;
+    }
+
+    private static final Set<String> FACILITY_NOISE = Set.of(
+            "주차장","전기차충전소","관리사무소","안내소","정문","후문","입구","출구","매표소","매표","전망대",
+            "별관","본점","지점","점","본관","센터","홀","관","동","관람안내","게이트","터미널","사무소","캠핑장","팬션","축제","남문","광장",
+            "매점"
+    );
+    public String removeFacilityNoise(String s) {
+        // 토큰 단위로 노이즈 삭제 후 다시 붙임
+        String[] toks = s.split("\\s+");
+        StringBuilder b = new StringBuilder();
+        for (String t : toks) {
+            if (t.isBlank()) continue;
+            if (FACILITY_NOISE.contains(t)) continue;
+            b.append(t).append(' ');
+        }
+        return b.toString().trim();
     }
 
     public String normalizeAddress(String raw) {

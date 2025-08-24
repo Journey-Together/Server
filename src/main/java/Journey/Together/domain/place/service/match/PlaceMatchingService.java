@@ -59,6 +59,7 @@ public class PlaceMatchingService {
     @Transactional
     public MatchDecision tryMatch(Place place) {
         final String nameN = U.normalizeName(place.getName());
+        final String nameC = U.removeFacilityNoise(nameN);
         final String addrN = U.normalizeAddress(place.getAddress());
         final String phoneN = place.getTel();
 
@@ -69,7 +70,7 @@ public class PlaceMatchingService {
         Retrieval ret = collectCandidates(addrN, nameN);
 
         // 앵커가 있으면 3km 이내로 전역 노이즈 컷
-        List<Candidate> candidates = pruneByAnchors(anchors, ret.all(), GLOBAL_FILTER_RADIUS);
+        List<Candidate> candidates = pruneByAnchors(anchors, ret.all());
 
         //후보가 없을 경우, 조기 종료(NOT_FOUND)
         // 앵커 있음 + 후보 전무 + 주소검색도 전무 → 강한 NOT_FOUND
@@ -106,29 +107,31 @@ public class PlaceMatchingService {
         }
 
         // 4) 스코어링 + 최적 후보 선택
-        Scored scored = pickBest(place, candidates, anchors, nameN, addrN);
+        Scored scored = pickBest(place, candidates, anchors, nameN, nameC, addrN);
 
         //=== 장소 상태 판정===
         // A) 존재 확정(주소/이름 완전 일치)
-        boolean existsStrong = (scored.distMeters() <= SAME_PLACE_DIST_SOFT) &&
-                (scored.nameSim() >= NAME_SIM_EXISTS || scored.tokenOverlap() >= TOKEN_OVERLAP_EXISTS);
-        boolean existsAddrStrong = (scored.distMeters() <= SAME_PLACE_DIST_STRONG) &&
-                (scored.addrSim() >= ADDR_SIM_STRONG);
+        boolean existsStrong = (scored.distMeters() <= 100) &&
+                (scored.nameSim() >= 0.82 || scored.tokenOverlap() >= 0.60);
+        boolean existsAddrStrong = (scored.distMeters() <= 100) &&
+                (scored.addrSim() >= 0.50);
+        boolean existsByTokenExact = scored.tokenOverlap() == 1.0;
 
-        if (existsStrong || existsAddrStrong) {
-            log.debug("EXISTS placeId={} dist={}m nameSim={} tok={} addrSim={} phoneMatch={}",
+        if (existsStrong || existsAddrStrong || existsByTokenExact) {
+            log.debug("EXISTS placeId={} dist={}m nameSim={} tok={} addrSim={}",
                     place.getId(), fmt(scored.distMeters()), fmt(scored.nameSim()),
                     fmt(scored.tokenOverlap()), fmt(scored.addrSim()));
             return toDecision(MatchStatus.MATCHED, scored, false, false);
         }
-        //이름이 강하게 맞으면(0.96이상) 거리 허용(1000m까지 완화)
+
+        //이름이 강하게 맞으면(0.80이상) 거리 허용(1000m까지 완화)
         boolean existsByNameStrong =
-                (scored.nameSim() >= 0.96 && scored.distMeters() <= 3000)
-                        || (scored.tokenOverlap() >= 0.70 && scored.distMeters() <= 300);
+                (scored.coreNameSim() >= 0.80 && scored.distMeters() <= 3000) ||
+                        (scored.coreTok()  >= 0.70      && scored.distMeters() <= 300);
 
         if (existsByNameStrong) {
-            log.debug("EXISTS(NAME-STRONG) placeId={} dist={}m nameSim={} tok={}",
-                    place.getId(), fmt(scored.distMeters()), fmt(scored.nameSim()), fmt(scored.tokenOverlap()));
+            log.debug("EXISTS(NAME-STRONG) id={} dist={} coreNameSim={} coreTok={}",
+                    place.getId(), fmt(scored.distMeters()), fmt(scored.coreNameSim()), fmt(scored.coreTok()));
             return toDecision(MatchStatus.MATCHED, scored, false, false);
         }
 
@@ -138,8 +141,8 @@ public class PlaceMatchingService {
             double coreNameSim = U.nameSim(U.normalizeName(place.getName()), coreBest);
             double coreTok     = U.tokenOverlap(U.normalizeName(place.getName()), coreBest);
 
-            boolean existsArea = (scored.distMeters() <= AREA_MATCH_DIST_MAX) &&
-                    (scored.addrSim() >= ADDR_SIM_RELATED || coreTok >= CORE_TOK_MIN || coreNameSim >= CORE_NAME_SIM_MIN);
+            boolean existsArea = (scored.distMeters() <= 3000) &&
+                    (scored.addrSim() >= 0.75 || coreTok >= 0.50 || coreNameSim >= 0.70);
 
             if (existsArea) {
                 log.debug("EXISTS(AREA) placeId={} dist={}m addrSim={} coreNameSim={} coreTok={}",
@@ -182,14 +185,17 @@ public class PlaceMatchingService {
                 if (Double.isNaN(m) || m > radius) return false;
                 // 관련성: 이름/토큰 어느 하나라도 중간 이상이거나, 전화 일치
                 // 코어 이름 비교(부속시설 접미사 제거)
-                String cnCore = stripFacilitySuffix(c.name());
-                double n = U.nameSim(U.normalizeName(place.getName()), cnCore);
-                double t = U.tokenOverlap(U.normalizeName(place.getName()), cnCore);
+                String cn     = U.normalizeName(c.name());
+                String cnCore = U.removeFacilityNoise(cn);
 
-                double a = U.tokenOverlap(U.normalizeAddress(place.getAddress()), U.normalizeAddress(c.address()));
+                double n  = U.nameSim(U.normalizeName(place.getName()), cn);
+                double nc = U.nameSim(U.removeFacilityNoise(U.normalizeName(place.getName())), cnCore);
+                double t  = U.tokenOverlap(U.normalizeName(place.getName()), cn);
+                double tc = U.tokenOverlap(U.removeFacilityNoise(U.normalizeName(place.getName())), cnCore);
+                double a  = U.tokenOverlap(U.normalizeAddress(place.getAddress()), U.normalizeAddress(c.address()));
 
                 // 기존 이름/토큰 + 주소 유사도 보강
-                return (n >= 0.60 || t >= 0.50 || a >= ADDR_SIM_RELATED);
+                return Math.max(n,nc) >= 0.60 || Math.max(t,tc) >= 0.50 || a >= ADDR_SIM_RELATED;
             });
             if (!relatedWithinRadius) {
 //                deactivate(place);
@@ -305,48 +311,62 @@ public class PlaceMatchingService {
     }
 
     //앵커 기준 반경 필터링(기본 3km)
-    private List<Candidate> pruneByAnchors(List<Coord> anchors, List<Candidate> all, int radiusMeters) {
+    private List<Candidate> pruneByAnchors(List<Coord> anchors, List<Candidate> all) {
         if(anchors.isEmpty()) return all;
         return all.stream().filter(c -> {
             double m = minDistance(anchors, c.lon(), c.lat());
-            return !Double.isNaN(m) && m<=radiusMeters;
+            return !Double.isNaN(m) && m<= PlaceMatchingService.GLOBAL_FILTER_RADIUS;
         }).collect(Collectors.toList());
     }
 
     //스코어링 및 최적의 후보 찾기
     private Scored pickBest(Place p, List<Candidate> cands, List<Coord> anchors,
-                             String nameN, String addrN) {
+                            String nameNorm, String nameCore, String addrNorm) {
         Candidate best = null;
-        double bestScore=-1, bestName=0, bestTok=0, bestAddr=0, bestMeters=Double.NaN, bestDist=0;
+        double bestScore=-1, nameBest=0, tokBest=0, addrBest=0, metersBest=Double.NaN, distBest=0;
+        double coreNameBest=0, coreTokBest=0;
 
-        for(Candidate c: cands) {
-            String cn = U.normalizeName(c.name());
-            String ca = U.normalizeAddress(c.address());
+        for (Candidate c : cands) {
+            String cn     = U.normalizeName(c.name());         // 후보 원본 정규화
+            String cnCore = U.removeFacilityNoise(cn);         // 후보 코어네임
+            String ca     = U.normalizeAddress(c.address());
 
-            double name = U.nameSim(nameN, cn);
-            double tok = U.tokenOverlap(nameN, cn);
-            double adr    = U.tokenOverlap(addrN, ca);
-            double meters = anchors.isEmpty()
+            // 원본/코어 각각 유사도 → 더 큰 값 채택
+            double nameRaw = U.nameSim(nameNorm, cn);
+            double nameCor = U.nameSim(nameCore, cnCore);
+            double name    = Math.max(nameRaw, nameCor);
+
+            double tokRaw  = U.tokenOverlap(nameNorm, cn);
+            double tokCor  = U.tokenOverlap(nameCore, cnCore);
+            double tok     = Math.max(tokRaw, tokCor);
+
+            double adr     = U.tokenOverlap(addrNorm, ca);
+
+            double meters  = anchors.isEmpty()
                     ? U.distanceMeters(p.getMapX(), p.getMapY(), c.lon(), c.lat())
                     : minDistance(anchors, c.lon(), c.lat());
-            double dist = U.distScore(meters);
+            double dist    = U.distScore(meters);
 
             double score = 0.52*name + 0.18*tok + 0.12*adr + 0.18*dist;
 
             if (score > bestScore) {
-                bestScore = score; best = c;
-                bestName = name; bestTok = tok; bestAddr = adr; bestMeters = meters; bestDist = dist;
+                best = c; bestScore = score;
+                nameBest = name; tokBest = tok; addrBest = adr;
+                metersBest = meters; distBest = dist;
+                coreNameBest = nameCor; coreTokBest = tokCor;
             }
         }
+
         // 플래그(리네임/이전) 계산
         //이름만 바뀐 같은 장소 의심
-        boolean renameSuspect = (!Double.isNaN(bestMeters) && bestMeters <= SAME_PLACE_DIST_STRONG)
-                && (bestAddr >= ADDR_SIM_WEAK) && (bestName < RENAME_NAME_SIM_MAX);
+        boolean renameSuspect = (!Double.isNaN(metersBest) && metersBest <= SAME_PLACE_DIST_STRONG)
+                && (addrBest >= ADDR_SIM_WEAK) && (nameBest < RENAME_NAME_SIM_MAX);
         //근거리 이전 의심
-        boolean movedSuspect = (bestName >= NAME_SIM_EXISTS)
-                && (bestMeters > MOVED_DIST_MIN && bestMeters <= MOVED_DIST_MAX);
+        boolean movedSuspect = (nameBest >= NAME_SIM_EXISTS)
+                && (metersBest > MOVED_DIST_MIN && metersBest <= MOVED_DIST_MAX);
 
-        return new Scored(best, bestName, bestTok, bestAddr, bestMeters, bestDist, bestScore, renameSuspect, movedSuspect);
+        return new Scored(best, nameBest, tokBest, addrBest, metersBest, distBest, bestScore,
+                renameSuspect, movedSuspect, coreNameBest, coreTokBest);
     }
 
     // === 이슈 저장(점수 포함) ===
@@ -460,6 +480,8 @@ public class PlaceMatchingService {
             double distScore,
             double finalScore,
             boolean renameSuspect,
-            boolean movedSuspect
+            boolean movedSuspect,
+            double coreNameSim,
+            double coreTok
     ) {}
 }
