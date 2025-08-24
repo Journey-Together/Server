@@ -162,7 +162,7 @@ public class PlaceMatchingService {
                     scored.distMeters(), scored.distScore(), scored.finalScore(),
                     true, false);
 
-            return toDecision(MatchStatus.NEED_REVIEW, scored, true, false);
+            return toDecision(MatchStatus.MATCHED, scored, true, false);//폐업 필터링이 목적이므로, 추후 status 변경 필요
         }
 
         // C) 이전 의심(근거리 이동)
@@ -173,7 +173,7 @@ public class PlaceMatchingService {
                     scored.nameSim(), scored.tokenOverlap(), scored.addrSim(),
                     scored.distMeters(), scored.distScore(), scored.finalScore(),
                     false, true);
-            return toDecision(MatchStatus.NEED_REVIEW, scored, false, true);
+            return toDecision(MatchStatus.MATCHED, scored, false, true); //폐업 필터링이 목적이므로, 추후 status 변경 필요
         }
 
         // D) 없음(폐업/소멸) 확정: 앵커 있고, 반경 1.5km 내 '관련성' 후보가 0

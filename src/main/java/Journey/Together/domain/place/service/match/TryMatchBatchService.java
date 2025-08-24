@@ -61,7 +61,7 @@ public class TryMatchBatchService {
         }
 
         LocalDateTime to = LocalDateTime.now();
-        sendDiscordSummary(from, to);
+//        sendDiscordSummary(from, to);
 
         return new RunResult(batch.size(), counts, notFoundIds);
     }
