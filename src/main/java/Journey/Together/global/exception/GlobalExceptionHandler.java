@@ -1,6 +1,6 @@
 package Journey.Together.global.exception;
 
-import Journey.Together.global.common.DiscordErrorSender;
+import Journey.Together.global.common.discord.DiscordErrorSender;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

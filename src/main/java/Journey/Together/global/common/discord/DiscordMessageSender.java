@@ -1,17 +1,15 @@
-package Journey.Together.global.common;
+package Journey.Together.global.common.discord;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-
-import Journey.Together.global.external.ErrorDiscordClient;
 import Journey.Together.global.external.MessageDiscordClient;
 import Journey.Together.global.external.dto.DiscordMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @Slf4j

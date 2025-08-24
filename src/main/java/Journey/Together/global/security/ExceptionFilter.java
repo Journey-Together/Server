@@ -1,6 +1,6 @@
 package Journey.Together.global.security;
 
-import Journey.Together.global.common.DiscordErrorSender;
+import Journey.Together.global.common.discord.DiscordErrorSender;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.exception.ErrorResponse;

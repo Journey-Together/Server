@@ -4,12 +4,14 @@ import Journey.Together.domain.place.enumerated.MatchStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PlaceMatchIssue {
     @Id
@@ -30,7 +32,7 @@ public class PlaceMatchIssue {
     private MatchStatus matchStatus;
     private Boolean renameSuspect;
     private Boolean movedSuspect;
-    private Instant matchedAt;
+    private LocalDateTime matchedAt;
 
 
     @Builder
@@ -40,7 +42,7 @@ public class PlaceMatchIssue {
             Double nameSim, Double tokenOverlap, Double addrSim,
             Double distMeters, Double distScore, Double finalScore,
             MatchStatus matchStatus, Boolean renameSuspect, Boolean movedSuspect,
-            Instant matchedAt
+            LocalDateTime matchedAt
     ) {
         this.placeId = placeId;
         this.placeAddress = placeAddress;
@@ -58,6 +60,6 @@ public class PlaceMatchIssue {
         this.matchStatus = matchStatus;
         this.renameSuspect = renameSuspect;
         this.movedSuspect = movedSuspect;
-        this.matchedAt = matchedAt != null ? matchedAt : Instant.now();
+        this.matchedAt = matchedAt != null ? matchedAt : LocalDateTime.now();
     }
 }
