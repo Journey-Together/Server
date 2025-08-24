@@ -1,5 +1,6 @@
 package Journey.Together.domain.place.service.match;
 
+import Journey.Together.domain.place.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class PlaceMatchingSyncService {
+    private final PlaceRepository placeRepository;
     private final TryMatchBatchService tryMatchBatchService;
 
     /**
@@ -17,7 +19,7 @@ public class PlaceMatchingSyncService {
      */
     @Scheduled(cron = "0 0 0 1 * ?", zone = "Asia/Seoul")
     public void runMonthly() {
-        int limit = 50;           // 필요 시 프로퍼티로 뺄 것
+        int limit = (int) placeRepository.count();
         boolean onlyActive = true; // 기본값 유지
         var result = tryMatchBatchService.run(limit, onlyActive);
         log.info("[MonthlyMatchJob] processed={}, counts={}, notFoundIds={}",

@@ -31,4 +31,6 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceReposi
 
     Page<Place> findByIsActiveTrue(Pageable pageable);
     Page<Place> findAll(Pageable pageable);
+
+    long count();
 }
