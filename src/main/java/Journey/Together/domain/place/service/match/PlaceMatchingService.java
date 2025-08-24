@@ -121,6 +121,16 @@ public class PlaceMatchingService {
                     fmt(scored.tokenOverlap()), fmt(scored.addrSim()));
             return toDecision(MatchStatus.MATCHED, scored, false, false);
         }
+        //이름이 강하게 맞으면(0.96이상) 거리 허용(1000m까지 완화)
+        boolean existsByNameStrong =
+                (scored.nameSim() >= 0.96 && scored.distMeters() <= 1000)
+                        || (scored.tokenOverlap() >= 0.70 && scored.distMeters() <= 250);
+
+        if (existsByNameStrong) {
+            log.debug("EXISTS(NAME-STRONG) placeId={} dist={}m nameSim={} tok={}",
+                    place.getId(), fmt(scored.distMeters()), fmt(scored.nameSim()), fmt(scored.tokenOverlap()));
+            return toDecision(MatchStatus.MATCHED, scored, false, false);
+        }
 
         // ★ 영역형 POI 전용 존재 규칙 추가
         if (isAreaPoi(place) && scored.best() != null) {
