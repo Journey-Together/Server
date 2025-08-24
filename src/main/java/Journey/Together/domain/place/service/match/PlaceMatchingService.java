@@ -123,8 +123,8 @@ public class PlaceMatchingService {
         }
         //이름이 강하게 맞으면(0.96이상) 거리 허용(1000m까지 완화)
         boolean existsByNameStrong =
-                (scored.nameSim() >= 0.96 && scored.distMeters() <= 1000)
-                        || (scored.tokenOverlap() >= 0.70 && scored.distMeters() <= 250);
+                (scored.nameSim() >= 0.96 && scored.distMeters() <= 3000)
+                        || (scored.tokenOverlap() >= 0.70 && scored.distMeters() <= 300);
 
         if (existsByNameStrong) {
             log.debug("EXISTS(NAME-STRONG) placeId={} dist={}m nameSim={} tok={}",
