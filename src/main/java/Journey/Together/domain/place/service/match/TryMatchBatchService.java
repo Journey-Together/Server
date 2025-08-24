@@ -61,7 +61,7 @@ public class TryMatchBatchService {
         }
 
         LocalDateTime to = LocalDateTime.now();
-//        sendDiscordSummary(from, to);
+        sendDiscordSummary(from, to);
 
         return new RunResult(batch.size(), counts, notFoundIds);
     }
@@ -73,7 +73,7 @@ public class TryMatchBatchService {
         long notFoundCount   = issueRepo.countByMatchStatusAndMatchedAtBetween(MatchStatus.NOT_FOUND,  from, to);
 
         // 아무 것도 없으면 전송 생략 (스팸 방지)
-        if (needReviewCount + conflictCount + notFoundCount == 0) return;
+//        if (needReviewCount + conflictCount + notFoundCount == 0) return;
 
         // 상태별 최신 N건만 노출
         PageRequest topN = PageRequest.of(0, SUMMARY_MAX_ITEMS);
