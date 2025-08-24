@@ -39,7 +39,7 @@ public class Place {
     @Column(columnDefinition = "TEXT")
     private String homepage;
 
-    private boolean isActive;
+    private boolean isActive=true;
 
 
     @OneToMany(mappedBy = "place",fetch = FetchType.LAZY)
@@ -58,7 +58,6 @@ public class Place {
         this.areaCode = areaCode;
         this.sigunguCode = sigunguCode;
         this.tel = tel;
-        this.isActive=true;
     }
     public Long getId() {
         return id;

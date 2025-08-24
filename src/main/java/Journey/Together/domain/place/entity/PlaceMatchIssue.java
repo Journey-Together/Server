@@ -17,19 +17,45 @@ public class PlaceMatchIssue {
     private Long id;
     private Long placeId;
     private String placeAddress;
+    private String placeName;
     private String kakaoAddress;
-    private Double score;
+    private Double nameSim;             // Jaro-Winkler
+    private Double tokenOverlap;        // Jaccard
+    private Double addrSim;             // Jaccard
+    private Double distMeters;          // 최단거리(m)
+    private Double distScore;           // exp(-m/80)
+    private Double finalScore;
     @Enumerated(EnumType.STRING)
     private MatchStatus matchStatus;
+    private Boolean renameSuspect;
+    private Boolean movedSuspect;
     private Instant matchedAt;
 
+
     @Builder
-    public PlaceMatchIssue (Place place, String kakaoAddress, Double score, MatchStatus matchStatus) {
-        this.placeId = place.getId();
-        this.placeAddress = place.getAddress();
+    public PlaceMatchIssue(
+            Long placeId, String placeAddress, String placeName,
+            String kakaoAddress,
+            Double nameSim, Double tokenOverlap, Double addrSim,
+            Double distMeters, Double distScore, Double finalScore,
+            MatchStatus matchStatus, Boolean renameSuspect, Boolean movedSuspect,
+            Instant matchedAt
+    ) {
+        this.placeId = placeId;
+        this.placeAddress = placeAddress;
+        this.placeName = placeName;
         this.kakaoAddress = kakaoAddress;
-        this.score = score;
+
+        this.nameSim = nameSim;
+        this.tokenOverlap = tokenOverlap;
+        this.addrSim = addrSim;
+        this.distMeters = distMeters;
+        this.distScore = distScore;
+        this.finalScore = finalScore;
+
         this.matchStatus = matchStatus;
-        this.matchedAt = Instant.now();
+        this.renameSuspect = renameSuspect;
+        this.movedSuspect = movedSuspect;
+        this.matchedAt = matchedAt != null ? matchedAt : Instant.now();
     }
 }

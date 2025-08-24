@@ -64,7 +64,7 @@ public class PlaceMatchingService {
         if (!anchors.isEmpty() && candidates.isEmpty() && ret.addrDocCount() == 0) {
             // 앵커 있음 + 후보 전무 + 주소검색도 전무 → 강한 NOT_FOUND
 //            deactivate(place);
-            saveIssue(place, null, 0.0, MatchStatus.NOT_FOUND);
+            saveIssueEmpty(place, MatchStatus.NOT_FOUND);
             return new MatchDecision(
                     MatchStatus.NOT_FOUND, 0.0,
                     null, null, null, null, null,
@@ -74,7 +74,7 @@ public class PlaceMatchingService {
         }
         if (anchors.isEmpty() && candidates.isEmpty()) {
             // 위치(장소위치도 없음) 기준 자체가 없어서 폐업 단정 금지 → CONFLICT
-            saveIssue(place, null, 0.0, MatchStatus.CONFLICT);
+            saveIssueEmpty(place, MatchStatus.CONFLICT);
             return new MatchDecision(
                     MatchStatus.CONFLICT, 0.0,
                     null, null, null, null, null,
@@ -84,7 +84,7 @@ public class PlaceMatchingService {
         }
         if (candidates.isEmpty()) {
             // 후보가 0인데 주소검색은 있었다 → 애매. 없음 단정 X
-            saveIssue(place, null, 0.0, MatchStatus.CONFLICT);
+            saveIssueEmpty(place, MatchStatus.CONFLICT);
             return new MatchDecision(
                     MatchStatus.CONFLICT, 0.0,
                     null, null, null, null, null,
@@ -116,7 +116,11 @@ public class PlaceMatchingService {
                 (scored.addrSim() >= ADDR_SIM_WEAK) &&
                 (scored.nameSim() < RENAME_NAME_SIM_MAX);
         if (renameSuspect) {
-            saveIssue(place, scored.best().address(), scored.finalScore(), MatchStatus.NEED_REVIEW);
+            saveIssueWithScores(place, MatchStatus.NEED_REVIEW, scored.best(),
+                    scored.nameSim(), scored.tokenOverlap(), scored.addrSim(),
+                    scored.distMeters(), scored.distScore(), scored.finalScore(),
+                    true, false);
+
             return toDecision(MatchStatus.NEED_REVIEW, scored, true, false);
         }
 
@@ -124,7 +128,10 @@ public class PlaceMatchingService {
         boolean movedSuspect = (scored.nameSim() >= NAME_SIM_EXISTS) &&
                 (scored.distMeters() > MOVED_DIST_MIN && scored.distMeters() <= MOVED_DIST_MAX);
         if (movedSuspect) {
-            saveIssue(place, scored.best().address(), scored.finalScore(), MatchStatus.NEED_REVIEW);
+            saveIssueWithScores(place, MatchStatus.NEED_REVIEW, scored.best(),
+                    scored.nameSim(), scored.tokenOverlap(), scored.addrSim(),
+                    scored.distMeters(), scored.distScore(), scored.finalScore(),
+                    false, true);
             return toDecision(MatchStatus.NEED_REVIEW, scored, false, true);
         }
 
@@ -141,13 +148,19 @@ public class PlaceMatchingService {
             });
             if (!relatedWithinRadius) {
 //                deactivate(place);
-                saveIssue(place, scored.best().address(), 0.0, MatchStatus.NOT_FOUND);
+                saveIssueWithScores(place, MatchStatus.NOT_FOUND, scored.best(),
+                        scored.nameSim(), scored.tokenOverlap(), scored.addrSim(),
+                        scored.distMeters(), scored.distScore(), scored.finalScore(),
+                        false, false);
                 return toDecision(MatchStatus.NOT_FOUND, scored, false, false);
             }
         }
 
         // E) 애매 → CONFLICT
-        saveIssue(place, scored.best().address(), scored.finalScore(), MatchStatus.CONFLICT);
+        saveIssueWithScores(place, MatchStatus.CONFLICT, scored.best(),
+                scored.nameSim(), scored.tokenOverlap(), scored.addrSim(),
+                scored.distMeters(), scored.distScore(), scored.finalScore(),
+                false, false);
         return toDecision(MatchStatus.CONFLICT, scored, false, false);
     }
 
@@ -291,16 +304,47 @@ public class PlaceMatchingService {
         return new Scored(best, bestName, bestTok, bestAddr, bestMeters, bestDist, bestScore, renameSuspect, movedSuspect);
     }
 
-    //===데이터 저장 및 헬퍼 메소드===
-    private void saveIssue(Place place, String kakaoAddress, Double score, MatchStatus status) {
+    // === 이슈 저장(점수 포함) ===
+    private void saveIssueWithScores(
+            Place place, MatchStatus status, Candidate best,
+            double nameSim, double tokenOverlap, double addrSim,
+            double distMeters, double distScore, double finalScore,
+            boolean renameSuspect, boolean movedSuspect
+    ) {
         PlaceMatchIssue issue = PlaceMatchIssue.builder()
-                .place(place)
-                .kakaoAddress(kakaoAddress)
-                .score(score)
+                .placeId(place.getId())
+                .placeAddress(place.getAddress())
+                .placeName(place.getName())
+                .kakaoAddress(best != null ? best.address() : null)
+                .nameSim(dNa(nameSim))
+                .tokenOverlap(dNa(tokenOverlap))
+                .addrSim(dNa(addrSim))
+                .distMeters(dNaOrNull(distMeters))
+                .distScore(dNa(distScore))
+                .finalScore(dNa(finalScore))
                 .matchStatus(status)
+                .renameSuspect(renameSuspect)
+                .movedSuspect(movedSuspect)
                 .build();
         issueRepo.save(issue);
     }
+
+    // === 후보/점수 자체가 없을 때(강한 NOT_FOUND, 후보 0개 CONFLICT 등) ===
+    private void saveIssueEmpty(Place place, MatchStatus status) {
+        PlaceMatchIssue issue = PlaceMatchIssue.builder()
+                .placeId(place.getId())
+                .placeAddress(place.getAddress())
+                .placeName(place.getName())
+                .kakaoAddress(null)
+                .nameSim(null).tokenOverlap(null).addrSim(null)
+                .distMeters(null).distScore(null).finalScore(null)
+                .matchStatus(status)
+                .renameSuspect(false)
+                .movedSuspect(false)
+                .build();
+        issueRepo.save(issue);
+    }
+
     private void deactivate(Place p) {
         try { if (p.isActive()) p.setIsActive(); } catch (Exception ignored) {}
     }
@@ -340,7 +384,8 @@ public class PlaceMatchingService {
     private static String fmt(Double d) {
         return d==null?"-":String.format("%.1f",d);
     }
-
+    private static Double dNa(double v)       { return Double.isNaN(v) ? null : v; }
+    private static Double dNaOrNull(double v) { return Double.isNaN(v) ? null : v; }
     //===내부 record===
     private record Coord(Double lon, Double lat) {}
     private record Retrieval(List<Candidate> all, int addrDocCount) {}
