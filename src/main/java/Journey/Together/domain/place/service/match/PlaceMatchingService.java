@@ -38,6 +38,18 @@ public class PlaceMatchingService {
     private static final int MOVED_DIST_MAX         = 1500;   // m
     private static final int SCAN_RADIUS_MAX        = 1500;   // m (없음 판정 반경 상한)
     private static final int GLOBAL_FILTER_RADIUS   = 3000;   // m (전역 키워드 노이즈 억제)
+    private static final int AREA_MATCH_DIST_MAX  = 3000; // 영역형 POI 존재 인정 거리(3km)
+    private static final int AREA_RELATED_RADIUS  = 4000; // 영역형 관련성 탐색 반경(4km)
+    private static final double ADDR_SIM_RELATED  = 0.75; // 주소유사 기반 관련성 임계
+    private static final double CORE_NAME_SIM_MIN = 0.70; // 코어 이름 유사도 임계
+    private static final double CORE_TOK_MIN      = 0.50; // 코어 토큰 겹침 임계
+
+    private static final String[] AREA_POI_KEYWORDS = {
+            "휴양림","공원","해수욕장","계곡","리조트","스키장","테마파크","유원지","캠핑장","국립공원"
+    };
+    private static final String[] FACILITY_SUFFIX = {
+            "전기차충전소","주차장","매표소","관리사무소","안내소","정문","후문","입구","매점"
+    };
 
     /**
      * 한 번에 결론을 내는 매칭 엔트리포인트.
@@ -99,8 +111,7 @@ public class PlaceMatchingService {
         //=== 장소 상태 판정===
         // A) 존재 확정(주소/이름 완전 일치)
         boolean existsStrong = (scored.distMeters() <= SAME_PLACE_DIST_SOFT) &&
-                (scored.nameSim() >= NAME_SIM_EXISTS
-                        || scored.tokenOverlap() >= TOKEN_OVERLAP_EXISTS);
+                (scored.nameSim() >= NAME_SIM_EXISTS || scored.tokenOverlap() >= TOKEN_OVERLAP_EXISTS);
         boolean existsAddrStrong = (scored.distMeters() <= SAME_PLACE_DIST_STRONG) &&
                 (scored.addrSim() >= ADDR_SIM_STRONG);
 
@@ -109,6 +120,23 @@ public class PlaceMatchingService {
                     place.getId(), fmt(scored.distMeters()), fmt(scored.nameSim()),
                     fmt(scored.tokenOverlap()), fmt(scored.addrSim()));
             return toDecision(MatchStatus.MATCHED, scored, false, false);
+        }
+
+        // ★ 영역형 POI 전용 존재 규칙 추가
+        if (isAreaPoi(place) && scored.best() != null) {
+            String coreBest = stripFacilitySuffix(scored.best().name());
+            double coreNameSim = U.nameSim(U.normalizeName(place.getName()), coreBest);
+            double coreTok     = U.tokenOverlap(U.normalizeName(place.getName()), coreBest);
+
+            boolean existsArea = (scored.distMeters() <= AREA_MATCH_DIST_MAX) &&
+                    (scored.addrSim() >= ADDR_SIM_RELATED || coreTok >= CORE_TOK_MIN || coreNameSim >= CORE_NAME_SIM_MIN);
+
+            if (existsArea) {
+                log.debug("EXISTS(AREA) placeId={} dist={}m addrSim={} coreNameSim={} coreTok={}",
+                        place.getId(), fmt(scored.distMeters()), fmt(scored.addrSim()),
+                        fmt(coreNameSim), fmt(coreTok));
+                return toDecision(MatchStatus.MATCHED, scored, false, false);
+            }
         }
 
         // B) 리네임 의심
@@ -137,14 +165,21 @@ public class PlaceMatchingService {
 
         // D) 없음(폐업/소멸) 확정: 앵커 있고, 반경 1.5km 내 '관련성' 후보가 0
         if (!anchors.isEmpty()) {
+            int radius = isAreaPoi(place) ? AREA_RELATED_RADIUS : SCAN_RADIUS_MAX;
+
             boolean relatedWithinRadius = candidates.stream().anyMatch(c -> {
                 double m = minDistance(anchors, c.lon(), c.lat());
-                if (Double.isNaN(m) || m > SCAN_RADIUS_MAX) return false;
+                if (Double.isNaN(m) || m > radius) return false;
                 // 관련성: 이름/토큰 어느 하나라도 중간 이상이거나, 전화 일치
-                String cn = U.normalizeName(c.name());
-                double n = U.nameSim(nameN, cn);
-                double t = U.tokenOverlap(nameN, cn);
-                return n >= 0.60 || t >= 0.50;
+                // 코어 이름 비교(부속시설 접미사 제거)
+                String cnCore = stripFacilitySuffix(c.name());
+                double n = U.nameSim(U.normalizeName(place.getName()), cnCore);
+                double t = U.tokenOverlap(U.normalizeName(place.getName()), cnCore);
+
+                double a = U.tokenOverlap(U.normalizeAddress(place.getAddress()), U.normalizeAddress(c.address()));
+
+                // 기존 이름/토큰 + 주소 유사도 보강
+                return (n >= 0.60 || t >= 0.50 || a >= ADDR_SIM_RELATED);
             });
             if (!relatedWithinRadius) {
 //                deactivate(place);
@@ -316,6 +351,7 @@ public class PlaceMatchingService {
                 .placeAddress(place.getAddress())
                 .placeName(place.getName())
                 .kakaoAddress(best != null ? best.address() : null)
+                .kakaoPlaceName(best != null ? best.name() : null)
                 .nameSim(dNa(nameSim))
                 .tokenOverlap(dNa(tokenOverlap))
                 .addrSim(dNa(addrSim))
@@ -336,6 +372,7 @@ public class PlaceMatchingService {
                 .placeAddress(place.getAddress())
                 .placeName(place.getName())
                 .kakaoAddress(null)
+                .kakaoPlaceName(null)
                 .nameSim(null).tokenOverlap(null).addrSim(null)
                 .distMeters(null).distScore(null).finalScore(null)
                 .matchStatus(status)
@@ -377,6 +414,21 @@ public class PlaceMatchingService {
             if (!Double.isNaN(m) && m < best) best = m;
         }
         return best==Double.POSITIVE_INFINITY ? Double.NaN : best;
+    }
+    private boolean isAreaPoi(Place p) {
+        String n = p.getName()==null? "" : p.getName();
+        for (String k : AREA_POI_KEYWORDS) if (n.contains(k)) return true;
+        String cat = p.getCategory()==null? "" : p.getCategory();
+        for (String k : AREA_POI_KEYWORDS) if (cat.contains(k)) return true;
+        return false;
+    }
+    private String stripFacilitySuffix(String name) {
+        if (name == null) return null;
+        String s = U.normalizeName(name); // 기존 정규화 활용
+        for (String suf : FACILITY_SUFFIX) {
+            s = s.replace(suf, "");
+        }
+        return s.trim();
     }
     private static String nullToEmpty(String s) {
         return s==null?"":s;

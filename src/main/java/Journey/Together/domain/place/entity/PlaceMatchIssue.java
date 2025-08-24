@@ -13,12 +13,13 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PlaceMatchIssue {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long placeId;
     private String placeAddress;
     private String placeName;
     private String kakaoAddress;
+    private String kakaoPlaceName;
     private Double nameSim;             // Jaro-Winkler
     private Double tokenOverlap;        // Jaccard
     private Double addrSim;             // Jaccard
@@ -35,7 +36,7 @@ public class PlaceMatchIssue {
     @Builder
     public PlaceMatchIssue(
             Long placeId, String placeAddress, String placeName,
-            String kakaoAddress,
+            String kakaoAddress, String kakaoPlaceName,
             Double nameSim, Double tokenOverlap, Double addrSim,
             Double distMeters, Double distScore, Double finalScore,
             MatchStatus matchStatus, Boolean renameSuspect, Boolean movedSuspect,
@@ -45,6 +46,7 @@ public class PlaceMatchIssue {
         this.placeAddress = placeAddress;
         this.placeName = placeName;
         this.kakaoAddress = kakaoAddress;
+        this.kakaoPlaceName = kakaoPlaceName;
 
         this.nameSim = nameSim;
         this.tokenOverlap = tokenOverlap;
