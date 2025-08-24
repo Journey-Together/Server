@@ -31,7 +31,6 @@ public class TryMatchBatchService {
 
     /**
      * DB에서 최대 limit개 로드 후 tryMatch 실행 (부작용 포함).
-     * - onlyActive=true면 is_active=true인 것만
      * - 정렬: id ASC (원하면 바꿔도 됨)
      */
     public RunResult run(int limit, boolean onlyActive) {
