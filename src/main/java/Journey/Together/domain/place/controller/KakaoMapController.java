@@ -1,6 +1,6 @@
 package Journey.Together.domain.place.controller;
 
-import Journey.Together.domain.place.service.kakao.PlaceSearchClient;
+import Journey.Together.domain.place.service.kakao.KakaoApiService;
 import Journey.Together.domain.place.service.kakao.dto.KakaoAddress;
 import Journey.Together.domain.place.service.kakao.dto.KakaoKeyword;
 import Journey.Together.domain.place.service.match.TryMatchBatchService;
@@ -15,17 +15,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/place/kakao-map")
 @Tag(name = "KakaoMap", description = "Kakao 지도 API")
 public class KakaoMapController {
-    private final PlaceSearchClient placeSearchClient;
+    private final KakaoApiService kakao;
     private final TryMatchBatchService service;
 
     @GetMapping("/address")
     public ApiResponse<KakaoAddress> getPlaceInfoByAddress(@RequestParam String address){
-        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeSearchClient.getPlaceInfoByAddress(address,null));
+        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, kakao.getPlaceInfoByAddress(address,null));
     }
 
     @GetMapping("/keyword")
     public ApiResponse<KakaoKeyword> getPlaceInfoByKeyword(@RequestParam String keyword){
-        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, placeSearchClient.getPlaceInfoByKeyWord(keyword,null));
+        return ApiResponse.success(Success.GET_PLACE_DETAIL_SUCCESS, kakao.getPlaceInfoByKeyword(keyword,null));
     }
 
     @PostMapping("/run")

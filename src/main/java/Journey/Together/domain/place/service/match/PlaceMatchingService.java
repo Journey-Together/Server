@@ -6,7 +6,7 @@ import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.entity.PlaceMatchIssue;
 import Journey.Together.domain.place.enumerated.MatchStatus;
 import Journey.Together.domain.place.repository.PlaceMatchIssueRepository;
-import Journey.Together.domain.place.service.kakao.PlaceSearchClient;
+import Journey.Together.domain.place.service.kakao.KakaoApiService;
 import Journey.Together.domain.place.service.kakao.dto.KakaoAddress;
 import Journey.Together.domain.place.service.kakao.dto.KakaoKeyword;
 import Journey.Together.domain.place.util.MatchUtils;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PlaceMatchingService {
-    private final PlaceSearchClient kakao;
+    private final KakaoApiService kakao;
     private final PlaceMatchIssueRepository issueRepo;
     private final MatchUtils U;
     private static final double NAME_SIM_EXISTS = 0.82;
@@ -228,7 +228,7 @@ public class PlaceMatchingService {
         }
         if(addrN != null && !addrN.isBlank()) {
             try {
-                KakaoAddress ka = kakao.getPlaceInfoByAddress(addrN, null);
+                KakaoAddress ka = kakao.getPlaceInfoByAddress(addrN,null);
                 if (ka != null && ka.documents() != null && !ka.documents().isEmpty()) {
                     var d = ka.documents().get(0);
                     Double lon = parseDouble(d.x());
@@ -255,7 +255,7 @@ public class PlaceMatchingService {
         //주소 검색
         if(addrN !=null && !addrN.isBlank()) {
             try{
-                KakaoAddress ka = kakao.getPlaceInfoByAddress(addrN, null);
+                KakaoAddress ka = kakao.getPlaceInfoByAddress(addrN,null);
                 if (ka != null && ka.documents() != null) {
                     addrDocs = ka.documents().size();
                     for(var d : ka.documents()) {
@@ -279,7 +279,7 @@ public class PlaceMatchingService {
         //장소명으로 키워드 추출하여 키워드 기반 카카오 장소 정보 가져오기
         for (String kw : U.expandKeywords(nameN)) {
             try {
-                KakaoKeyword kk = kakao.getPlaceInfoByKeyWord(kw, null);
+                KakaoKeyword kk = kakao.getPlaceInfoByKeyword(kw,null);
                 if (kk != null && kk.documents() != null) {
                     for (var d : kk.documents()) {
                         Double lon = parseDouble(d.x());
