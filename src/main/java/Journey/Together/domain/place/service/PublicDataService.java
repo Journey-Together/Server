@@ -1,15 +1,5 @@
 package Journey.Together.domain.place.service;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.RecordComponent;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import Journey.Together.domain.member.entity.Member;
 import Journey.Together.domain.member.enumerate.MemberType;
 import Journey.Together.domain.place.entity.DisabilityPlaceCategory;
@@ -18,7 +8,7 @@ import Journey.Together.domain.place.entity.Place;
 import Journey.Together.domain.place.repository.DisabilityPlaceCategoryRepository;
 import Journey.Together.domain.place.repository.DisabilitySubCategoryRepository;
 import Journey.Together.domain.place.repository.PlaceRepository;
-import Journey.Together.global.common.DiscordMessageSender;
+import Journey.Together.global.common.discord.DiscordMessageSender;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
 import Journey.Together.global.external.dto.FieldWithIndex;
@@ -28,12 +18,21 @@ import Journey.Together.global.external.dto.response.ResponsePlaceDisabilityCate
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -167,11 +166,10 @@ public class PublicDataService {
 			notifyPublicDataSaveStatus(" 공공데이터 기본정보 동기화 ", "프로세스 시작");
 
 			List<ResponseBasicData> syncData = publicDataFetchService.fetchSyncData(LocalDate.now().minusDays(1));
-			List<Place> placeList = syncData.stream()
+
+            return syncData.stream()
 				.map(ResponseBasicData::mapToEntity)
 				.collect(Collectors.toList());
-
-			return placeList;
 		} catch (Exception e) {
 			log.error("공공데이터 기본정보 동기화 중 오류 발생: {}", e.getMessage(), e);
 			throw e;
@@ -211,7 +209,8 @@ public class PublicDataService {
 
 	private List<DisabilityPlaceCategory> buildPlaceCategoryList(List<Place> places) {
 		List<DisabilitySubCategory> subCategories = disabilitySubCategoryRepository.findAll();
-		List<DisabilityPlaceCategory> categories = places.stream()
+
+        return places.stream()
 			.map(place -> {
 				ResponsePlaceDisabilityCategory response = publicDataFetchService
 					.getDisabilityCategories(place.getId())
@@ -226,8 +225,6 @@ public class PublicDataService {
 			})
 			.flatMap(List::stream)
 			.toList();
-
-		return categories;
 	}
 
 	private Set<DisabilityPlaceCategory> mapToDisabilityPlaceCategoryEntity(Place place,

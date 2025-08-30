@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceRepositoryCustom {
@@ -34,4 +33,9 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceReposi
     검색어 기반 목록 조회 최신순
    */
     Page<Place> findAllByNameContainsOrderByCreatedAtDesc(@Param("searchWord") String searchWord,Pageable pageable);
+
+    Page<Place> findByIsActiveTrue(Pageable pageable);
+    Page<Place> findAll(Pageable pageable);
+
+    long count();
 }
