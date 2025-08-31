@@ -84,9 +84,10 @@ jobs:
 
             if curl -fs http://localhost:${NEXT_PORT}/actuator/health; then
               ln -sfn ~/nginx/${NEXT_CONF} ~/nginx/nginx.conf
-              docker exec -T nginx nginx -s reload || docker compose restart nginx
-              docker --profile $CURRENT_PROFILE stop $CURRENT_NAME
-              docker --profile $CURRENT_PROFILE rm -f $CURRENT_NAME
+              docker exec -i nginx nginx -t
+              docker exec -i nginx nginx -s reload || docker restart nginx
+              docker compose --profile $CURRENT_PROFILE stop $CURRENT_NAME
+              docker compose --profile $CURRENT_PROFILE rm -f $CURRENT_NAME
             else
               echo "New app failed health check. Rolling back..."
               docker compose --profile $NEXT_PROFILE stop $NEXT_NAME
