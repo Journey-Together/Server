@@ -11,11 +11,10 @@ import Journey.Together.domain.member.repository.MemberRepository;
 import Journey.Together.global.common.CustomMultipartFile;
 import Journey.Together.global.exception.ApplicationException;
 import Journey.Together.global.exception.ErrorCode;
-import Journey.Together.global.exception.ErrorResponse;
-import Journey.Together.global.security.kakao.KakaoClient;
-import Journey.Together.global.security.kakao.dto.KakaoProfile;
 import Journey.Together.global.security.jwt.TokenProvider;
 import Journey.Together.global.security.jwt.dto.TokenDto;
+import Journey.Together.global.security.kakao.KakaoClient;
+import Journey.Together.global.security.kakao.dto.KakaoProfile;
 import Journey.Together.global.security.kakao.dto.KakaoToken;
 import Journey.Together.global.security.naver.dto.NaverDeleteResponse;
 import Journey.Together.global.security.naver.dto.NaverProperties;
@@ -26,14 +25,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -90,7 +86,8 @@ public class AuthService {
                 interestRepository.save(interest);
             }
             tokenDto = tokenProvider.createToken(member);
-            member.setRefreshToken(loginReq.refreshToken());
+            member.setRefreshToken(tokenDto.refreshToken());
+            member.setSocialRefreshToken(loginReq.refreshToken());
 
             // Response
             return LoginRes.of(member, tokenDto);
@@ -126,7 +123,8 @@ public class AuthService {
             }
 
             tokenDto = tokenProvider.createToken(member);
-            member.setRefreshToken(loginReq.refreshToken());
+            member.setRefreshToken(tokenDto.refreshToken());
+            member.setSocialRefreshToken(loginReq.refreshToken());
         }
         return LoginRes.of(member, tokenDto);
     }
@@ -138,6 +136,7 @@ public class AuthService {
 
         // Business Logic - Refresh Token 삭제 및 Access Token 블랙리스트 등록
         tokenProvider.getExpiration(accessToken);
+        member.setSocialRefreshToken(null);
         member.setRefreshToken(null);
 
         // Response
@@ -149,7 +148,7 @@ public class AuthService {
 
         // Business Logic - 회원 논리적 삭제 진행
         if(member.getLoginType().equals(LoginType.NAVER)) {
-            NaverTokenResponse tokenResponse = toRequestToken(member.getRefreshToken());
+            NaverTokenResponse tokenResponse = toRequestToken(member.getSocialRefreshToken());
             if(tokenResponse.getError() != null){
                 throw new ApplicationException(ErrorCode.NAVER_REFRESH_ERROR);
             }
@@ -159,7 +158,8 @@ public class AuthService {
             }
         }else if(member.getLoginType().equals(LoginType.KAKAO)) {
             //accessToken 요청
-            KakaoToken kakaoToken = kakaoClient.getKakaoAccessToken(member.getRefreshToken());
+            KakaoToken kakaoToken = kakaoClient.getKakaoAccessToken(member.getSocialRefreshToken());
+            System.out.println(kakaoToken.access_token());
             //연결 삭제
             Long id = kakaoClient.unlinkUser(kakaoToken.access_token());
             if(id==null){
@@ -168,8 +168,6 @@ public class AuthService {
         }
 
         memberRepository.delete(member);
-
-        // Response
 
     }
     @Transactional

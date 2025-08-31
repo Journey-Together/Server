@@ -76,8 +76,11 @@ public class Member extends BaseTimeEntity {
     @Column(name = "refreshToken", columnDefinition = "varchar(255)")
     private String refreshToken;
 
+    @Column(name = "social_refreshToken", columnDefinition = "varchar(255)")
+    private String socialRefreshToken;
+
     @Builder
-    public Member(String email, String name,String nickname, String phone, String profileUuid, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,String part1Rel,String part1Phone,String part2Rel,String part2Phone, String refreshToken) {
+    public Member(String email, String name,String nickname, String phone, String profileUuid, LoginType loginType,String bloodType,MemberType memberType, String birth, String allergy, String medication,String part1Rel,String part1Phone,String part2Rel,String part2Phone, String refreshToken, String socialRefreshToken) {
         this.email = email;
         this.name = name;
         this.nickname=nickname;
@@ -93,6 +96,7 @@ public class Member extends BaseTimeEntity {
         this.part1Phone=part1Phone;
         this.part2Rel=part2Rel;
         this.part2Phone=part2Phone;
-        this.refreshToken=refreshToken;
+        this.refreshToken = refreshToken;
+        this.socialRefreshToken=socialRefreshToken;
     }
 }

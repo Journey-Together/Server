@@ -53,12 +53,12 @@ public class KakaoClient {
         params.add("grant_type", "refresh_token");
         params.add("client_id", kakaoClientId);
         params.add("refresh_token", refresh_token);
-        params.add("client_secret", kakaoClientSecret);
+//        params.add("client_secret", kakaoClientSecret);
 
         // 요청 보내기 및 응답 수신
         String response = webClient.post()
                 .uri(kakaoTokenUri)
-                .header("Content-type", "application/x-www-form-urlencoded")
+                .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8")
                 .body(BodyInserters.fromFormData(params))
                 .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
                 .bodyToMono(String.class) // (Mono는 단일 데이터, Flux는 복수 데이터)
@@ -76,14 +76,14 @@ public class KakaoClient {
         return kakaoToken;
     }
 
-    public KakaoProfile getMemberInfo(String accesToken) {
+    public KakaoProfile getMemberInfo(String accessToken) {
         // 요청 기본 객체 생성
         WebClient webClient = WebClient.create(kakaoUserInfoUri);
         // 요청 보내서 응답 받기
         String response = webClient.post()
                 .uri(kakaoUserInfoUri)
                 .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
-                .header("Authorization", accesToken)
+                .header("Authorization", accessToken)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
