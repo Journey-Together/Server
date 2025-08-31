@@ -7,6 +7,7 @@ import Journey.Together.global.security.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,54 +34,57 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // CORS 허용, CSRF 비활성화
-        http.cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable);
+    @Order(1)
+    public SecurityFilterChain guestChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/v1/plan/guest/**",
+                        "/v1/place/guest/**",
+                        "/v1/plan/open",
+                        "/v1/plan/search",
+                        "/v1/place/search/**",
+                        "/v1/place/kakao-map/**",
+                        "/v1/place/main",
+                        "/v1/place/review/guest/**",
+                        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                        "/actuator/**",
+                        "/v1/auth/**", "/oauth2/**", "/login.html")
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                // 이 체인에는 JWT/Exception 필터를 '등록하지 않는다'
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
-        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// Session 미사용
+        return http.build();
+    }
 
-        // httpBasic, httpFormLogin 비활성화
-        http.httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable);
-
-        // JWT 관련 필터 설정 및 예외 처리
-        http.exceptionHandling((exceptionHandling) ->
-                exceptionHandling
+    // 2) 나머지 보호 체인 (여기에만 JWT/Exception 필터 등록)
+    @Bean
+    @Order(2)
+    public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/**")  // 위에서 매칭되지 않은 나머지 경로들
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .exceptionHandling(ex -> ex
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-        );
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(exceptionFilter, JwtFilter.class);
-
-        // 요청 URI별 권한 설정
-        http.authorizeHttpRequests((authorize) ->
-                // Swagger UI 외부 접속 허용
-                authorize.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        // 로그인 로직 접속 허용
-                        .requestMatchers("/v1/auth/**", "/oauth2/**", "/login.html").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
+                )
+                // JWT 필터와 예외 필터는 '보호 체인'에만 단다
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionFilter, JwtFilter.class)
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/member/**").authenticated()
-                        .requestMatchers("/v1/place/main").permitAll()
-                        .requestMatchers("/v1/place/review/guest/**").permitAll()
-                        .requestMatchers("/v1/plan/guest/**").permitAll()
-                        .requestMatchers("/v1/plan/open").permitAll()
-                        .requestMatchers("/v1/plan/search").permitAll()
-                        .requestMatchers("/v1/place/search").permitAll()
-                        .requestMatchers("/v1/place/search/**").permitAll()
-                        .requestMatchers("/v1/place/search/map").permitAll()
-                        .requestMatchers("/v1/place/guest/**").permitAll()
-                        .requestMatchers("/v1/place/kakao-map/**").permitAll()
-                        .requestMatchers("/v1/report/**").permitAll()
-
-                        // 메인 페이지, 공고 페이지 등에 한해 인증 정보 없이 접근 가능 (추후 추가)
-                        // 이외의 모든 요청은 인증 정보 필요
-                        .anyRequest().authenticated());
-
-        // OAuth2 로그인 설정
-        http.oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/login-success")
-                .failureUrl("/login-failure"));
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(o -> o
+                        .defaultSuccessUrl("/login-success")
+                        .failureUrl("/login-failure")
+                );
 
         return http.build();
     }
