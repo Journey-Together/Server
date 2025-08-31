@@ -46,44 +46,50 @@ jobs:
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }} \
             --push .
 
-      - name: Blue-Green Deploy to EC2
+      - name: Blue-Green Deploy to EC2 (compose)
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.EC2_SERVER_IP }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            if docker ps | grep app-blue; then
-              NEXT_PORT=8081
+            export REGISTRY_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest
+
+            if docker ps --format '{{.Names}}' | grep -q '^app-blue$'; then
+              NEXT_PROFILE=green
               NEXT_NAME=app-green
-              NEXT_CONF=green.conf
+              CURRENT_PROFILE=blue
               CURRENT_NAME=app-blue
+              NEXT_PORT=8081
+              NEXT_CONF=green.conf
             else
-              NEXT_PORT=8080
+              NEXT_PROFILE=blue
               NEXT_NAME=app-blue
-              NEXT_CONF=blue.conf
+              CURRENT_PROFILE=green
               CURRENT_NAME=app-green
+              NEXT_PORT=8080
+              NEXT_CONF=blue.conf
             fi
 
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}
+            docker compose --profile $NEXT_PROFILE pull $NEXT_NAME
+            docker compose --profile $NEXT_PROFILE up -d $NEXT_NAME
 
-            docker stop $NEXT_NAME || true && docker rm $NEXT_NAME || true
-            docker run -d --name $NEXT_NAME -p $NEXT_PORT:8080 \
-              ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}
-    
             for i in {1..24}; do
-              if curl -fs http://localhost:$NEXT_PORT/actuator/health; then
+              if curl -fs http://localhost:${NEXT_PORT}/actuator/health; then
                 break
               fi
-              echo "Waiting for app on port $NEXT_PORT to be healthy... ($i/24)"
+              echo "Waiting for app on port ${NEXT_PORT} to be healthy... ($i/24)"
               sleep 5
             done
 
-            if curl -f http://localhost:$NEXT_PORT/actuator/health; then
-              ln -sf ~/nginx/$NEXT_CONF ~/nginx/nginx.conf
-              docker restart nginx
-              docker stop $CURRENT_NAME && docker rm $CURRENT_NAME
+            if curl -fs http://localhost:${NEXT_PORT}/actuator/health; then
+              ln -sfn ~/nginx/${NEXT_CONF} ~/nginx/nginx.conf
+              docker exec -T nginx nginx -s reload || docker compose restart nginx
+              docker --profile $CURRENT_PROFILE stop $CURRENT_NAME
+              docker --profile $CURRENT_PROFILE rm -f $CURRENT_NAME
             else
-              docker stop $NEXT_NAME && docker rm $NEXT_NAME
+              echo "New app failed health check. Rolling back..."
+              docker compose --profile $NEXT_PROFILE stop $NEXT_NAME
+              docker compose --profile $NEXT_PROFILE rm -f $NEXT_NAME
               exit 1
             fi
