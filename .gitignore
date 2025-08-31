@@ -38,3 +38,5 @@ out/
 /src/main/resources/application.yml
 /src/main/resources/application-release.yml
 /src/main/resources/application-local.yml
+
+/docker-compose.yml

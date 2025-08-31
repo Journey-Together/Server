@@ -86,9 +86,15 @@ dependencies {
 	// Jaro-Winkler
 	implementation 'org.apache.commons:commons-text:1.10.0'
 
+	//OpenFeign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation 'io.github.openfeign:feign-jackson:13.2'
+
+	//H2
 	runtimeOnly 'com.h2database:h2'
+
+	//Promethus
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
 }
 
