@@ -47,7 +47,7 @@ public class SecurityConfig {
                         "/v1/place/review/guest/**",
                         "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                         "/actuator/**",
-                        "/v1/auth/**", "/oauth2/**", "/login.html")
+                        "/v1/auth/sign-in", "/oauth2/**", "/login.html")
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
