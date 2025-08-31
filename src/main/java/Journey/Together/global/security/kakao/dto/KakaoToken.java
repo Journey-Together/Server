@@ -4,11 +4,12 @@ import lombok.Builder;
 
 @Builder
 public record KakaoToken(
-        String access_token,
-        String refresh_token,
         String token_type,
+        String access_token,
+        String id_token,
         Integer expires_in,
-        Integer refresh_token_expires_in,
-        String scope
+        String refresh_token,
+        Integer refresh_token_expires_in
+
 ) {
 }

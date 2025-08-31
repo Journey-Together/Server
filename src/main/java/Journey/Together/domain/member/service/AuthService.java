@@ -159,6 +159,7 @@ public class AuthService {
         }else if(member.getLoginType().equals(LoginType.KAKAO)) {
             //accessToken 요청
             KakaoToken kakaoToken = kakaoClient.getKakaoAccessToken(member.getSocialRefreshToken());
+            System.out.println(kakaoToken.access_token());
             //연결 삭제
             Long id = kakaoClient.unlinkUser(kakaoToken.access_token());
             if(id==null){
