@@ -87,7 +87,7 @@ public class AuthService {
             }
             tokenDto = tokenProvider.createToken(member);
             member.setRefreshToken(tokenDto.refreshToken());
-            member.setSocialRefreshToken(loginReq.socialRefreshToken());
+            member.setSocialRefreshToken(loginReq.refreshToken());
 
             // Response
             return LoginRes.of(member, tokenDto);
@@ -124,7 +124,7 @@ public class AuthService {
 
             tokenDto = tokenProvider.createToken(member);
             member.setRefreshToken(tokenDto.refreshToken());
-            member.setSocialRefreshToken(loginReq.socialRefreshToken());
+            member.setSocialRefreshToken(loginReq.refreshToken());
         }
         return LoginRes.of(member, tokenDto);
     }
