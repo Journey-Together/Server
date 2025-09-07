@@ -388,39 +388,5 @@ public class PlaceService {
 
     }
 
-    public List<Map<String, Object>> searchPlaceComplete(String query) throws IOException {
-        List<Map<String, Object>> list = new ArrayList<>();
-        SearchRequest searchRequest = new SearchRequest("places");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-
-        searchSourceBuilder.query(QueryBuilders.matchQuery("name", query));
-        searchSourceBuilder.size(autocompleteNum); // 상위 10개의 결과만 반환
-
-        searchRequest.source(searchSourceBuilder);
-
-        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
-        List<String> results = Arrays.stream(searchResponse.getHits().getHits())
-                .map(hit -> hit.getSourceAsMap().get("name").toString())
-                .toList();
-
-        results.forEach(keyword -> {
-            Place place = placeRepository.findPlaceByName(keyword);
-            Long placeId = null;
-            if (place != null) {
-                placeId = place.getId();
-            }
-
-            Map<String, Object> map = new HashMap<>();
-            map.put("keyword", keyword);
-            map.put("placeId", placeId);
-
-            list.add(map);
-        });
-
-        return list;
-    }
-
-
 
 }

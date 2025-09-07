@@ -1,5 +1,6 @@
 package Journey.Together.domain.place.controller;
 
+import Journey.Together.domain.place.dto.Suggestion;
 import Journey.Together.domain.place.dto.request.PlaceReviewReq;
 import Journey.Together.domain.place.dto.request.UpdateReviewDto;
 import Journey.Together.domain.place.dto.response.*;
@@ -8,7 +9,7 @@ import Journey.Together.domain.place.dto.response.MainRes;
 import Journey.Together.domain.place.dto.response.PlaceDetailRes;
 import Journey.Together.domain.place.dto.response.PlaceRes;
 import Journey.Together.domain.place.dto.response.SearchPlaceRes;
-import Journey.Together.domain.place.service.DataMigrationService;
+import Journey.Together.domain.place.service.PlaceAutoCompleteService;
 import Journey.Together.domain.place.service.PlaceService;
 import Journey.Together.domain.place.service.PublicDataService;
 import Journey.Together.global.common.ApiResponse;
@@ -40,7 +41,7 @@ import java.util.Map;
 public class PlaceController {
 
     private final PlaceService placeService;
-    private final DataMigrationService dataMigrationService;
+    private final PlaceAutoCompleteService placeAutoCompleteService;
 
     @GetMapping("/main")
     public ApiResponse<MainRes> getMain(
@@ -136,17 +137,17 @@ public class PlaceController {
         return ApiResponse.success(Success.SEARCH_PLACE_LIST_SUCCESS, placeService.searchPlaceMap(category,disabilityType,detailFilter,arrange,minX,maxX,minY,maxY));
     }
 
-    @GetMapping("/search/autocomplete")
-    public ApiResponse<List<Map<String,Object>>> searchPlaceComplete(
-            @RequestParam String query
-    ) throws IOException {
-        return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS, placeService.searchPlaceComplete(query));
+    @PostMapping("/search/autocomplete/migration/redis")
+    public ApiResponse<?> migrationPlaceName(
+    ) {
+        placeAutoCompleteService.syncPlaceNamesWithRedis(1000);
+        return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS);
     }
 
-    @GetMapping("/search/autocomplete/migration")
-    public ApiResponse<?> migrationData(
-    ) throws IOException {
-        dataMigrationService.migrateData();
-        return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS);
+    @GetMapping("/search/autocomplete")
+    public ApiResponse<List<Suggestion>> searchPlaceComplete(
+        @RequestParam String query
+    ) {
+        return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS,  placeAutoCompleteService.suggest(query));
     }
 }
