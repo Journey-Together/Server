@@ -96,6 +96,10 @@ dependencies {
 	//Promethus
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
+	//Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis' // Lettuce 기본
+	implementation 'org.springframework.boot:spring-boot-starter'
+
 }
 
 tasks.named('test') {

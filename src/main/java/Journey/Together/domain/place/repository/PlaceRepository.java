@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceRepositoryCustom {
     @Query(value = "SELECT * FROM place p " +
@@ -27,7 +28,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceReposi
 
     Place findPlaceById(Long id);
 
-    Place findPlaceByName(String name);
+    Optional<Place> findPlaceByName(String name);
 
     /*
     검색어 기반 목록 조회 최신순
