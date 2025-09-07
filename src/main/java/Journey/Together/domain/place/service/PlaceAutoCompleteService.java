@@ -96,7 +96,7 @@ public class PlaceAutoCompleteService {
 			return null;
 		});
 
-		// (단어, 점수, 하이라이트) 구성
+		// (단어, 점수, 장소id) 구성
 		List<Suggestion> paired = new ArrayList<>(list.size());
 		for (int i = 0; i < list.size(); i++) {
 			String w = list.get(i);
