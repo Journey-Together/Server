@@ -5,6 +5,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +29,13 @@ public class OpenFeignConfig {
     Logger.Level feignLoggerLevel() {
         return Logger.Level.BASIC;
     }
-    @Bean Encoder feignEncoder(ObjectMapper m) { return new JacksonEncoder(m); }
+
+    @Bean
+    public Encoder feignEncoder(ObjectMapper objectMapper) {
+        return new SpringEncoder(() -> new HttpMessageConverters(
+            new MappingJackson2HttpMessageConverter(objectMapper)
+        ));
+    }
     @Bean Decoder feignDecoder(ObjectMapper m) { return new JacksonDecoder(m); }
     @Bean
     public QueryMapEncoder queryMapEncoder() {
