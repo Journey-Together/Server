@@ -1,30 +1,17 @@
 package Journey.Together.domain.place.service;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.connection.Limit;
-import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.connection.RedisZSetCommands.Range;
-import org.springframework.data.redis.core.RedisCallback;
-
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,10 +102,13 @@ public class PlaceAutoCompleteService {
 		return paired.size() > LIMIT ? paired.subList(0, LIMIT) : paired;
 	}
 
-	/** 사용자가 항목을 선택했을 때 인기 점수 증가 */
-	public double recordSelection(String word, double inc) {
-		if (word == null || word.isBlank()) return 0.0;
-		Double v = redis.opsForZSet().incrementScore(SCORE_KEY, word, inc);
-		return v == null ? 0.0 : v;
+	/**
+	 * 사용자가 항목을 선택했을 때 인기 점수 증가
+	 */
+	public void recordAutocompleteSelection(String word) {
+		String w = (word == null) ? null : word.trim();
+		if (w == null || w.isEmpty()) return;
+		redis.opsForZSet().incrementScore(SCORE_KEY, w, 0.1);
 	}
+
 }

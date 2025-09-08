@@ -21,6 +21,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -149,5 +151,13 @@ public class PlaceController {
         @RequestParam String query
     ) {
         return ApiResponse.success(Success.SEARCH_COMPLETE_SUCCESS,  placeAutoCompleteService.suggest(query));
+    }
+
+    @PostMapping("/search/autocomplete")
+    public ApiResponse<?> recordAutocompleteSelection(
+        @RequestParam String word
+    ) {
+        placeAutoCompleteService.recordAutocompleteSelection(word);
+        return ApiResponse.success(Success.INCREASE_AUTOCOMPLETE_SUCCESS);
     }
 }
