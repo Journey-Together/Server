@@ -28,13 +28,8 @@ public class OpenFeignConfig {
     Logger.Level feignLoggerLevel() {
         return Logger.Level.BASIC;
     }
-
-
-    @Bean
-    public Encoder feignEncoder() {
-        return new SpringEncoder(HttpMessageConverters::new);
-    }
-
+    @Bean Encoder feignEncoder(ObjectMapper m) { return new JacksonEncoder(m); }
+    @Bean Decoder feignDecoder(ObjectMapper m) { return new JacksonDecoder(m); }
     @Bean
     public QueryMapEncoder queryMapEncoder() {
         return new BeanQueryMapEncoder();
@@ -49,12 +44,6 @@ public class OpenFeignConfig {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper;
     }
-
-    @Bean
-    public Decoder feignDecoder() {
-        return new JacksonDecoder(objectMapper());
-    }
-
     @Bean
     public Retryer feignRetryer() {
         // period = 100ms, maxPeriod = 1s, maxAttempts = 3
