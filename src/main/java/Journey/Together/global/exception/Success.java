@@ -55,6 +55,7 @@ public enum Success {
 	UPDATE_MY_PLACE_REVIEW_SUCCESS(HttpStatus.OK, "나의 여행지 후기 수정 성공"),
 	SEARCH_SUCCESS(HttpStatus.OK, "검색 성공"),
 	SEARCH_COMPLETE_SUCCESS(HttpStatus.OK, "검색어 자동완성 성공"),
+	INCREASE_AUTOCOMPLETE_SUCCESS(HttpStatus.OK, "자동완성 검색어 인기도 증가"),
 	SEARCH_PLACE_LIST_SUCCESS(HttpStatus.OK, "여행지 검색 성공"),
 	PARSING_OG_SUCCESS(HttpStatus.OK, "og 데이터 파싱 결과입니다. 크롤링을 막은 페이지는 기본이미지가 나옵니다."),
 	UPDATE_PUSH_ALLOWED_SUCCESS(HttpStatus.OK, "푸시알림 수정 성공"),
