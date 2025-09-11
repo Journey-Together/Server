@@ -14,11 +14,13 @@ import java.util.Optional;
 public interface PlaceRepository extends JpaRepository<Place, Long>, PlaceRepositoryCustom {
     @Query(value = "SELECT * FROM place p " +
         "WHERE p.first_img IS NOT NULL AND TRIM(p.first_img) <> '' " +
+        "AND p.first_img != 'https://daongil.s3.ap-northeast-2.amazonaws.com/empty_img.jpg'"+
         "ORDER BY RAND() LIMIT :count", nativeQuery = true)
     List<Place> findRandomProducts(@Param("count") int count);
 
     @Query(value = "SELECT * FROM place p " +
         "WHERE p.first_img IS NOT NULL AND TRIM(p.first_img) <> '' " +
+        "AND p.first_img != 'https://daongil.s3.ap-northeast-2.amazonaws.com/empty_img.jpg'"+
         "AND area_code = :areacode AND sigungu_code = :sigungucode " +
         "ORDER BY RAND() LIMIT :count", nativeQuery = true)
     List<Place> findAroundProducts(@Param("areacode") String areacode,
