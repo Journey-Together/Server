@@ -16,7 +16,8 @@
 
 
 ## 📦 ERD
-<img width="645" alt="스크린샷 2024-07-04 오전 1 20 53" src="https://github.com/Journey-Together/Server/assets/92644651/411cd2af-65cc-48bb-9125-05e5a0d0ff4b">
+<img width="614" height="657" alt="스크린샷 2025-10-23 오후 6 48 20" src="https://github.com/user-attachments/assets/feaa3911-0099-4b3f-8542-5784fa84da55" />
+
 
 <br><br>
 
